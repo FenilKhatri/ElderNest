@@ -1,9 +1,38 @@
-import React from 'react'
+const variants = {
+  primary: "bg-[#2A7DE1] text-white hover:bg-[#1f6cc4] cursor-pointer",
+  secondary: "bg-[#FF3366]/20 text-[#FF3366] hover:bg-[#e62e5c]/30 cursor-pointer",
+  outline: "border border-slate-200 text-slate-800 hover:bg-[#2A7DE1] hover:text-white cursor-pointer",
+  ghost: "text-slate-600 hover:bg-slate-100 cursor-pointer",
+};
 
-const Button = () => {
+const sizes = {
+  sm: "px-3 py-1.5 text-sm",
+  md: "px-4 py-2 text-sm",
+  lg: "px-6 py-3 text-base",
+};
+
+const Button = ({
+  children,
+  variant = "primary",
+  size = "md",
+  className = "",
+  ...props
+}) => {
   return (
-    <div>Button</div>
-  )
-}
+    <button
+      className={`
+        inline-flex items-center justify-center gap-2
+        rounded-md font-semibold
+        transition duration-200
+        ${variants[variant]}
+        ${sizes[size]}
+        ${className}
+      `}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
 
-export default Button
+export default Button;
