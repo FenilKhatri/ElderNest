@@ -5,6 +5,7 @@ import Login from "../components/forms/Login";
 import Register from "../components/forms/Register";
 import CareGiverLogin from "../components/forms/CareGiverLogin";
 import CareGiverRegister from "../components/forms/CareGiverRegister";
+
 const Home = lazy(() => import("../pages/public/Home"));
 const About = lazy(() => import("../pages/public/About"));
 const ContactUs = lazy(() => import("../pages/public/ContactUs"));
@@ -16,13 +17,14 @@ const Services = lazy(() => import("../pages/public/Services"));
 const ServiceDetails = lazy(() => import("../pages/public/ServiceDetails"));
 const PageNotFound = lazy(() => import("../pages/public/PageNotFound"));
 
-const AppRoutes = () => {
+const AppRoutes = ({ theme, toggleTheme }) => {
   return (
     <Router>
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
-          <Route element={<PublicLayout />}>
-            {/* Public Routes */}
+          <Route
+            element={<PublicLayout theme={theme} toggleTheme={toggleTheme} />}
+          >
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<ContactUs />} />

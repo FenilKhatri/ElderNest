@@ -1,7 +1,9 @@
 const variants = {
   primary: "bg-[#2A7DE1] text-white hover:bg-[#1f6cc4] cursor-pointer",
-  secondary: "bg-[#FF3366]/20 text-[#FF3366] hover:bg-[#e62e5c]/30 cursor-pointer",
-  outline: "border border-slate-200 text-slate-800 hover:bg-[#2A7DE1] hover:text-white cursor-pointer",
+  secondary:
+    "bg-[#FF3366]/30 text-[#FF3366] hover:bg-[#FF3366]/10 dark:border-[#ff6b8f] dark:text-[#ff6b8f] dark:hover:bg-[#FF3366]/20 cursor-pointer transition duration-300 dark:bg-transparent dark:border",
+  outline:
+    "border border-slate-200 text-slate-800 hover:bg-[#2A7DE1] hover:text-white cursor-pointer",
   ghost: "text-slate-600 hover:bg-slate-100 cursor-pointer",
 };
 

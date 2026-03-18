@@ -1,27 +1,24 @@
 import Logo from "../../assets/Logo.png";
 import { NavLink } from "react-router-dom";
-import { User, Menu, X } from "lucide-react";
+import { User, Menu, X, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 import Button from "../common/Button";
 
-const Navbar = () => {
+const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const activeLinks = ({ isActive }) =>
-  `p-2 font-semibold transition duration-300
-  ${
-    isActive
-      ? "border-b-4 border-[#2A7DE1] text-[#2A7DE1]"
-      : "text-slate-600 hover:text-[#FF3366] hover:border-b-4 hover:border-[#FF3366]"
-  }`;
+    `p-2 font-semibold transition duration-300 ${
+      isActive
+        ? "border-b-4 border-[#2A7DE1] text-[#2A7DE1]"
+        : "text-slate-600 dark:text-slate-300 hover:text-[#FF3366] hover:border-b-4 hover:border-[#FF3366]"
+    }`;
 
   return (
-    <div className="bg-white/80 backdrop-blur-md shadow-md sticky top-0">
+    <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-md sticky top-0 z-50 transition-colors duration-300">
       <nav className="max-w-7xl mx-auto flex items-center justify-between p-3">
-        {/* Logo */}
         <img src={Logo} alt="Logo" className="w-16" />
 
-        {/* Desktop Nav */}
         <ul className="hidden md:flex items-center gap-3">
           <li>
             <NavLink to="/" className={activeLinks}>
@@ -50,30 +47,48 @@ const Navbar = () => {
           </li>
         </ul>
 
-        {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <NavLink
-            to="/login"
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-100 transition"
           >
-            <Button><User size={18} />Login</Button>
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+
+          <NavLink to="/login">
+            <Button>
+              <User size={18} />
+              Login
+            </Button>
           </NavLink>
 
-          <NavLink
-            to="/caregiver-login"
-          >
-            <Button variant="secondary"><User size={18} />Become Caregiver</Button>
+          <NavLink to="/caregiver-login">
+            <Button variant="secondary">
+              <User size={18} />
+              Become Caregiver
+            </Button>
           </NavLink>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+        <div className="md:hidden flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-100 transition"
+          >
+            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+
+          <button
+            className="text-slate-800 dark:text-white"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
       </nav>
 
-      {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden px-6 pb-6">
+        <div className="md:hidden px-6 pb-6 bg-white dark:bg-slate-900 transition-colors duration-300">
           <ul className="flex flex-col gap-3">
             <NavLink
               to="/"
@@ -122,7 +137,7 @@ const Navbar = () => {
 
               <NavLink
                 to="/caregiver-login"
-                className="flex items-center gap-2 bg-[#FF3366]/10 text-[#FF3366] font-semibold px-4 py-2 rounded-md hover:bg-[#e62e5c] transition"
+                className="flex items-center gap-2 bg-[#FF3366]/10 text-[#FF3366] dark:bg-[#FF3366] dark:text-[#FF3366] font-semibold px-4 py-2 rounded-md hover:bg-[#e62e5c] transition"
                 onClick={() => setMenuOpen(false)}
               >
                 <User size={18} /> Become Caregiver

@@ -6,8 +6,10 @@ import { Clock3 } from "lucide-react";
 import { HeartHandshake } from "lucide-react";
 
 const HeroSection = () => {
-
-    const labelDesign = "w-full md:w-fit text-center px-3 py-2 rounded-md bg-slate-100 font-semibold text-slate-800";
+  const labelDesign =
+    "w-full md:w-fit text-center px-3 py-2 rounded-md bg-slate-100 font-semibold text-slate-800 dark:bg-slate-800 dark:text-slate-100";
+  const featureText =
+    "text-slate-700 dark:text-slate-300 font-medium transition duration-300";
 
   return (
     <>
@@ -17,7 +19,7 @@ const HeroSection = () => {
           <div className="w-fit bg-blue-100 text-slate-800 font-semibold px-3 py-2 rounded-lg">
             Compassionate in-home care
           </div>
-          <p className="text-2xl lg:text-5xl text-center md:text-left font-bold text-slate-800 max-w-lg">
+          <p className="text-2xl lg:text-5xl text-center md:text-left font-bold text-slate-800 dark:text-blue-100 max-w-lg">
             Trusted Home Healthcare for Your Loved Ones
           </p>
           <p className="text-slate-500 text-justify text-lg max-w-lg">
@@ -27,40 +29,40 @@ const HeroSection = () => {
           </p>
           <div className="w-full flex flex-col md:flex-row items-center justify-start gap-3">
             <NavLink to="/caregivers-login" className="w-full md:w-fit">
-              <Button size="lg" className="w-full">Book Care Now</Button>
+              <Button size="lg" className="w-full">
+                Book Care Now
+              </Button>
             </NavLink>
             <NavLink to="*" className="w-full md:w-fit">
-              <Button variant="outline" size="lg" className="w-full">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full dark:text-white"
+              >
                 Request Call Back
               </Button>
             </NavLink>
           </div>
           <div className="flex items-center justify-start gap-3">
             <div className="flex items-center gap-5">
-              <div>
+              <div className={featureText}>
                 <ShieldCheck size={18} className="text-emerald-500" />
                 <p>Verified caregivers</p>
               </div>
-              <div>
+              <div className={featureText}>
                 <Clock3 size={18} className="text-blue-500" />
                 <p>24/7 Support</p>
               </div>
-              <div>
+              <div className={featureText}>
                 <HeartHandshake size={18} className="text-teal-500" />
                 <p>Trusted by families</p>
               </div>
             </div>
           </div>
           <div className="w-full md:w-fit flex flex-col md:flex-row items-center justify-start gap-3">
-            <p className={labelDesign}>
-              Google Services
-            </p>
-            <p className={labelDesign}>
-              Justdial Trusted
-            </p>
-            <p className={labelDesign}>
-              Lybrate Listed
-            </p>
+            <p className={labelDesign}>Google Services</p>
+            <p className={labelDesign}>Justdial Trusted</p>
+            <p className={labelDesign}>Lybrate Listed</p>
           </div>
         </div>
         {/* Hero Right */}
