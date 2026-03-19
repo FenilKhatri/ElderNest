@@ -2,23 +2,17 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import Button from "../../components/common/Button";
-import { aboutCardData } from "../../data/aboutCards";
+import {
+  cardData,
+  stats,
+  testimonials,
+  serviceItems,
+  processSteps,
+  visionItems,
+} from "../../data/aboutPage";
 import AboutPagePhoto1 from "../../assets/images/AboutUs/AboutPagePhoto1.jpeg";
 import AboutPagePhoto2 from "../../assets/images/AboutUs/AboutPagePhoto2.png";
-import {
-  Accessibility,
-  ArrowRight,
-  BadgeCheck,
-  Clock3,
-  Cpu,
-  Handshake,
-  HeartHandshake,
-  HeartPulse,
-  Quote,
-  ShieldCheck,
-  Stethoscope,
-  UserCheck,
-} from "lucide-react";
+import { HeartHandshake, Quote, ShieldCheck, Stethoscope } from "lucide-react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -46,115 +40,6 @@ const scaleIn = {
     transition: { duration: 0.45, ease: "easeOut" },
   },
 };
-
-const stats = [
-  { value: "10k+", label: "Families Served" },
-  { value: "2k+", label: "Verified Caregivers" },
-  { value: "50+", label: "Cities Covered" },
-  { value: "98%", label: "Satisfaction Rate" },
-];
-
-const visionItems = [
-  {
-    title: "Accessibility",
-    icon: Accessibility,
-    iconClass:
-      "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
-  },
-  {
-    title: "Trust",
-    icon: Handshake,
-    iconClass:
-      "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
-  },
-  {
-    title: "Technology",
-    icon: Cpu,
-    iconClass:
-      "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
-  },
-  {
-    title: "Care",
-    icon: HeartPulse,
-    iconClass:
-      "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
-  },
-];
-
-const processSteps = [
-  {
-    number: "01",
-    title: "Register",
-    description: "Create an account and set up a patient profile in minutes.",
-    icon: BadgeCheck,
-  },
-  {
-    number: "02",
-    title: "Choose Service",
-    description: "Select the healthcare service that best fits your needs.",
-    icon: Stethoscope,
-  },
-  {
-    number: "03",
-    title: "Select Caregiver",
-    description: "Browse verified professionals and choose with confidence.",
-    icon: UserCheck,
-  },
-  {
-    number: "04",
-    title: "Receive Care",
-    description: "Get compassionate care delivered safely at home.",
-    icon: HeartHandshake,
-  },
-];
-
-const serviceItems = [
-  "Home Nursing Care",
-  "Elderly Daily Assistance",
-  "Physiotherapy at Home",
-  "Post-Hospitalization Care",
-  "Medical Attendants",
-  "Dementia & Memory Support",
-];
-
-const professionalHighlights = [
-  {
-    title: "Verified Identity",
-    description: "Every professional undergoes strict identity verification.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Trained & Certified",
-    description: "Caregivers are trained for medical and non-medical support.",
-    icon: Stethoscope,
-  },
-  {
-    title: "Responsive Support",
-    description: "Our team stays available for guidance and urgent help.",
-    icon: Clock3,
-  },
-];
-
-const testimonials = [
-  {
-    name: "Ritika Shah",
-    role: "Daughter of a patient",
-    review:
-      "The caregiver was patient, skilled, and incredibly kind. We finally felt at peace knowing my mother was in safe hands.",
-  },
-  {
-    name: "Amit Verma",
-    role: "Family caregiver",
-    review:
-      "The process was simple, transparent, and fast. We found the right professional much quicker than expected.",
-  },
-  {
-    name: "Neha Mehta",
-    role: "Working professional",
-    review:
-      "Reliable support, professional communication, and genuine care. It felt like a modern healthcare service we could trust.",
-  },
-];
 
 const CardSkeleton = () => {
   return (
@@ -439,7 +324,7 @@ const About = () => {
               ? Array.from({ length: 6 }).map((_, index) => (
                   <CardSkeleton key={index} />
                 ))
-              : aboutCardData.map((card, index) => (
+              : cardData.map((card, index) => (
                   <motion.div key={index} variants={fadeUp} className="h-full">
                     <div className="group relative h-full min-h-60 overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur p-6 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition duration-300">
                       <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-blue-500 via-cyan-400 to-indigo-500 scale-x-0 group-hover:scale-x-100 origin-left transition duration-300" />
@@ -524,7 +409,7 @@ const About = () => {
               viewport={{ once: true, amount: 0.15 }}
               className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-10"
             >
-              {professionalHighlights.map((item, index) => {
+              {cardData.map((item, index) => {
                 const Icon = item.icon;
                 return (
                   <motion.div
