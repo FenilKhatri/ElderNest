@@ -20,7 +20,7 @@ const PageNotFound = lazy(() => import("../pages/public/PageNotFound"));
 const AppRoutes = ({ theme, toggleTheme }) => {
   return (
     <Router>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense>
         <Routes>
           <Route
             element={<PublicLayout theme={theme} toggleTheme={toggleTheme} />}

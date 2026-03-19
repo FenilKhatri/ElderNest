@@ -1,7 +1,7 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
-const AppRoute = lazy(() => import("./routes/AppRoutes"));
+import AppRoute from "./routes/AppRoutes";
 
 function App() {
   const [theme, setTheme] = useState(() => {
@@ -29,9 +29,7 @@ function App() {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
       <AppRoute theme={theme} toggleTheme={toggleTheme} />
-    </Suspense>
   );
 }
 
