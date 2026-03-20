@@ -3,33 +3,7 @@ import { motion } from "framer-motion";
 import HeroBg from "../../assets/images/Other/HeroBG.png";
 import Button from "../common/Button";
 import { ShieldCheck, Clock3, HeartHandshake, ArrowRight } from "lucide-react";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: "easeOut" },
-  },
-};
-
-const stagger = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.12,
-    },
-  },
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.96 },
-  show: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.45, ease: "easeOut" },
-  },
-};
+import { fadeUp, scaleIn, slideLeft, slideRight, stagger } from "../../animations/motionVariants";
 
 const HeroSection = () => {
   const badgeStyle =
@@ -60,7 +34,7 @@ const HeroSection = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-10">
           {/* Hero Left */}
           <motion.div
-            variants={fadeUp}
+            variants={slideLeft}
             className="flex flex-col items-center md:items-start space-y-8 max-w-3xl"
           >
             {/* Top Badge */}
@@ -86,9 +60,10 @@ const HeroSection = () => {
               <NavLink to="/caregivers-login" className="w-full sm:w-fit">
                 <Button
                   size="lg"
-                  className="w-full shadow-lg shadow-blue-500/20"
+                  className="w-full flex items-center justify-center gap-5 shadow-lg shadow-blue-500/20"
                 >
                   Book Care Now
+                  <ArrowRight />
                 </Button>
               </NavLink>
 

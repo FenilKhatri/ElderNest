@@ -10,7 +10,12 @@ import {
     HeartPulse,
     Handshake,
     Stethoscope, 
-    UserCheck
+    UserCheck,
+    StethoscopeIcon,
+    HandHeart,
+    Dumbbell,
+    ClipboardCheck,
+    Brain
 } from "lucide-react";
 
 export const cardData = [
@@ -51,7 +56,6 @@ export const cardData = [
         icon: HeartHandshake,
     },
 ];
-
 
 export const stats = [
     { value: "10k+", label: "Families Served" },
@@ -115,12 +119,30 @@ export const processSteps = [
 ];
 
 export const serviceItems = [
-    "Home Nursing Care",
-    "Elderly Daily Assistance",
-    "Physiotherapy at Home",
-    "Post-Hospitalization Care",
-    "Medical Attendants",
-    "Dementia & Memory Support",
+    {
+        name: "Home Nursing Care",
+        icon: StethoscopeIcon
+    },
+    {
+        name: "Elderly Daily Assistance",
+        icon: HandHeart
+    }, 
+    {
+        name: "Physiotherapy at Home",
+        icon: Dumbbell
+    },
+    {
+        name: "Post-Hospitalization Care",
+        icon: ClipboardCheck
+    },
+    {
+        name: "Medical Attendants",
+        icon: UserCheck
+    },
+    {
+        name: "Dementia & Memory Support",
+        icon: Brain
+    }
 ];
 
 export const testimonials = [
