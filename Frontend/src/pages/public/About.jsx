@@ -6,9 +6,9 @@ import Services from "../../components/sections/about/Services";
 import Vision from "../../components/sections/about/Vision";
 import WhyChooseUs from "../../components/sections/about/WhyChooseUs";
 import Professionals from "../../components/sections//about/Professionals";
-import Process from "../../components/sections/about/Process";
 import Testimonials from "../../components/sections/about/Testimonials";
 import CTA from "../../components/sections/about/CTA";
+import Process from "../../components/ui/Process";
 
 const About = () => {
   const [loading, setLoading] = useState(true);

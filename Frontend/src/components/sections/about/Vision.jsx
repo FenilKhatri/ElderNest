@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn, stagger } from "../../../animations/motionVariants";
 import { visionItems } from "../../../data/aboutPage";
+import TitleAndDescription from "../../ui/TitleAndDescription";
 
 const Vision = ({ Title, Description, SubDescription }) => {
   const visionCardClass =
@@ -23,19 +24,10 @@ const Vision = ({ Title, Description, SubDescription }) => {
             {Title}
           </motion.p>
 
-          <motion.h2
-            variants={fadeUp}
-            className="text-2xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center leading-tight"
-          >
-            {Description}
-          </motion.h2>
-
-          <motion.p
-            variants={fadeUp}
-            className="max-w-2xl mx-auto text-slate-600 dark:text-slate-400 text-center text-lg leading-8"
-          >
-            {SubDescription}
-          </motion.p>
+          <TitleAndDescription
+            Description={Description}
+            SubDescription={SubDescription}
+          />
 
           <motion.div
             variants={stagger}

@@ -1,7 +1,11 @@
 import { ChevronDownCircle, ChevronUpCircle } from "lucide-react";
-import { faqs } from "../../data/FAQData";
+import { faqs } from "../../../data/FAQData";
 import { motion } from "framer-motion";
-import { containerVariants, itemVariants } from "../../animations/motionVariants";
+import {
+  containerVariants,
+  itemVariants,
+} from "../../../animations/motionVariants";
+import TitleAndDescription from "../../ui/TitleAndDescription";
 
 const FAQ = () => {
   return (
@@ -10,7 +14,7 @@ const FAQ = () => {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.2 }}
-      className="max-w-4xl mx-auto px-4 py-10"
+      className="max-w-4xl mx-auto px-5 py-10"
     >
       {/* Heading */}
       <motion.div
@@ -21,23 +25,18 @@ const FAQ = () => {
           FAQ
         </p>
 
-        <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-          Frequently Asked Questions
-        </h2>
-
-        <p className="max-w-2xl mx-auto text-slate-500 dark:text-slate-400">
-          Find answers to common questions about ElderNest care services,
-          response time, caregiver support, and service availability.
-        </p>
+        <TitleAndDescription
+          Description="Frequently Asked Questions"
+          SubDescription="Find answers to common questions about ElderNest care services, response time, caregiver support, and service availability."
+          className="text-left md:text-center"
+        />
       </motion.div>
 
       {/* FAQ List */}
       <div className="space-y-4">
         {faqs.map((faq, index) => (
           <motion.div key={index} variants={itemVariants}>
-            <details
-              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 open:shadow-md dark:border-slate-800 dark:bg-slate-950"
-            >
+            <details className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 open:shadow-md dark:border-slate-800 dark:bg-slate-950">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
                 <span className="text-left text-base md:text-lg font-semibold text-slate-800 dark:text-slate-100">
                   {faq.question}

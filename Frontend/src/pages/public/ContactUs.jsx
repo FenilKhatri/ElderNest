@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
-import Hero from "../../components/contact/Hero";
+import Hero from "../../components/sections/contact/Hero";
 import { slideLeft, slideRight, stagger } from "../../animations/motionVariants";
-import Form from "../../components/contact/Form";
-import FormBG from "../../components/contact/FormBG";
-import GetInTouch from "../../components/contact/GetInTouch";
-import FAQ from "../../components/contact/FAQ";
+import Form from "../../components/forms/contact/ContactForm";
+import FormBG from "../../components/sections/contact/FormBG";
+import GetInTouch from "../../components/sections/contact/GetInTouch";
+import FAQ from "../../components/sections/contact/FAQ";
 
 const ContactUs = () => {
   return (

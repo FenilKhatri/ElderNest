@@ -45,7 +45,7 @@ const HeroSection = () => {
             Compassionate in-home care
           </div>
 
-          <h1 className="max-w-2xl text-center text-3xl font-bold leading-tight tracking-tight text-slate-800 dark:text-white md:text-left lg:text-6xl">
+          <h1 className="max-w-2xl text-3xl font-bold leading-tight tracking-tight text-slate-800 dark:text-white text-left lg:text-6xl">
             Trusted Home{" "}
             <span className="relative inline-block text-emerald-500">
               Healthcare
@@ -67,7 +67,7 @@ const HeroSection = () => {
             for Your Loved Ones
           </h1>
 
-          <p className="max-w-xl text-center text-lg leading-8 text-slate-600 dark:text-slate-400 md:text-left">
+          <p className="max-w-xl text-lg leading-8 text-slate-600 dark:text-slate-400 text-left">
             Connect with verified nurses, caregivers, physiotherapists, and
             elderly care attendants who deliver compassionate and reliable care
             right at home.
@@ -95,7 +95,7 @@ const HeroSection = () => {
             </NavLink>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-5 md:justify-start">
+          <div className="flex flex-wrap items-center justify-start gap-5">
             <div className={featureItem}>
               <ShieldCheck size={18} className="text-emerald-500" />
               <span>Verified caregivers</span>

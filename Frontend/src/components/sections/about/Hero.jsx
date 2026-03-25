@@ -17,7 +17,7 @@ const Hero = ({ Slogan, Title, Description }) => {
       <div className="flex flex-col md:flex-row items-center justify-between gap-10">
         <motion.div
           variants={fadeUp}
-          className="flex flex-col items-center md:items-start space-y-8 max-w-3xl"
+          className="flex flex-col items-start space-y-8 max-w-3xl"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 dark:border-blue-900 bg-white/80 dark:bg-slate-900/80 backdrop-blur px-4 py-2 shadow-sm">
             <ShieldCheck className="w-4 h-4 text-blue-600" />
@@ -26,11 +26,11 @@ const Hero = ({ Slogan, Title, Description }) => {
             </span>
           </div>
 
-          <h1 className="max-w-2xl text-3xl lg:text-6xl font-bold text-slate-900 dark:text-white text-center md:text-left leading-tight tracking-tight">
+          <h1 className="max-w-2xl text-3xl lg:text-6xl font-bold text-slate-900 dark:text-white text-left leading-tight tracking-tight">
             {Title}
           </h1>
 
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-xl text-center md:text-left leading-8">
+          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-xl text-left leading-8">
             {Description}
           </p>
 
@@ -55,11 +55,12 @@ const Hero = ({ Slogan, Title, Description }) => {
 
         <motion.div variants={slideRight} className="relative">
           <div className="absolute inset-0 rounded-4xl bg-linear-to-tr from-blue-500/20 to-cyan-400/20 blur-2xl" />
-          <img
+          <motion.img
             src={AboutPagePhoto1}
             variants={scaleIn}
             initial="hidden"
             whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
             alt="Healthcare service"
             className="relative w-full max-w-xl rounded-4xl shadow-2xl border border-white/40 dark:border-slate-800"
           />

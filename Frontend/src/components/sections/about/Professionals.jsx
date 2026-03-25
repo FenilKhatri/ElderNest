@@ -1,6 +1,8 @@
 import { motion, stagger } from "framer-motion";
 import { cardData } from "../../../data/aboutPage";
 import { fadeUp } from "../../../animations/motionVariants";
+import TitleText from "../../ui/TitleText";
+import TitleAndDescription from "../../ui/TitleAndDescription";
 
 const Professionals = ({ Title, Description, SubDescription }) => {
   return (
@@ -8,15 +10,12 @@ const Professionals = ({ Title, Description, SubDescription }) => {
       <section className="bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur">
         <div className="max-w-7xl mx-auto px-5 py-16">
           <div className="max-w-2xl mx-auto flex flex-col space-y-6 text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">
-              {Title}
-            </p>
-            <h2 className="text-2xl lg:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
-              {Description}
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-lg leading-8">
-              {SubDescription}
-            </p>
+            <TitleText children={Title} className="text-left md:text-center" />
+            <TitleAndDescription
+              Description={Description}
+              SubDescription={SubDescription}
+              className="text-left md:text-center"
+            />
           </div>
 
           <motion.div

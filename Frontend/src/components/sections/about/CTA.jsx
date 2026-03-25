@@ -1,7 +1,9 @@
-import { motion, stagger } from "framer-motion";
-import { fadeUp } from "../../../animations/motionVariants";
+import { motion } from "framer-motion";
+import { fadeUp, stagger } from "../../../animations/motionVariants";
 import { NavLink } from "react-router-dom";
 import Button from "../../ui/Button";
+import TitleText from "../../ui/TitleText";
+import TitleAndDescription from "../../ui/TitleAndDescription";
 
 const CTA = ({ Title, Description, SubDescription }) => {
   return (
@@ -19,15 +21,11 @@ const CTA = ({ Title, Description, SubDescription }) => {
               variants={fadeUp}
               className="max-w-2xl mx-auto flex flex-col space-y-6 text-center"
             >
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">
-                {Title}
-              </p>
-              <h2 className="text-2xl lg:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
-                {Description}
-              </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-lg leading-8">
-                {SubDescription}
-              </p>
+              <TitleText children={Title} />
+              <TitleAndDescription
+                Description={Description}
+                SubDescription={SubDescription}
+              />
             </motion.div>
 
             <motion.div

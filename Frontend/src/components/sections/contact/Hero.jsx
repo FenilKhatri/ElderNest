@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { fadeUp } from "../../animations/motionVariants";
+import { fadeUp } from "../../../animations/motionVariants";
+import TitleAndDescription from "../../ui/TitleAndDescription";
 
 const Hero = ({ Title, Description }) => {
   return (
@@ -11,13 +12,11 @@ const Hero = ({ Title, Description }) => {
         viewport={{ once: true, amount: 0.2 }}
         className="flex flex-col items-center justify-center space-y-5 px-5 py-10 md:py-16"
       >
-        <h2 className="text-2xl lg:text-5xl font-bold text-slate-900 dark:text-white text-center leading-tight tracking-tight">
-          {Title}
-        </h2>
-
-        <p className="max-w-3xl text-slate-600 dark:text-slate-400 text-lg text-center leading-8">
-          {Description}
-        </p>
+        <TitleAndDescription
+          Description={Title}
+          SubDescription={Description}
+          className="text-left md:text-center"
+        />
       </motion.section>
     </>
   );

@@ -2,37 +2,7 @@ import { User } from "lucide-react";
 import HeroBg from "../../..//assets/images/Home/HeroBG.png";
 import { motion } from "framer-motion";
 import { fadeUp, slideRight } from "../../../animations/motionVariants";
-
-const doctors = [
-  {
-    name: "Dr. Sarah Lee",
-    role: "Cardiologist",
-    position: "top-20 left-40",
-    iconBg: "bg-emerald-500/20",
-    iconText: "text-emerald-400",
-  },
-  {
-    name: "Dr. John Smith",
-    role: "General Physician",
-    position: "top-56 left-16",
-    iconBg: "bg-cyan-500/20",
-    iconText: "text-cyan-400",
-  },
-  {
-    name: "Dr. Emily Watson",
-    role: "Neurologist",
-    position: "top-[27rem] left-16",
-    iconBg: "bg-violet-500/20",
-    iconText: "text-violet-400",
-  },
-  {
-    name: "Dr. Michael Ray",
-    role: "Pediatrician",
-    position: "top-[38rem] left-40",
-    iconBg: "bg-blue-500/20",
-    iconText: "text-blue-400",
-  },
-];
+import { doctors } from "../../../data/homePage";
 
 const HeroImage = () => {
   return (
@@ -40,7 +10,7 @@ const HeroImage = () => {
       variants={fadeUp}
       className="relative hidden lg:block w-full min-h-190"
     >
-      {doctors.map((doctor, index) => (
+      {doctors?.map((doctor, index) => (
         <motion.div
           key={doctor.name}
           initial={{ opacity: 0, y: 30 }}

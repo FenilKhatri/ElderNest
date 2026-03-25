@@ -15,8 +15,27 @@ import {
     HandHeart,
     Dumbbell,
     ClipboardCheck,
-    Brain
+    Brain,
+    ShieldCheck
 } from "lucide-react";
+
+export const missionDate = [
+    {
+        icon: ShieldCheck,
+        Title: "Safety",
+        Theme: "bg-blue-500"
+    },
+    {
+        icon: HeartHandshake,
+        Title: "Compassion",
+        Theme: "bg-red-500"
+    }, 
+    {
+        icon: Stethoscope,
+        Title: "Professional Care",
+        Theme: "bg-emerald-500"
+    }
+]
 
 export const cardData = [
     {

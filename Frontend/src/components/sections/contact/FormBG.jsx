@@ -1,5 +1,5 @@
-import ContactBG1 from "../../assets/images/Other/contactBG1.png";
-import ContactBG2 from "../../assets/images/Other/contactBG2.png";
+import ContactBG1 from "../../../assets/images/Other/contactBG1.png";
+import ContactBG2 from "../../../assets/images/Other/contactBG2.png";
 
 const FormBG = () => {
   return (
