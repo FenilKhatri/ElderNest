@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import BackgroundGlow from "../../components/about/BackgroundGlow";
-import Hero from "../../components/about/Hero";
-import Mission from "../../components/about/Mission";
-import Services from "../../components/about/Services";
-import Vision from "../../components/about/Vision";
-import WhyChooseUs from "../../components/about/WhyChooseUs";
-import Professionals from "../../components/about/Professionals";
-import Process from "../../components/about/Process";
-import Testimonials from "../../components/about/Testimonials";
-import CTA from "../../components/about/CTA";
+import BackgroundGlow from "../../components/sections/about/BackgroundGlow";
+import Hero from "../../components/sections/about/Hero";
+import Mission from "../../components/sections/about/Mission";
+import Services from "../../components/sections/about/Services";
+import Vision from "../../components/sections/about/Vision";
+import WhyChooseUs from "../../components/sections/about/WhyChooseUs";
+import Professionals from "../../components/sections//about/Professionals";
+import Process from "../../components/sections/about/Process";
+import Testimonials from "../../components/sections/about/Testimonials";
+import CTA from "../../components/sections/about/CTA";
 
 const About = () => {
   const [loading, setLoading] = useState(true);

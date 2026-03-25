@@ -1,6 +1,6 @@
 import { motion, stagger } from "framer-motion";
-import { cardData } from "../../data/aboutPage";
-import { fadeUp } from "../../animations/motionVariants";
+import { cardData } from "../../../data/aboutPage";
+import { fadeUp } from "../../../animations/motionVariants";
 
 const Professionals = ({ Title, Description, SubDescription }) => {
   return (

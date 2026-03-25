@@ -1,6 +1,6 @@
-import { fadeUp, scaleIn, stagger } from "../../animations/motionVariants";
+import { fadeUp, scaleIn, stagger } from "../../../animations/motionVariants";
 import { motion } from "framer-motion";
-import AboutPagePhoto2 from "../../assets/images/AboutUs/AboutPagePhoto2.png";
+import AboutPagePhoto2 from "../../../assets/images/AboutUs/AboutPagePhoto2.png";
 import { HeartHandshake, ShieldCheck, Stethoscope } from "lucide-react";
 
 const Mission = ({ Title, Description, SubDescription }) => {

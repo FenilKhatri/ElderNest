@@ -1,8 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
-import Button from "../common/Button";
+import Button from "../../ui/Button";
 import { ShieldCheck, Clock3, HeartHandshake, ArrowRight } from "lucide-react";
-import { slideLeft, stagger } from "../../animations/motionVariants";
+import { slideLeft, stagger } from "../../../animations/motionVariants";
 import HeroImage from "./HeroImage";
 
 const HeroSection = () => {

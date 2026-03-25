@@ -1,7 +1,7 @@
 import { User } from "lucide-react";
-import HeroBg from "../../assets/images/Other/HeroBG.png";
+import HeroBg from "../../..//assets/images/Home/HeroBG.png";
 import { motion } from "framer-motion";
-import { fadeUp, slideRight } from "../../animations/motionVariants";
+import { fadeUp, slideRight } from "../../../animations/motionVariants";
 
 const doctors = [
   {

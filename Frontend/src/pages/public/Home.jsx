@@ -1,4 +1,4 @@
-import HeroSection from "../../components/reusable components/HeroSection"
+import HeroSection from "../../components/sections/home/HeroSection"
 const Home = () => {
   return (
     <div>

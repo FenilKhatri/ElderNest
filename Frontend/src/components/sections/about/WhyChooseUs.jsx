@@ -1,7 +1,7 @@
-import { fadeUp, stagger } from '../../animations/motionVariants';
+import { fadeUp, stagger } from '../../../animations/motionVariants';
 import { motion } from 'framer-motion';
-import CardSkeleton from '../common/skeleton/CardSkeleton';
-import { cardData } from '../../data/aboutPage';
+import CardSkeleton from '../../feedback/skeleton/CardSkeleton';
+import { cardData } from '../../../data/aboutPage';
 
 const WhyChooseUs = ({ loading, Title, Description, SubDescription }) => {
 

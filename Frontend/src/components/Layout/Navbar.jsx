@@ -2,7 +2,7 @@ import Logo from "../../assets/Logo.png";
 import { NavLink } from "react-router-dom";
 import { User, Menu, X, Moon, Sun } from "lucide-react";
 import { useState } from "react";
-import Button from "../common/Button";
+import Button from "../ui/Button";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);

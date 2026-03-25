@@ -1,7 +1,7 @@
 import { motion, stagger } from "framer-motion";
-import { processSteps, stats } from "../../data/aboutPage";
-import { fadeUp, scaleIn } from "../../animations/motionVariants";
-import StatSkeleton from "../common/skeleton/StatSkeleton";
+import { processSteps, stats } from "../../../data/aboutPage";
+import { fadeUp, scaleIn } from "../../../animations/motionVariants";
+import StatSkeleton from "../../feedback/skeleton/StatSkeleton";
 
 const Process = ({ loading, Title, Description, SubDescription }) => {
   return (

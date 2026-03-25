@@ -1,6 +1,6 @@
 import { motion, stagger } from "framer-motion";
-import { testimonials } from "../../data/aboutPage";
-import { fadeUp } from "../../animations/motionVariants";
+import { testimonials } from "../../../data/aboutPage";
+import { fadeUp } from "../../../animations/motionVariants";
 import { Quote } from "lucide-react";
 
 const Testimonials = ({ Title, Description, SubDescription }) => {

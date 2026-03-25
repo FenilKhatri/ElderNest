@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { fadeUp, scaleIn, stagger } from "../../animations/motionVariants";
-import { visionItems } from "../../data/aboutPage";
+import { fadeUp, scaleIn, stagger } from "../../../animations/motionVariants";
+import { visionItems } from "../../../data/aboutPage";
 
 const Vision = ({ Title, Description, SubDescription }) => {
   const visionCardClass =

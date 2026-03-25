@@ -1,10 +1,10 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PublicLayout from "../components/Layout/PublicLayout";
-import Login from "../components/forms/Login";
-import Register from "../components/forms/Register";
-import CareGiverLogin from "../components/forms/CareGiverLogin";
-import CareGiverRegister from "../components/forms/CareGiverRegister";
+import Login from "../components/forms/auth/Login";
+import Register from "../components/forms/auth/Register";
+import CareGiverLogin from "../components/forms/auth/CareGiverLogin";
+import CareGiverRegister from "../components/forms/auth/CareGiverRegister";
 
 const Home = lazy(() => import("../pages/public/Home"));
 const About = lazy(() => import("../pages/public/About"));
@@ -22,6 +22,7 @@ const AppRoutes = ({ theme, toggleTheme }) => {
     <Router>
       <Suspense>
         <Routes>
+          {/* Public Routes */}
           <Route
             element={<PublicLayout theme={theme} toggleTheme={toggleTheme} />}
           >

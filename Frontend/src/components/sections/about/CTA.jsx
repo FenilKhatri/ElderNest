@@ -1,7 +1,7 @@
 import { motion, stagger } from "framer-motion";
-import { fadeUp } from "../../animations/motionVariants";
+import { fadeUp } from "../../../animations/motionVariants";
 import { NavLink } from "react-router-dom";
-import Button from "../common/Button";
+import Button from "../../ui/Button";
 
 const CTA = ({ Title, Description, SubDescription }) => {
   return (

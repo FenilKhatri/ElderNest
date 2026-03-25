@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { fadeUp, stagger } from "../../animations/motionVariants";
-import { serviceItems } from "../../data/aboutPage";
-import { HeartHandshake } from "lucide-react";
+import { fadeUp, stagger } from "../../../animations/motionVariants";
+import { serviceItems } from "../../../data/aboutPage";
 
 const Services = ({ Title, Description, SubDescription }) => {
   return (
