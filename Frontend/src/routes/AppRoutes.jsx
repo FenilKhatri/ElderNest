@@ -5,6 +5,9 @@ import Login from "../components/forms/auth/Login";
 import Register from "../components/forms/auth/Register";
 import CareGiverLogin from "../components/forms/auth/CareGiverLogin";
 import CareGiverRegister from "../components/forms/auth/CareGiverRegister";
+import AuthLayout from "../components/layout/AuthLayout";
+import TermsOfServiceLayout from "../pages/public/TermsOfService";
+import PrivacyPolicyLayout from "../pages/public/PrivacyPolicy";
 
 const Home = lazy(() => import("../pages/public/Home"));
 const About = lazy(() => import("../pages/public/About"));
@@ -35,10 +38,24 @@ const AppRoutes = ({ theme, toggleTheme }) => {
             <Route path="/caregivers/:id" element={<CaregiverDetails />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/:id" element={<ServiceDetails />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Register />} />
+            </Route>
             <Route path="/caregiver-login" element={<CareGiverLogin />} />
             <Route path="/caregiver-register" element={<CareGiverRegister />} />
+            <Route element={<TermsOfServiceLayout />}>
+              <Route
+                path="/terms-of-services"
+                element={<TermsOfServiceLayout />}
+              />
+            </Route>
+            <Route element={<PrivacyPolicyLayout />}>
+              <Route
+                path="/privacy-policy"
+                element={<PrivacyPolicyLayout />}
+              />
+            </Route>
             <Route path="*" element={<PageNotFound />} />
           </Route>
         </Routes>

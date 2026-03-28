@@ -15,7 +15,7 @@ const TitleAndDescription = ({
       </motion.div>
 
       <motion.div variants={fadeUp}>
-        <Descriptiontext>{SubDescription}</Descriptiontext>
+        <Descriptiontext center={false}>{SubDescription}</Descriptiontext>
       </motion.div>
     </div>
   );

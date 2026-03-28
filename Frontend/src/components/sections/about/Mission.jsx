@@ -8,7 +8,7 @@ const Mission = ({ Title, Description, SubDescription }) => {
   return (
     <>
       <section className="bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur md:p-16">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between p-5 gap-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start justify-between p-5 gap-10">
           <motion.div
             variants={scaleIn}
             initial="hidden"
