@@ -1,8 +1,16 @@
+import { fadeUp } from "../../../animations/motionVariants";
 import LoginBGDarkImg from "../../../assets/images/Other/LoginSignUpBG.png";
+import { motion } from "framer-motion";
 
 const LoginBG = () => {
   return (
-    <div className="relative w-full h-screen overflow-hidden rounded-3xl">
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      animate="show"
+      viewport={{ once: true, amount: 0.2 }}
+      className="relative w-full h-screen overflow-hidden rounded-3xl"
+    >
       {/* 🌈 Background Gradient Layer */}
       <div
         className="absolute inset-0 bg-linear-to-r 
@@ -97,7 +105,7 @@ const LoginBG = () => {
           </span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

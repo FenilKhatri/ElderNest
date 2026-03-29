@@ -27,6 +27,7 @@ const Vision = ({ Title, Description, SubDescription }) => {
           <TitleAndDescription
             Description={Description}
             SubDescription={SubDescription}
+            className="space-y-6 text-center max-w-2xl mx-auto"
           />
 
           <motion.div

@@ -40,7 +40,7 @@ const Mission = ({ Title, Description, SubDescription }) => {
             <TitleAndDescription
               Description={Description}
               SubDescription={SubDescription}
-              className="text-start"
+              className="w-full items-start space-y-6"
             />
 
             <motion.div
@@ -48,7 +48,7 @@ const Mission = ({ Title, Description, SubDescription }) => {
               className="w-full flex flex-wrap gap-6"
             >
               {missionDate?.map((data, index) => {
-                const Icon = data?.icon
+                const Icon = data?.icon;
                 return (
                   <div className="flex items-center gap-3" key={index}>
                     <div
