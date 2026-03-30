@@ -1,4 +1,4 @@
-import { MESSAGES, STATUS_CODES } from "../utils/constants";
+import { MESSAGES, STATUS_CODES } from "../utils/constants.js";
 
 const sendResponse = ({
     res,
