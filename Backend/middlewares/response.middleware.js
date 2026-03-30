@@ -1,17 +1,17 @@
-import errorHandler from "./error.middleware";
-
-export const sendResponse = (res, statusCode, message, data = null) => {
-    return res.status(statusCode).json({
-        success: true,
+const sendResponse = ({
+    res,
+    statusCode = 200,
+    success = true,
+    message = "Success",
+    data = null,
+    meta = null,
+}) => {
+    res.status(statusCode).json({
+        success,
         message,
         data,
+        ...(meta && { meta }),
     });
 };
 
-export const asyncHandler = (fn) => async (req, res) => {
-    try {
-        return await fn(req, res);
-    } catch (error) {
-        errorHandler(res, 500, "Internal Server Error!");
-    };
-};
+export default sendResponse;

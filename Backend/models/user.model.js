@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { schemaOptions } from "./_schemas.js";
+import { schemaOptions } from "./_schema.js";
 
 const userSchema = new mongoose.Schema(
     {
@@ -11,8 +11,8 @@ const userSchema = new mongoose.Schema(
             trim: true,
             index: true,
         },
-        phone: { type: Number, required: true },
-        password: { type: String, required: true, minlength: 6 },
+        phone: { type: String, required: true },
+        password: { type: String, required: true, minlength: 6, select: false },
         role: {
             type: String,
             enum: ["user", "admin"],
