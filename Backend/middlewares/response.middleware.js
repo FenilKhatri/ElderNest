@@ -1,8 +1,10 @@
+import { MESSAGES, STATUS_CODES } from "../utils/constants";
+
 const sendResponse = ({
     res,
-    statusCode = 200,
+    statusCode = STATUS_CODES.SUCCESS,
     success = true,
-    message = "Success",
+    message = MESSAGES.SUCCESS,
     data = null,
     meta = null,
 }) => {

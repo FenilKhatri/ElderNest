@@ -2,14 +2,15 @@ import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import generateToken from "../utils/generateToken.js";
 import AppError from "../utils/AppError.js";
+import { MESSAGES, STATUS_CODES } from "../utils/constants.js";
 
 // Register
 export const registerUserService = async ({ name, email, phone, password }) => {
-    if (!name || !email || !phone || !password) throw new AppError("All fields are required!", 400);
+    if (!name || !email || !phone || !password) throw new AppError("All fields are required!", STATUS_CODES.BAD_REQUEST);
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-        throw new AppError("User already exists", 400);
+        throw new AppError(MESSAGES.ALREADY_EXISTS, STATUS_CODES.BAD_REQUEST);
     }
 
     // normalize input
@@ -30,15 +31,11 @@ export const registerUserService = async ({ name, email, phone, password }) => {
 };
 
 // Login
-export const loginUserService = async (res, { email, password } = {}) => {
+export const loginUserService = async ({ email, password } = {}) => {
     const user = await User.findOne({ email }).select("+password");
-    if (!user) {
-        throw new AppError("Invalid credentials", 401);
-    }
-
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-        throw new AppError("Invalid credentials", 401);
+    if (!user || !isMatch) {
+        throw new AppError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.BAD_REQUEST);
     }
 
     const token = generateToken(user);

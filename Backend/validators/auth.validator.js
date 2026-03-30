@@ -29,10 +29,8 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email: z
     .string({ required_error: "Email is required" })
-    .regex(emailRegex, "Invalid email format")
     .min(1, "Email is required"),
   password: z
     .string({ required_error: "Password is required" })
-    .regex(passwordRegex, "Weak credentials")
     .min(1, "Password is required"),
 });

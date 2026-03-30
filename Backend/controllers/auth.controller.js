@@ -4,6 +4,7 @@ import {
   registerUserService,
 } from "../services/auth.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import { MESSAGES, STATUS_CODES } from "../utils/constants.js";
 
 // Register Controller
 const register = asyncHandler(async (req, res) => {
@@ -11,8 +12,8 @@ const register = asyncHandler(async (req, res) => {
 
   sendResponse({
     res,
-    statusCode: 201,
-    message: "User registered successfully!",
+    statusCode: STATUS_CODES.CREATED,
+    message: MESSAGES.USER_CREATED,
     data: user,
   });
 });
@@ -20,7 +21,7 @@ const register = asyncHandler(async (req, res) => {
 // Login Controller
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  const { user, token } = await loginUserService(res, {
+  const { user, token } = await loginUserService({
     email,
     password,
   });
@@ -38,8 +39,8 @@ const login = asyncHandler(async (req, res) => {
 
   sendResponse({
     res,
-    statusCode: 200,
-    message: "LoggedIn successfully!",
+    statusCode: STATUS_CODES.SUCCESS,
+    message: MESSAGES.LOGIN_SUCCESS,
     data: { token, user },
   });
 });
@@ -53,8 +54,8 @@ const logout = asyncHandler(async (req, res) => {
 
   sendResponse({
     res,
-    statusCode: 200,
-    message: "Logged Out Successfully!",
+    statusCode: STATUS_CODES.SUCCESS,
+    message: MESSAGES.LOGOUT_SUCCESS,
   });
 });
 
