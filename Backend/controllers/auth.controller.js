@@ -47,9 +47,12 @@ const login = asyncHandler(async (req, res) => {
 
 // Logout controller
 const logout = asyncHandler(async (req, res) => {
+  const isProd = process.env.NODE_ENV === "production"; 
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+    path: "/",
   });
 
   sendResponse({
