@@ -6,7 +6,6 @@ import { MESSAGES, STATUS_CODES } from "../utils/constants.js";
 
 // Register
 export const registerUserService = async ({ name, email, phone, password }) => {
-    if (!name || !email || !phone || !password) throw new AppError("All fields are required!", STATUS_CODES.BAD_REQUEST);
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -32,11 +31,13 @@ export const registerUserService = async ({ name, email, phone, password }) => {
 
 // Login
 export const loginUserService = async ({ email, password } = {}) => {
+
     const user = await User.findOne({ email }).select("+password");
+    if (!user) throw new AppError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.BAD_REQUEST);
+
+
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!user || !isMatch) {
-        throw new AppError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.BAD_REQUEST);
-    }
+    if (!user || !isMatch) throw new AppError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.BAD_REQUEST);
 
     const token = generateToken(user);
 

@@ -25,6 +25,7 @@ export const MESSAGES = {
   SUCCESS: "Success",
   NOT_FOUND: "not found!",
   SERVER_ERROR: "Internal Server Error!",
+  ALL_FIELDS_REQUIRED: "All fields are required",
 };
 
 export const TOKEN_EXPIRY = {

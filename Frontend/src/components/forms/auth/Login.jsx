@@ -10,6 +10,14 @@ import { fadeUp, slideLeft } from "../../../animations/motionVariants";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword]= useState("");
+
+  const handleData = async (e) => {
+    e.preventDefault();
+    
+  }
+
   return (
     <motion.div
       variants={slideLeft}
