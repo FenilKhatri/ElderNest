@@ -14,7 +14,7 @@ const Professionals = ({ Title, Description, SubDescription }) => {
             <TitleAndDescription
               Description={Description}
               SubDescription={SubDescription}
-              className="text-left md:text-center space-y-6"
+              className="text-left md:text-center"
             />
           </div>
 

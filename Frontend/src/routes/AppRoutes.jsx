@@ -1,14 +1,10 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import PublicLayout from "../components/layout/PublicLayout";
+import PublicLayout from "../components/Layout/PublicLayout";
 import Login from "../components/forms/auth/Login";
 import Register from "../components/forms/auth/Register";
 import CareGiverLogin from "../components/forms/auth/CareGiverLogin";
 import CareGiverRegister from "../components/forms/auth/CareGiverRegister";
-import AuthLayout from "../components/layout/AuthLayout";
-import TermsOfServiceLayout from "../pages/public/TermsOfService";
-import PrivacyPolicyLayout from "../pages/public/PrivacyPolicy";
-import ScrollToTop from "../components/common/ScrollToTop";
 
 const Home = lazy(() => import("../pages/public/Home"));
 const About = lazy(() => import("../pages/public/About"));
@@ -24,7 +20,6 @@ const PageNotFound = lazy(() => import("../pages/public/PageNotFound"));
 const AppRoutes = ({ theme, toggleTheme }) => {
   return (
     <Router>
-      <ScrollToTop />
       <Suspense>
         <Routes>
           {/* Public Routes */}
@@ -40,17 +35,10 @@ const AppRoutes = ({ theme, toggleTheme }) => {
             <Route path="/caregivers/:id" element={<CaregiverDetails />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/:id" element={<ServiceDetails />} />
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Register />} />
-            </Route>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/caregiver-login" element={<CareGiverLogin />} />
             <Route path="/caregiver-register" element={<CareGiverRegister />} />
-            <Route
-              path="/terms-of-service"
-              element={<TermsOfServiceLayout />}
-            />
-            <Route path="/privacy-policy" element={<PrivacyPolicyLayout />} />
             <Route path="*" element={<PageNotFound />} />
           </Route>
         </Routes>
