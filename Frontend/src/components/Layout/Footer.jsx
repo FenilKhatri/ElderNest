@@ -1,4 +1,3 @@
-import React from "react";
 import Logo from "../../assets/Logo.png";
 import { Link } from "react-router-dom";
 
@@ -120,10 +119,13 @@ const Footer = () => {
       <div className="w-full max-w-7xl mx-auto border-t border-slate-300 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-3 text-slate-500 dark:text-slate-300 py-10 px-5 transition-colors duration-300">
         <p>&copy; CareHome Healthcare Services. All rights reserved.</p>
         <div className="flex items-center gap-5">
-          <Link className="hover:text-[#FF3366] transition duration-300">
+          <Link className="hover:text-[#FF3366] transition duration-300" to="/privacy-policy">
             Privacy Policy
           </Link>
-          <Link className="hover:text-[#FF3366] transition duration-300">
+          <Link
+            className="hover:text-[#FF3366] transition duration-300"
+            to="/terms-of-service"
+          >
             Terms of Service
           </Link>
         </div>
