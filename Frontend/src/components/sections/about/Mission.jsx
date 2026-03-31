@@ -8,7 +8,7 @@ const Mission = ({ Title, Description, SubDescription }) => {
   return (
     <>
       <section className="bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur md:p-16">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start justify-between p-5 gap-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between p-5 gap-10">
           <motion.div
             variants={scaleIn}
             initial="hidden"
@@ -40,7 +40,7 @@ const Mission = ({ Title, Description, SubDescription }) => {
             <TitleAndDescription
               Description={Description}
               SubDescription={SubDescription}
-              className="w-full items-start space-y-6"
+              className="text-start"
             />
 
             <motion.div
@@ -48,7 +48,7 @@ const Mission = ({ Title, Description, SubDescription }) => {
               className="w-full flex flex-wrap gap-6"
             >
               {missionDate?.map((data, index) => {
-                const Icon = data?.icon;
+                const Icon = data?.icon
                 return (
                   <div className="flex items-center gap-3" key={index}>
                     <div

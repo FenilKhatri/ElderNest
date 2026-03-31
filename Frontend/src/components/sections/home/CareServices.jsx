@@ -17,7 +17,7 @@ const CareServices = () => {
         <TitleAndDescription
           Description="Comprehensive Care Services"
           SubDescription="Tailored healthcare solutions delivered right to your doorstep, managed through our intelligent platform."
-          className="text-left md:text-center space-y-6"
+          className="text-left"
         />
       </motion.div>
 

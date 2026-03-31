@@ -25,7 +25,6 @@ const CTA = ({ Title, Description, SubDescription }) => {
               <TitleAndDescription
                 Description={Description}
                 SubDescription={SubDescription}
-                className="space-y-6"
               />
             </motion.div>
 

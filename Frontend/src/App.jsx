@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 import AppRoute from "./routes/AppRoutes";
-import AppToaster from "./components/common/AppToaster";
 
 function App() {
   const [theme, setTheme] = useState(() => {
@@ -30,10 +29,7 @@ function App() {
   };
 
   return (
-    <>
       <AppRoute theme={theme} toggleTheme={toggleTheme} />
-      <AppToaster />
-    </>
   );
 }
 

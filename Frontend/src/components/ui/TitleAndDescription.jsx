@@ -9,13 +9,13 @@ const TitleAndDescription = ({
   className = "w-full text-center items-center",
 }) => {
   return (
-    <div className={`flex flex-col ${className}`}>
+    <div className={`flex flex-col space-y-6 ${className}`}>
       <motion.div variants={fadeUp}>
         <H2>{Description}</H2>
       </motion.div>
 
       <motion.div variants={fadeUp}>
-        <Descriptiontext center={true}>{SubDescription}</Descriptiontext>
+        <Descriptiontext>{SubDescription}</Descriptiontext>
       </motion.div>
     </div>
   );

@@ -28,7 +28,7 @@ const FAQ = () => {
         <TitleAndDescription
           Description="Frequently Asked Questions"
           SubDescription="Find answers to common questions about ElderNest care services, response time, caregiver support, and service availability."
-          className="text-left md:text-center space-y-6"
+          className="text-left md:text-center"
         />
       </motion.div>
 
