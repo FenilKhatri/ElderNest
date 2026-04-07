@@ -19,7 +19,7 @@ import {
     ShieldCheck
 } from "lucide-react";
 
-export const missionDate = [
+export const missionData = [
     {
         icon: ShieldCheck,
         Title: "Safety",

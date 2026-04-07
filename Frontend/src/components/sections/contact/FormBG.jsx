@@ -24,6 +24,9 @@ const FormBG = () => {
             src={ContactBG1}
             alt="Contact"
             loading="lazy"
+            height="full"
+            width="full"
+            decoding="async"
             className="w-full h-full object-cover object-top scale-125 translate-y-6"
           />
         </div>
@@ -45,7 +48,10 @@ const FormBG = () => {
           <img
             src={ContactBG2}
             alt="Contact BG"
+            height="full"
+            width="full"
             loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover object-top scale-125"
           />
         </div>

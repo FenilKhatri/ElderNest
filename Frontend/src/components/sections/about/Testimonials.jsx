@@ -14,7 +14,7 @@ const Testimonials = ({ Title, Description, SubDescription }) => {
           <TitleAndDescription
             Description={Description}
             SubDescription={SubDescription}
-            className="text-left md:text-center"
+            className="text-left md:text-center mx-auto"
           />
         </div>
 

@@ -25,6 +25,7 @@ const CTA = ({ Title, Description, SubDescription }) => {
               <TitleAndDescription
                 Description={Description}
                 SubDescription={SubDescription}
+                className="mx-auto"
               />
             </motion.div>
 

@@ -2,7 +2,7 @@ import { fadeUp, scaleIn, stagger } from "../../../animations/motionVariants";
 import { motion } from "framer-motion";
 import AboutPagePhoto2 from "../../../assets/images/AboutUs/AboutPagePhoto2.png";
 import TitleAndDescription from "../../ui/TitleAndDescription";
-import { missionDate } from "../../../data/aboutPage";
+import { missionData } from "../../../data/aboutPage";
 
 const Mission = ({ Title, Description, SubDescription }) => {
   return (
@@ -19,6 +19,10 @@ const Mission = ({ Title, Description, SubDescription }) => {
             <img
               src={AboutPagePhoto2}
               alt="Healthcare mission"
+              height="full"
+              width="full"
+              loading="lazy"
+              decoding="async"
               className="w-full max-w-xl rounded-4xl shadow-xl border border-white/40 dark:border-slate-700"
             />
           </motion.div>
@@ -47,8 +51,8 @@ const Mission = ({ Title, Description, SubDescription }) => {
               variants={fadeUp}
               className="w-full flex flex-wrap gap-6"
             >
-              {missionDate?.map((data, index) => {
-                const Icon = data?.icon
+              {missionData?.map((data, index) => {
+                const Icon = data?.icon;
                 return (
                   <div className="flex items-center gap-3" key={index}>
                     <div

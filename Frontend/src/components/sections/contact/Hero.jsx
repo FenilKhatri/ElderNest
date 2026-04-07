@@ -15,7 +15,7 @@ const Hero = ({ Title, Description }) => {
         <TitleAndDescription
           Description={Title}
           SubDescription={Description}
-          className="text-left md:text-center"
+          className="text-left md:text-center mx-auto"
         />
       </motion.section>
     </>

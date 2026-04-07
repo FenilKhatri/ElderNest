@@ -1,6 +1,6 @@
-import React from "react";
 import Logo from "../../assets/Logo.png";
 import { Link } from "react-router-dom";
+import { company, professionals, services } from "../../data/footerLinks";
 
 const Footer = () => {
   const footerLinks =
@@ -17,6 +17,9 @@ const Footer = () => {
               src={Logo}
               alt="Logo"
               width={60}
+              height="full"
+              loading="lazy"
+              decoding="async"
               className="dark:brightness-110"
             />
             <p className="text-[#2a7de1] font-bold text-lg">ElderNest</p>
@@ -31,87 +34,23 @@ const Footer = () => {
         {/* Footer Links */}
         <div className="col-span-3">
           <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-3">
-            {/* Company Links */}
-            <div className="col-span-1 flex flex-col gap-5 items-start justify-start">
-              <p className="font-bold text-slate-800 dark:text-slate-100">
-                Company
-              </p>
-              <ul className="space-y-3">
-                <li>
-                  <Link to="/about" className={footerLinks}>
-                    About us
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/contact" className={footerLinks}>
-                    Contact
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/blogs" className={footerLinks}>
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/services" className={footerLinks}>
-                    Services
-                  </Link>
-                </li>
-              </ul>
-            </div>
+            <FooterSection
+              title="Company"
+              links={company}
+              linkClass={footerLinks}
+            />
 
-            {/* Services Links */}
-            <div className="col-span-1 flex flex-col gap-5 items-start justify-start">
-              <p className="font-bold text-slate-800 dark:text-slate-100">
-                Services
-              </p>
-              <ul className="space-y-3">
-                <li>
-                  <Link to="/services" className={footerLinks}>
-                    Nursing Care
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/services" className={footerLinks}>
-                    Elderly Attendant
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/services" className={footerLinks}>
-                    Physiotherapy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/services" className={footerLinks}>
-                    Dementia Care
-                  </Link>
-                </li>
-              </ul>
-            </div>
+            <FooterSection
+              title="Services"
+              links={services}
+              linkClass={footerLinks}
+            />
 
-            {/* For Professionals Links */}
-            <div className="col-span-1 flex flex-col gap-5 items-start justify-start">
-              <p className="font-bold text-slate-800 dark:text-slate-100">
-                For Professionals
-              </p>
-              <ul className="space-y-3">
-                <li>
-                  <Link to="/caregiver-login" className={footerLinks}>
-                    Join as Caregiver
-                  </Link>
-                </li>
-                <li>
-                  <Link to="*" className={footerLinks}>
-                    Partner Clinics
-                  </Link>
-                </li>
-                <li>
-                  <Link to="*" className={footerLinks}>
-                    Training Resources
-                  </Link>
-                </li>
-              </ul>
-            </div>
+            <FooterSection
+              title="For Professionals"
+              links={professionals}
+              linkClass={footerLinks}
+            />
           </div>
         </div>
       </div>

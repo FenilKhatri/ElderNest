@@ -17,7 +17,16 @@ const Navbar = ({ theme, toggleTheme }) => {
   return (
     <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-md sticky top-0 z-50 transition-colors duration-300">
       <nav className="max-w-7xl mx-auto flex items-center justify-between p-3">
-        <img src={Logo} alt="Logo" className="w-16" />
+        <img
+          src={Logo}
+          alt="Logo"
+          className="w-16"
+          height="full"
+          width="full"
+          loading="lazy"
+          decoding="async"
+          fetchPriority="high"
+        />
 
         <ul className="hidden md:flex items-center gap-3">
           <li>

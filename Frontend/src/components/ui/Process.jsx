@@ -16,7 +16,7 @@ const Process = () => {
         <TitleAndDescription
           Description="Seamless Care Process"
           SubDescription="We've streamlined the journey to finding the perfect care with our AI-driven matching system."
-          className="text-left md:text-center"
+          className="text-left md:text-center mx-auto"
         />
       </motion.div>
 
