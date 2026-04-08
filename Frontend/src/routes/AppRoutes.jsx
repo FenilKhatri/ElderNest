@@ -1,10 +1,9 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PublicLayout from "../components/Layout/PublicLayout";
-import Login from "../components/forms/auth/Login";
-import Register from "../components/forms/auth/Register";
 import CareGiverLogin from "../components/forms/auth/CareGiverLogin";
 import CareGiverRegister from "../components/forms/auth/CareGiverRegister";
+import UserAuthPage from "../components/forms/auth/UserAuthPage";
 
 const Home = lazy(() => import("../pages/public/Home"));
 const About = lazy(() => import("../pages/public/About"));
@@ -35,8 +34,7 @@ const AppRoutes = ({ theme, toggleTheme }) => {
             <Route path="/caregivers/:id" element={<CaregiverDetails />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/:id" element={<ServiceDetails />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/auth" element={<UserAuthPage />} />
             <Route path="/caregiver-login" element={<CareGiverLogin />} />
             <Route path="/caregiver-register" element={<CareGiverRegister />} />
             <Route path="*" element={<PageNotFound />} />

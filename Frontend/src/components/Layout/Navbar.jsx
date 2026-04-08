@@ -64,7 +64,7 @@ const Navbar = ({ theme, toggleTheme }) => {
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
-          <NavLink to="/login">
+          <NavLink to="/auth">
             <Button>
               <User size={18} />
               Login
@@ -137,7 +137,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
             <div className="flex flex-col gap-3 mt-3">
               <NavLink
-                to="/login"
+                to="/auth"
                 className="flex items-center gap-2 bg-[#2A7DE1]/10 text-[#2A7DE1] font-semibold px-4 py-2 rounded-md hover:bg-[#2A7DE1]/20 transition"
                 onClick={() => setMenuOpen(false)}
               >

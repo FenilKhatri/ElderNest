@@ -41,7 +41,7 @@ export const login = asyncHandler(async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    return successResponse(res, 200, "Login successful", {
+    return successResponse(res, 200, "Login successful!", {
         user: {
             id: user._id,
             email: user.email,
@@ -49,7 +49,8 @@ export const login = asyncHandler(async (req, res) => {
     });
 });
 
+// logout
 export const logout = (req, res) => {
     res.clearCookie("token");
-    return res.status(200).json({ success: true, message: "Logged out" });
+    return successResponse(req, 200, "Logout successful!");
 };
