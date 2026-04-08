@@ -7,7 +7,7 @@ const FooterSection = ({ title, links, linkClass }) => {
 
       <ul className="space-y-3">
         {links?.map((item) => (
-          <li key={item?.path}>
+          <li key={`${item.path}-${item.name}`}>
             <Link to={item?.path} className={linkClass}>
               {item?.name}
             </Link>
