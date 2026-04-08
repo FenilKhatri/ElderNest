@@ -17,3 +17,7 @@ export const SERVICE_TYPES = {
   ATTENDANT: "attendant",
   PHYSIOTHERAPY: "physiotherapy",
 };
+
+export const MAX_FAILED_ATTEMPTS = 5;
+
+export const LOCK_TIME = 10 * 60 * 1000; // 10 minutes

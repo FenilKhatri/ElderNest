@@ -16,16 +16,16 @@ const userSchema = new mongoose.Schema(
             trim: true,
         },
 
+        phone: {
+            type: String,
+            trim: true,
+        },
+
         password: {
             type: String,
             required: true,
             minlength: 6,
             select: false,
-        },
-
-        phone: {
-            type: String,
-            trim: true,
         },
 
         role: {
@@ -37,17 +37,16 @@ const userSchema = new mongoose.Schema(
         profileImage: {
             type: String,
             default: "",
-        },
-
-        age: {
+        }, 
+        
+        failedLoginAttempts: {
             type: Number,
-            min: 0,
+            default: 0,
         },
 
-        emergencyContact: {
-            name: { type: String, trim: true },
-            phone: { type: String, trim: true },
-            relation: { type: String, trim: true },
+        lockUntil: {
+            type: Date,
+            default: null,
         },
     },
     {
