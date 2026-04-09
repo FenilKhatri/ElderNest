@@ -45,6 +45,7 @@ const HeroImage = () => {
             initial="hidden"
             animate="show"
             alt="Nurse holding heart"
+            fetchPriority="high"
             className="absolute right-0 top-0 w-full max-w-150 object-contain"
           />
         </motion.div>

@@ -59,6 +59,7 @@ const Navbar = ({ theme, toggleTheme }) => {
         <div className="hidden md:flex items-center gap-3">
           <button
             onClick={toggleTheme}
+            title="Toggle Theme"
             className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-100 transition"
           >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
