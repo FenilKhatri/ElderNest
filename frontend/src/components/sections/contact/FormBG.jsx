@@ -1,5 +1,5 @@
-import ContactBG1 from "../../../assets/images/Other/contactBG1.png";
-import ContactBG2 from "../../../assets/images/Other/contactBG2.png";
+import DesktopBg from "../../../assets/images/other/desktopbg.png";
+import MobileBg from "../../../assets/images/other/mobilebg.png";
 
 const FormBG = () => {
   return (
@@ -21,7 +21,7 @@ const FormBG = () => {
         {/* Image Circle */}
         <div className="relative z-10 w-100 h-100 rounded-full overflow-hidden shadow-xl shadow-blue-500/20 dark:shadow-cyan-500/20">
           <img
-            src={ContactBG1}
+            src={DesktopBg}
             alt="Contact"
             loading="lazy"
             height="full"
@@ -46,7 +46,7 @@ const FormBG = () => {
         {/* Mobile image */}
         <div className="relative z-10 w-60 h-60 mx-auto">
           <img
-            src={ContactBG2}
+            src={MobileBg}
             alt="Contact BG"
             height="full"
             width="full"

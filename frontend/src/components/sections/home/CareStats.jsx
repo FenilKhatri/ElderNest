@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { slideLeft, stagger } from "../../../animations/motionVariants";
-import HomeImg1 from "../../../assets/images/Home/HomePageImage1.png";
+import StatsImg from "../../../assets/images/home/carestats.png";
 import { counts } from "../../../data/homePage";
 
 const CareStats = () => {
@@ -25,7 +25,7 @@ const CareStats = () => {
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           >
             <motion.img
-              src={HomeImg1}
+              src={StatsImg}
               alt="Home image 1"
               className="w-full max-w-3xl mx-auto"
               initial={{ opacity: 0, y: 30, scale: 0.95 }}

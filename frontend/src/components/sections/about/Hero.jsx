@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import Button from "../../ui/Button";
-import AboutPagePhoto1 from "../../../assets/images/AboutUs/AboutPagePhoto1.jpeg";
+import HeroImg from "../../../assets/images/aboutus/hero.jpeg";
 import { fadeUp, scaleIn, slideRight, stagger } from "../../../animations/motionVariants";
 
 const Hero = ({ Slogan, Title, Description }) => {
@@ -56,7 +56,7 @@ const Hero = ({ Slogan, Title, Description }) => {
         <motion.div variants={slideRight} className="relative">
           <div className="absolute inset-0 rounded-4xl bg-linear-to-tr from-blue-500/20 to-cyan-400/20 blur-2xl" />
           <motion.img
-            src={AboutPagePhoto1}
+            src={HeroImg}
             variants={scaleIn}
             initial="hidden"
             whileInView="show"

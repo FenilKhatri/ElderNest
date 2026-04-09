@@ -1,5 +1,5 @@
 import { User } from "lucide-react";
-import HeroBg from "../../..//assets/images/Home/HeroBG.png";
+import HeroBg from "../../..//assets/images/home/herobg.png";
 import { motion } from "framer-motion";
 import { fadeUp, slideRight } from "../../../animations/motionVariants";
 import { doctors } from "../../../data/homePage";

@@ -1,6 +1,6 @@
 import { fadeUp, scaleIn, stagger } from "../../../animations/motionVariants";
 import { motion } from "framer-motion";
-import AboutPagePhoto2 from "../../../assets/images/AboutUs/AboutPagePhoto2.png";
+import MissionImg from "../../../assets/images/aboutus/mission.png";
 import TitleAndDescription from "../../ui/TitleAndDescription";
 import { missionData } from "../../../data/aboutPage";
 
@@ -17,7 +17,7 @@ const Mission = ({ Title, Description, SubDescription }) => {
             className="order-2 md:order-1"
           >
             <img
-              src={AboutPagePhoto2}
+              src={MissionImg}
               alt="Healthcare mission"
               height="full"
               width="full"
