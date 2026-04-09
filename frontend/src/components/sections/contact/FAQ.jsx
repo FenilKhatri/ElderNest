@@ -1,5 +1,5 @@
 import { ChevronDownCircle, ChevronUpCircle } from "lucide-react";
-import { faqs } from "../../../data/FAQData";
+import { faqs } from "../../../data/faqData";
 import { motion } from "framer-motion";
 import {
   containerVariants,
