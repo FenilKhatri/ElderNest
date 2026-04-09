@@ -1,4 +1,4 @@
-import { errorResponse } from "../utils/responseHandler.js";
+import { errorResponse } from "../utils/response.handler.js";
 
 export const validateRegister = (req, res, next) => {
     let { name, email, phone, password } = req.body;
