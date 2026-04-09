@@ -1,46 +1,41 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Character Encoding -->
+    <!--  META  -->
     <meta charset="UTF-8" />
-
-    <!-- Viewport for responsiveness -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Title (Important for SEO) -->
+    <!--  SEO  -->
     <title>ElderNest - Trusted Elder Care & Support Services</title>
 
-    <!-- Meta Description -->
     <meta
       name="description"
       content="ElderNest is a trusted platform for elder care services including caregivers, home assistance, and health support. Book reliable care services easily."
     />
 
-    <!-- Google Search Console Verification -->
-    <meta
-      name="google-site-verification"
-      content="wL3B0zVcLYNEIrH9_AXK1vhZSkeohuG5l1w1DyjrkRI"
-    />
-
-    <!-- Keywords (less important today but still okay) -->
     <meta
       name="keywords"
       content="elder care, caregiver services, home care, elderly support, senior care, healthcare services, eldernest"
     />
 
-    <!-- Author -->
     <meta name="author" content="ElderNest Team" />
-
-    <!-- Robots -->
     <meta name="robots" content="index, follow" />
 
-    <!-- Canonical URL -->
+    <!--  VERIFICATION  -->
+    <meta
+      name="google-site-verification"
+      content="wL3B0zVcLYNEIrH9_AXK1vhZSkeohuG5l1w1DyjrkRI"
+    />
+
+    <!--  CANONICAL  -->
     <link rel="canonical" href="https://elder-nest-care.vercel.app/" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/logo.png" />
+    <!--  FAVICON (IMPORTANT FIX)  -->
+    <!-- Must exist in /public folder -->
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/logo.png" />
 
-    <!-- Open Graph (Facebook, LinkedIn) -->
+    <!--  OPEN GRAPH  -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="ElderNest - Elder Care Services" />
     <meta
@@ -48,38 +43,43 @@
       content="Find trusted caregivers and elder support services with ElderNest."
     />
     <meta property="og:url" content="https://elder-nest-care.vercel.app/" />
-    <meta property="og:image" content="/logo.png" />
+    <meta
+      property="og:image"
+      content="https://elder-nest-care.vercel.app/logo.png"
+    />
 
-    <!-- Twitter Card -->
+    <!--  TWITTER  -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="ElderNest - Elder Care Services" />
     <meta
       name="twitter:description"
       content="Book reliable elder care and caregiver services easily."
     />
-    <meta name="twitter:image" content="/loho.png" />
+    <meta
+      name="twitter:image"
+      content="https://elder-nest-care.vercel.app/logo.png"
+    />
 
-    <!-- Preconnect for performance -->
+    <!--  PERFORMANCE  -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- Structured Data (Schema.org) -->
+    <!--  STRUCTURED DATA  -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "ElderNest",
         "url": "https://elder-nest-care.vercel.app/",
-        "logo": "https://elder-nest-care.vercel.app/logo.png",
-        "sameAs": []
+        "logo": "https://elder-nest-care.vercel.app/logo.png"
       }
     </script>
+
   </head>
 
   <body>
+    
     <div id="root"></div>
-
-    <!-- Main React Entry -->
     <script type="module" src="/src/Main.jsx"></script>
   </body>
 </html>
