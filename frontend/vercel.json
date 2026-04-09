@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://eldernest-rt0x.onrender.com/api/$1"
+    },
+    {
+      "source": "/((?!api|sitemap.xml|robots.txt|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
