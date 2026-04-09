@@ -5,7 +5,7 @@ import Mission from "../../components/sections/about/Mission";
 import Services from "../../components/sections/about/Services";
 import Vision from "../../components/sections/about/Vision";
 import WhyChooseUs from "../../components/sections/about/WhyChooseUs";
-import Professionals from "../../components/sections//about/Professionals";
+import Professionals from "../../components/sections/about/Professionals";
 import Testimonials from "../../components/sections/about/Testimonials";
 import CTA from "../../components/sections/about/CTA";
 import Process from "../../components/ui/Process";
