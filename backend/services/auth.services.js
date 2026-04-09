@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { LOCK_TIME, MAX_FAILED_ATTEMPTS, ROLES } from "../utils/constants.js";
-import User from "../models/user.js";
+import User from "../models/user.model.js";
 
 export const createUser = async (data) => {
     const { name, email, phone, password } = data;
