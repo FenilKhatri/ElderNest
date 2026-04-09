@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import AppRoutes from "./routes/approutes";
+import AppRoutes from "./routes/AppRoutes";
 
 function App() {
   const [theme, setTheme] = useState(() => {
