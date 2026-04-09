@@ -4,7 +4,7 @@ import dns from "dns";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
-import { limiter } from "./helpers/rateLimiter.js";
+import { limiter } from "./helpers/rate.limiter.js";
 
 const app = express();
 
