@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Disallow sensitive/private routes
+Disallow: /admin/
+Disallow: /caregiver/
+Disallow: /dashboard/
+Disallow: /profile/
+
+# Auth pages (optional to index)
+Disallow: /login
+Disallow: /register
+
+# Sitemap location
+Sitemap: https://elder-nest-care.vercel.app/sitemap.xml
