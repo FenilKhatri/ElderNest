@@ -1,5 +1,5 @@
 import generateToken from "../utils/generateToken.js";
-import { successResponse } from "../utils/responseHandler.js"
+import { successResponse } from "../utils/response.handler.js"
 import { asyncHandler } from "../helpers/async.helper.js";
 import { createUser, existingUser } from "../services/auth.services.js";
 
