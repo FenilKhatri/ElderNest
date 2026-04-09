@@ -1,9 +1,9 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import PublicLayout from "../components/Layout/PublicLayout";
-import CareGiverLogin from "../components/forms/auth/CareGiverLogin";
-import CareGiverRegister from "../components/forms/auth/CareGiverRegister";
+import CareGiverLogin from "../components/forms/auth/CaregiverLogin";
+import CareGiverRegister from "../components/forms/auth/CaregiverRegister";
 import UserAuthPage from "../components/forms/auth/UserAuthPage";
+import PublicLayout from "../components/layout/PublicLayout";
 
 const Home = lazy(() => import("../pages/public/Home"));
 const About = lazy(() => import("../pages/public/About"));
