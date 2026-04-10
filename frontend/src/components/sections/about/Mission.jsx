@@ -44,7 +44,7 @@ const Mission = ({ Title, Description, SubDescription }) => {
             <TitleAndDescription
               Description={Description}
               SubDescription={SubDescription}
-              className="text-start"
+              className="text-justify"
             />
 
             <motion.div

@@ -4,6 +4,8 @@ import Button from "../../ui/Button";
 import { ShieldCheck, Clock3, HeartHandshake, ArrowRight } from "lucide-react";
 import { slideLeft, stagger } from "../../../animations/motionVariants";
 import HeroImage from "./HeroImage";
+import Descriptiontext from "../../ui/DescriptionText";
+import { features } from "../../../data/featureItem";
 
 const HeroSection = () => {
   const badgeStyle =
@@ -46,9 +48,9 @@ const HeroSection = () => {
           </div>
 
           <h1 className="max-w-2xl text-3xl font-bold leading-tight tracking-tight text-slate-800 dark:text-white text-left lg:text-6xl">
-            Trusted Home{" "}
+            Book Trusted Caregivers Online with{" "}
             <span className="relative inline-block text-emerald-500">
-              Healthcare
+              ElderNest
               <svg
                 className="absolute left-0 top-7 mt-1 w-full md:top-15 md:mt-0"
                 viewBox="0 0 200 20"
@@ -60,18 +62,17 @@ const HeroSection = () => {
                   stroke="currentColor"
                   strokeWidth="3"
                   strokeLinecap="round"
-                  className="stroke-3"
                 />
               </svg>
-            </span>{" "}
-            for Your Loved Ones
+            </span>
           </h1>
 
-          <p className="max-w-xl text-lg leading-8 text-slate-600 dark:text-slate-400 text-left">
-            Connect with verified nurses, caregivers, physiotherapists, and
-            elderly care attendants who deliver compassionate and reliable care
-            right at home.
-          </p>
+          <Descriptiontext
+            children="Find and book trusted caregivers, nurses, and patient care services
+            in Gujarat. ElderNest connects you with verified professionals for
+            elder care, home nursing, and 24/7 support at your doorstep."
+            className="text-sm text-justify max-w-xl md:text-lg"
+          />
 
           <div className="flex w-full flex-col items-center justify-start gap-3 sm:flex-row">
             <NavLink to="/caregivers-login" className="w-full sm:w-fit">
@@ -79,7 +80,7 @@ const HeroSection = () => {
                 size="lg"
                 className="flex w-full items-center justify-center gap-3 shadow-lg shadow-blue-500/20"
               >
-                Book Care Now
+                Book Caregiver Now
                 <ArrowRight />
               </Button>
             </NavLink>
@@ -88,34 +89,30 @@ const HeroSection = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full border-slate-300 bg-white/70 backdrop-blur dark:border-slate-700 dark:bg-slate-900/60 dark:text-white"
+                className="dark:border-slate-100 dark:text-slate-100"
               >
-                Request Call Back
+                Talk to Care Expert
               </Button>
             </NavLink>
           </div>
 
           <div className="flex flex-wrap items-center justify-start gap-5">
-            <div className={featureItem}>
-              <ShieldCheck size={18} className="text-emerald-500" />
-              <span>Verified caregivers</span>
-            </div>
+            {
+              features?.map((feature, index) => {
+                const Icon = feature?.logo;
 
-            <div className={featureItem}>
-              <Clock3 size={18} className="text-blue-500" />
-              <span>24/7 support</span>
-            </div>
-
-            <div className={featureItem}>
-              <HeartHandshake size={18} className="text-teal-500" />
-              <span>Trusted by families</span>
-            </div>
+                return (
+                  <div className={featureItem} key={index}>
+                    <Icon size={18} className={feature?.theme || "text-emerald-500"} />
+                    <span>{feature?.text}</span>
+                  </div>
+                );
+              })
+            }
           </div>
 
           <div className="flex w-full flex-wrap items-center justify-center gap-3 md:justify-start">
-            <p className={trustLabel}>Google Services</p>
-            <p className={trustLabel}>Justdial Trusted</p>
-            <p className={trustLabel}>Lybrate Listed</p>
+            <p className={trustLabel}>Secure Booking</p>
           </div>
         </motion.div>
       </motion.div>

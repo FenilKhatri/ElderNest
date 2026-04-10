@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import CareGiverLogin from "../components/forms/auth/CaregiverLogin";
 import CareGiverRegister from "../components/forms/auth/CaregiverRegister";
 import UserAuthPage from "../components/forms/auth/UserAuthPage";
@@ -18,30 +18,28 @@ const PageNotFound = lazy(() => import("../pages/public/PageNotFound"));
 
 const AppRoutes = ({ theme, toggleTheme }) => {
   return (
-    <Router>
-      <Suspense>
-        <Routes>
-          {/* Public Routes */}
-          <Route
-            element={<PublicLayout theme={theme} toggleTheme={toggleTheme} />}
-          >
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<ContactUs />} />
-            <Route path="/blogs" element={<Blog />} />
-            <Route path="/blogs/:id" element={<BlogDetails />} />
-            <Route path="/caregivers" element={<Caregivers />} />
-            <Route path="/caregivers/:id" element={<CaregiverDetails />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/services/:id" element={<ServiceDetails />} />
-            <Route path="/auth" element={<UserAuthPage />} />
-            <Route path="/caregiver-login" element={<CareGiverLogin />} />
-            <Route path="/caregiver-register" element={<CareGiverRegister />} />
-            <Route path="*" element={<PageNotFound />} />
-          </Route>
-        </Routes>
-      </Suspense>
-    </Router>
+    <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          element={<PublicLayout theme={theme} toggleTheme={toggleTheme} />}
+        >
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/blogs" element={<Blog />} />
+          <Route path="/blogs/:id" element={<BlogDetails />} />
+          <Route path="/caregivers" element={<Caregivers />} />
+          <Route path="/caregivers/:id" element={<CaregiverDetails />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/services/:id" element={<ServiceDetails />} />
+          <Route path="/auth" element={<UserAuthPage />} />
+          <Route path="/caregiver-login" element={<CareGiverLogin />} />
+          <Route path="/caregiver-register" element={<CareGiverRegister />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 };
 

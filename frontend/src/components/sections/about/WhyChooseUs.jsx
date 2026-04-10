@@ -4,6 +4,7 @@ import CardSkeleton from "../../feedback/skeleton/CardSkeleton";
 import { cardData } from "../../../data/aboutPage";
 import TitleText from "../../ui/TitleText";
 import TitleAndDescription from "../../ui/TitleAndDescription";
+import Descriptiontext from "../../ui/DescriptionText";
 
 const WhyChooseUs = ({ loading, Title, Description, SubDescription }) => {
   return (
@@ -13,7 +14,7 @@ const WhyChooseUs = ({ loading, Title, Description, SubDescription }) => {
         <TitleAndDescription
           Description={Description}
           SubDescription={SubDescription}
-          className="text-left md:text-center mx-auto"
+          className="text-justify md:text-center mx-auto"
         />
       </div>
 
@@ -44,9 +45,9 @@ const WhyChooseUs = ({ loading, Title, Description, SubDescription }) => {
                       {card.name}
                     </h4>
 
-                    <p className="mt-3 text-slate-600 dark:text-slate-400 leading-7">
+                    <Descriptiontext className="mt-3">
                       {card.description}
-                    </p>
+                    </Descriptiontext>
                   </div>
                 </motion.div>
               );
