@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import AppRoutes from "./routes/AppRoutes";
+import ScrollToTop from "./components/layout/ScrollToTop";
 
 function App() {
   const [theme, setTheme] = useState(() => {
@@ -28,7 +29,10 @@ function App() {
   };
 
   return (
+    <>
+      <ScrollToTop />
       <AppRoutes theme={theme} toggleTheme={toggleTheme} />
+    </>
   );
 }
 

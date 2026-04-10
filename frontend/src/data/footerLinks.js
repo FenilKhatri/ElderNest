@@ -4,7 +4,7 @@ export const company = [
         name: "About Us",
     },
     {
-        path: "/cobtact",
+        path: "/contact",
         name: "Contact Us",
     },
     {
