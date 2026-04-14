@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { errorResponse } from "../utils/responseHandler.js";
+import { errorResponse } from "../utils/response.handler.js";
 
 export const protect = (req, res, next) => {
     try {
