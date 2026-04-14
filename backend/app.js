@@ -22,9 +22,6 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization"],
     maxAge: 86400,
 }));
-app.options("*", (req, res) => {
-    res.sendStatus(204);
-});
 
 app.use(helmet());
 app.use((req, res, next) => {
