@@ -8,4 +8,4 @@ export const limiter = rateLimit({
         success: false,
         message: "Too many requests, please try again later!",
     }
-})
+});

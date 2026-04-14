@@ -13,15 +13,25 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(helmet());
-app.use(limiter);
-
 // cors
 const allowedOrgin = ["http://localhost:5173"]
 app.use(cors({
     origin: allowedOrgin,
     credentials: true,
-}))
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    maxAge: 86400,
+}));
+app.options("*", (req, res) => {
+    res.sendStatus(204);
+});
+
+app.use(helmet());
+app.use((req, res, next) => {
+    if (req.method === "OPTIONS") return next();
+    limiter(req, res, next);
+});
+
 
 // Routes
 app.use("/api/auth", authRoutes);

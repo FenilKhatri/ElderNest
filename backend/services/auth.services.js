@@ -11,7 +11,7 @@ export const createUser = async (data) => {
         throw new Error("User already exists!");
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 8);
 
     const user = await User.create({
         name,
@@ -28,7 +28,7 @@ export const createUser = async (data) => {
 export const existingUser = async (data) => {
     const { email, password } = data;
 
-    const user = await User.findOne({ email }).select("+password +role");
+    const user = await User.findOne({ email }).select("+password +role").lean();
     if (!user) {
         throw new Error("User not exists!");
     }
