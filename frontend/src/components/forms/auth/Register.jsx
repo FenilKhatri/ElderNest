@@ -1,9 +1,13 @@
 import { useState } from "react";
 import Button from "../../ui/Button";
 import Input from "../../ui/Input";
-import { Lock, Mail, Phone, UserCircle } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
+import { toast } from "react-toastify";
+import { register } from "../../../api/authapi";
+import { useNavigate } from "react-router-dom";
+import { fields } from "../../../data/inputFields";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -13,14 +17,42 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(form);
+
+    if (form.password !== form.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const data = await register(form);
+
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+      });
+      toast.success(data?.message || "Register successfully!");
+      navigate("/auth");
+
+    } catch (error) {
+      toast.error(error?.message || "Failed to Register!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,84 +63,72 @@ const Register = () => {
       animate="show"
       className="space-y-4"
     >
-      {/* Name */}
-      <motion.div variants={fadeUp}>
-        <Input
-          label="name"
-          labelName="Name"
-          icon={UserCircle}
-          placeholder="Enter your name..."
-          id="name"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-        />
-      </motion.div>
+      {/* Name, Emial, Phone */}
+      {fields?.map((field) => {
+        const Icon = field?.icon;
 
-      {/* Email */}
-      <motion.div variants={fadeUp}>
-        <Input
-          label="email"
-          labelName="Email"
-          icon={Mail}
-          type="email"
-          placeholder="Enter your email..."
-          id="email"
-          name="email"
-          value={form.email}
-          onChange={handleChange}
-        />
-      </motion.div>
-
-      {/* Phone */}
-      <motion.div variants={fadeUp}>
-        <Input
-          label="phone"
-          labelName="Phone"
-          icon={Phone}
-          type="tel"
-          placeholder="Enter your phone..."
-          id="phone"
-          name="phone"
-          value={form.phone}
-          onChange={handleChange}
-        />
-      </motion.div>
+        return (
+          <Input
+            label={field?.label}
+            labelName={field?.labelName}
+            icon={Icon}
+            type={field?.type}
+            placeholder={field?.placeholder}
+            id={field?.id}
+            name={field?.name}
+            value={form[field?.name]}
+            onChange={handleChange}
+          />
+        );
+      })}
 
       {/* Password */}
-      <motion.div variants={fadeUp}>
-        <Input
-          label="password"
-          labelName="Password"
-          icon={Lock}
-          type="password"
-          placeholder="Enter your password..."
-          id="password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-        />
-      </motion.div>
+      {[
+        {
+          name: "password",
+          label: "Password",
+          show: showPassword,
+          toggle: () => setShowPassword(!showPassword),
+        },
+        {
+          name: "confirmPassword",
+          label: "Confirm Password",
+          show: showConfirmPassword,
+          toggle: () => setShowConfirmPassword(!showConfirmPassword),
+        },
+      ].map((field) => (
+        <motion.div key={field.name} variants={fadeUp} className="relative">
+          <Input
+            label={field.name}
+            labelName={field.label}
+            icon={Lock}
+            type={field.show ? "text" : "password"}
+            placeholder={`Enter your ${field.label.toLowerCase()}...`}
+            id={field.name}
+            name={field.name}
+            value={form[field.name]}
+            onChange={handleChange}
+          />
 
-      {/* Confirm Password */}
-      <motion.div variants={fadeUp}>
-        <Input
-          label="confirmPassword"
-          labelName="Confirm Password"
-          icon={Lock}
-          type="password"
-          placeholder="Reenter password..."
-          id="confirmPassword"
-          name="confirmPassword"
-          value={form.confirmPassword}
-          onChange={handleChange}
-        />
-      </motion.div>
+          <button
+            type="button"
+            onClick={field.toggle}
+            className="absolute right-3 top-10 text-slate-500"
+          >
+            {field.show ? <Eye size={18} /> : <EyeOff size={18} />}
+          </button>
+        </motion.div>
+      ))}
 
       {/* Button */}
       <motion.div variants={fadeUp} whileTap={{ scale: 0.97 }}>
-        <Button className="w-full hover:opacity-90">
-          Sign Up →
+        <Button
+          type="submit"
+          className={`w-full hover:opacity-90 ${
+            loading ? "cursor-not-allowed opacity-60" : ""
+          }`}
+        >
+          {loading ? "Signing up..." : "Sign Up →"}
         </Button>
       </motion.div>
     </motion.form>

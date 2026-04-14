@@ -1,5 +1,6 @@
 import { errorResponse } from "../utils/response.handler.js";
 
+// Register
 export const validateRegister = (req, res, next) => {
     let { name, email, phone, password } = req.body;
 
@@ -55,6 +56,7 @@ export const validateRegister = (req, res, next) => {
     next();
 };
 
+// Login
 export const validateLogin = (req, res, next) => {
     let { email, password } = req.body;
 

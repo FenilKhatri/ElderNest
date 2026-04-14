@@ -17,12 +17,12 @@ export const register = asyncHandler(async (req, res) => {
     });
 
     return successResponse(res, 201, "User registered successfully!", {
-        token,
         user: {
             id: user._id,
             name: user.name,
             email: user.email,
             phone: user.phone,
+            role: user.role || "user",
         },
     });
 })
@@ -41,16 +41,23 @@ export const login = asyncHandler(async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    return successResponse(res, 200, "Login successful!", {
+    const responseData = {
         user: {
             id: user._id,
             email: user.email,
+            role: user.role || "user",
         },
+    };
+
+    return res.status(200).json({
+        success: true,
+        message: "Login successful!",
+        data: responseData,
     });
 });
 
 // logout
 export const logout = (req, res) => {
     res.clearCookie("token");
-    return successResponse(req, 200, "Logout successful!");
+    return successResponse(res, 200, "Logout successful!");
 };

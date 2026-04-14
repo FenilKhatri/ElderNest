@@ -4,6 +4,7 @@ import CareGiverLogin from "../components/forms/auth/CaregiverLogin";
 import CareGiverRegister from "../components/forms/auth/CaregiverRegister";
 import UserAuthPage from "../components/forms/auth/UserAuthPage";
 import PublicLayout from "../components/layout/PublicLayout";
+import { ToastContainer } from "react-toastify";
 
 const Home = lazy(() => import("../pages/public/Home"));
 const About = lazy(() => import("../pages/public/About"));
@@ -19,6 +20,7 @@ const PageNotFound = lazy(() => import("../pages/public/PageNotFound"));
 const AppRoutes = ({ theme, toggleTheme }) => {
   return (
     <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
+      <ToastContainer autoClose="5000" />
       <Routes>
         {/* Public Routes */}
         <Route

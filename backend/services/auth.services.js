@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { LOCK_TIME, MAX_FAILED_ATTEMPTS, ROLES } from "../utils/constants.js";
 import User from "../models/user.model.js";
 
+// Register
 export const createUser = async (data) => {
     const { name, email, phone, password } = data;
 
@@ -27,7 +28,7 @@ export const createUser = async (data) => {
 export const existingUser = async (data) => {
     const { email, password } = data;
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).select("+password +role");
     if (!user) {
         throw new Error("User not exists!");
     }
@@ -42,11 +43,11 @@ export const existingUser = async (data) => {
     if (!isMatch) {
         user.failedLoginAttempts += 1;
 
-        if(user.failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
-            user.lockUntil = Date.now() + LOCK_TIME;
-            user.failedLoginAttempts = 0 // reset
-        };
-
+        if (user.failedLoginAttempts !== 0 || user.lockUntil !== null) {
+            user.failedLoginAttempts = 0;
+            user.lockUntil = null;
+        }
+        
         await user.save();
         throw new Error("Invalid credentials");
     }
