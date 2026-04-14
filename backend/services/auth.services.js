@@ -28,7 +28,7 @@ export const createUser = async (data) => {
 export const existingUser = async (data) => {
     const { email, password } = data;
 
-    const user = await User.findOne({ email }).select("+password +role").lean();
+    const user = await User.findOne({ email }).select("+password +role");
     if (!user) {
         throw new Error("User not exists!");
     }
