@@ -61,3 +61,11 @@ export const logout = (req, res) => {
     res.clearCookie("token");
     return successResponse(res, 200, "Logout successful!");
 };
+
+// Me
+export const getMe = (req, res) => {
+    res.status(200).json({
+        success: true,
+        user: req.user,
+    });
+};

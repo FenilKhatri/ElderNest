@@ -1,10 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-const ProtectedRoute = () => {
-
-  const user = JSON.parse(localStorage.getItem("user"));
+const ProtectedRoute = ({ user }) => {
   if(!user) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/auth" replace />
   };
 
   return <Outlet />; 

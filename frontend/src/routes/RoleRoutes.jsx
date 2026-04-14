@@ -1,10 +1,9 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-const RoleRoute = ({ allowedRoles }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
+const RoleRoute = ({ allowedRoles, user }) => {
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   if (!allowedRoles.includes(user.role)) {
