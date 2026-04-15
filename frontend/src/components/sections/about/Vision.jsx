@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn, stagger } from "../../../animations/motionVariants";
-import { visionItems } from "../../../data/aboutPage";
+import { visionItems } from "../../../data/pages/aboutData";
 import TitleAndDescription from "../../ui/TitleAndDescription";
 
 const Vision = ({ Title, Description, SubDescription }) => {

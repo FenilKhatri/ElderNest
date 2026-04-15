@@ -5,7 +5,7 @@ import { ShieldCheck, Clock3, HeartHandshake, ArrowRight } from "lucide-react";
 import { slideLeft, stagger } from "../../../animations/motionVariants";
 import HeroImage from "./HeroImage";
 import Descriptiontext from "../../ui/DescriptionText";
-import { features } from "../../../data/featureItem";
+import { features } from "../../../data/pages/featureData";
 
 const HeroSection = () => {
   const badgeStyle =
@@ -97,18 +97,19 @@ const HeroSection = () => {
           </div>
 
           <div className="flex flex-wrap items-center justify-start gap-5">
-            {
-              features?.map((feature, index) => {
-                const Icon = feature?.logo;
+            {features?.map((feature, index) => {
+              const Icon = feature?.logo;
 
-                return (
-                  <div className={featureItem} key={index}>
-                    <Icon size={18} className={feature?.theme || "text-emerald-500"} />
-                    <span>{feature?.text}</span>
-                  </div>
-                );
-              })
-            }
+              return (
+                <div className={featureItem} key={index}>
+                  <Icon
+                    size={18}
+                    className={feature?.theme || "text-emerald-500"}
+                  />
+                  <span>{feature?.text}</span>
+                </div>
+              );
+            })}
           </div>
 
           <div className="flex w-full flex-wrap items-center justify-center gap-3 md:justify-start">

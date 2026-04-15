@@ -2,7 +2,7 @@ import { fadeUp, scaleIn, stagger } from "../../../animations/motionVariants";
 import { motion } from "framer-motion";
 import MissionImg from "../../../assets/images/aboutus/mission.png";
 import TitleAndDescription from "../../ui/TitleAndDescription";
-import { missionData } from "../../../data/aboutPage";
+import { missionData } from "../../../data/pages/aboutData";
 
 const Mission = ({ Title, Description, SubDescription }) => {
   return (

@@ -1,7 +1,7 @@
 import { fadeUp, stagger } from "../../../animations/motionVariants";
 import { motion } from "framer-motion";
 import CardSkeleton from "../../feedback/skeleton/CardSkeleton";
-import { cardData } from "../../../data/aboutPage";
+import { cardData } from "../../../data/pages/aboutData";
 import TitleText from "../../ui/TitleText";
 import TitleAndDescription from "../../ui/TitleAndDescription";
 import Descriptiontext from "../../ui/DescriptionText";
@@ -10,7 +10,7 @@ const WhyChooseUs = ({ loading, Title, Description, SubDescription }) => {
   return (
     <section className="max-w-7xl mx-auto px-5 py-0 md:py-8">
       <div className="max-w-2xl mx-auto flex flex-col space-y-6 text-center">
-        <TitleText children={Title} className="text-left md:text-center"/>
+        <TitleText children={Title} className="text-left md:text-center" />
         <TitleAndDescription
           Description={Description}
           SubDescription={SubDescription}

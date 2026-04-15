@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { fadeUp } from "../../../animations/motionVariants";
-import { services } from "../../../data/homePage";
+import { services } from "../../../data/pages/homeData";
 import CareServiceCard from "../../cards/CareServiceCard";
 import TitleAndDescription from "../../ui/TitleAndDescription";
 

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
-import { serviceItems } from "../../../data/aboutPage";
+import { serviceItems } from "../../../data/pages/aboutData";
 import TitleText from "../../ui/TitleText";
 import TitleAndDescription from "../../ui/TitleAndDescription";
 

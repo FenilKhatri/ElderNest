@@ -1,14 +1,14 @@
 import Logo from "../../assets/logo.png";
 import { NavLink } from "react-router-dom";
-import { User, Menu, X, Moon, Sun } from "lucide-react";
+import { User, Menu, X, Moon, Sun, LogOut } from "lucide-react";
 import { useState } from "react";
 import Button from "../ui/Button";
-import { commonLinks } from "../../data/commonLinks";
 import { useAuth } from "../../context/AuthContext";
+import { links } from "../../data/navigations/links";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, logout } = useAuth;
+  const { user, logout } = useAuth();
 
   const activeLinks = ({ isActive }) =>
     `p-2 font-semibold transition duration-300 ${
@@ -32,7 +32,7 @@ const Navbar = ({ theme, toggleTheme }) => {
         />
 
         <ul className="hidden md:flex items-center gap-3">
-          {commonLinks?.map((link) => (
+          {links?.common?.map((link) => (
             <li key={link?.path}>
               <NavLink to={link?.path} className={activeLinks}>
                 {link?.name}
@@ -71,7 +71,10 @@ const Navbar = ({ theme, toggleTheme }) => {
               <NavLink to="/admin/dashboard">
                 <Button>Admin Panel</Button>
               </NavLink>
-              <Button onClick={logout}>Logout</Button>
+              <Button onClick={logout} className="bg-red-500 hover:bg-red-600">
+                <LogOut size={16} />
+                Logout
+              </Button>
             </>
           ) : user?.role === "caregiver" ? (
             <>
@@ -110,7 +113,7 @@ const Navbar = ({ theme, toggleTheme }) => {
       {menuOpen && (
         <div className="md:hidden px-6 pb-6 bg-white dark:bg-slate-900 transition-colors duration-300">
           <ul className="flex flex-col gap-3">
-            {commonLinks?.map((link) => (
+            {links?.common?.map((link) => (
               <NavLink
                 key={link?.path}
                 to={link?.path}

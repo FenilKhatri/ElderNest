@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { processSteps } from "../../data/aboutPage";
+import { processSteps } from "../../data/pages/aboutData";
 import { fadeUp } from "../../animations/motionVariants";
 import TitleAndDescription from "./TitleAndDescription";
 

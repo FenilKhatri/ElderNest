@@ -1,5 +1,5 @@
 import { motion, stagger } from "framer-motion";
-import { testimonials } from "../../../data/aboutPage";
+import { testimonials } from "../../../data/pages/aboutData";
 import { fadeUp } from "../../../animations/motionVariants";
 import { Quote } from "lucide-react";
 import TitleText from "../../ui/TitleText";

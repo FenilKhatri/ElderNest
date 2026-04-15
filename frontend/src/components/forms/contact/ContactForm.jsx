@@ -1,4 +1,4 @@
-import { cities, services } from "../../../data/contactPage";
+import { cities, services } from "../../../data/pages/contactData";
 import Button from "../../ui/Button";
 
 const Form = () => {

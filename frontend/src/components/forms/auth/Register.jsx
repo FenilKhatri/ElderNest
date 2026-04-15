@@ -7,7 +7,7 @@ import { fadeUp, stagger } from "../../../animations/motionVariants";
 import { toast } from "react-toastify";
 import { register } from "../../../api/authapi";
 import { useNavigate } from "react-router-dom";
-import { fields } from "../../../data/inputFields";
+import { fields } from "../../../data/forms/inputFields";
 
 const Register = () => {
   const [form, setForm] = useState({

@@ -1,5 +1,5 @@
 import { motion, stagger } from "framer-motion";
-import { cardData } from "../../../data/aboutPage";
+import { cardData } from "../../../data/pages/aboutData";
 import { fadeUp } from "../../../animations/motionVariants";
 import TitleText from "../../ui/TitleText";
 import TitleAndDescription from "../../ui/TitleAndDescription";
@@ -50,6 +50,6 @@ const Professionals = ({ Title, Description, SubDescription }) => {
       </section>
     </>
   );
-}
+};
 
-export default Professionals
+export default Professionals;

@@ -1,4 +1,4 @@
-import { contactItems } from "../../../data/contactPage";
+import { contactItems } from "../../../data/pages/contactData";
 
 const GetInTouch = () => {
   return (
