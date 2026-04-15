@@ -12,5 +12,5 @@ export const getMe = async () => {
     const res = await http.get("/auth/me", {
         withCredentials: true,
     });
-    return res?.data;
+    return res;
 };

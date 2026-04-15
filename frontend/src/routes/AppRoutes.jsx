@@ -39,7 +39,7 @@ const CaregiverDashboard = lazy(() => import("../pages/caregiver/Dashboard"));
 const CareNotes = lazy(() => import("../pages/caregiver/CareNotes"));
 const Requests = lazy(() => import("../pages/caregiver/Requests"));
 
-const AppRoutes = ({ theme, toggleTheme }) => {
+const AppRoutes = ({ user, theme, toggleTheme }) => {
   return (
     <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
       <ToastContainer autoClose={5000} />

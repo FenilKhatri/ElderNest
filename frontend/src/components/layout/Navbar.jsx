@@ -3,9 +3,12 @@ import { NavLink } from "react-router-dom";
 import { User, Menu, X, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 import Button from "../ui/Button";
+import { commonLinks } from "../../data/commonLinks";
+import { useAuth } from "../../context/AuthContext";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user, logout } = useAuth;
 
   const activeLinks = ({ isActive }) =>
     `p-2 font-semibold transition duration-300 ${
@@ -29,31 +32,13 @@ const Navbar = ({ theme, toggleTheme }) => {
         />
 
         <ul className="hidden md:flex items-center gap-3">
-          <li>
-            <NavLink to="/" className={activeLinks}>
-              Home
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/about" className={activeLinks}>
-              About Us
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/contact" className={activeLinks}>
-              Contact Us
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/services" className={activeLinks}>
-              Services
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/blogs" className={activeLinks}>
-              Blogs
-            </NavLink>
-          </li>
+          {commonLinks?.map((link) => (
+            <li key={link?.path}>
+              <NavLink to={link?.path} className={activeLinks}>
+                {link?.name}
+              </NavLink>
+            </li>
+          ))}
         </ul>
 
         <div className="hidden md:flex items-center gap-3">
@@ -65,19 +50,44 @@ const Navbar = ({ theme, toggleTheme }) => {
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
-          <NavLink to="/auth">
-            <Button>
-              <User size={18} />
-              Login
-            </Button>
-          </NavLink>
+          {!user ? (
+            <>
+              <NavLink to="/auth">
+                <Button>
+                  <User size={18} />
+                  Login
+                </Button>
+              </NavLink>
 
-          <NavLink to="/caregiver-login">
-            <Button variant="secondary">
-              <User size={18} />
-              Become Caregiver
-            </Button>
-          </NavLink>
+              <NavLink to="/caregiver-login">
+                <Button variant="secondary">
+                  <User size={18} />
+                  Become Caregiver
+                </Button>
+              </NavLink>
+            </>
+          ) : user?.role === "admin" ? (
+            <>
+              <NavLink to="/admin/dashboard">
+                <Button>Admin Panel</Button>
+              </NavLink>
+              <Button onClick={logout}>Logout</Button>
+            </>
+          ) : user?.role === "caregiver" ? (
+            <>
+              <NavLink to="/caregiver/dashboard">
+                <Button>Caregiver Dashboard</Button>
+              </NavLink>
+              <Button onClick={logout}>Logout</Button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/user/dashboard">
+                <Button>Dashboard</Button>
+              </NavLink>
+              <Button onClick={logout}>Logout</Button>
+            </>
+          )}
         </div>
 
         <div className="md:hidden flex items-center gap-2">
@@ -100,41 +110,16 @@ const Navbar = ({ theme, toggleTheme }) => {
       {menuOpen && (
         <div className="md:hidden px-6 pb-6 bg-white dark:bg-slate-900 transition-colors duration-300">
           <ul className="flex flex-col gap-3">
-            <NavLink
-              to="/"
-              className={activeLinks}
-              onClick={() => setMenuOpen(false)}
-            >
-              Home
-            </NavLink>
-            <NavLink
-              to="/about"
-              className={activeLinks}
-              onClick={() => setMenuOpen(false)}
-            >
-              About Us
-            </NavLink>
-            <NavLink
-              to="/contact"
-              className={activeLinks}
-              onClick={() => setMenuOpen(false)}
-            >
-              Contact Us
-            </NavLink>
-            <NavLink
-              to="/services"
-              className={activeLinks}
-              onClick={() => setMenuOpen(false)}
-            >
-              Services
-            </NavLink>
-            <NavLink
-              to="/blogs"
-              className={activeLinks}
-              onClick={() => setMenuOpen(false)}
-            >
-              Blogs
-            </NavLink>
+            {commonLinks?.map((link) => (
+              <NavLink
+                key={link?.path}
+                to={link?.path}
+                className={activeLinks}
+                onClick={() => setMenuOpen(false)}
+              >
+                Home
+              </NavLink>
+            ))}
 
             <div className="flex flex-col gap-3 mt-3">
               <NavLink

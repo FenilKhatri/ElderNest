@@ -1,22 +1,3 @@
-export const company = [
-    {
-        path: "/about",
-        name: "About Us",
-    },
-    {
-        path: "/contact",
-        name: "Contact Us",
-    },
-    {
-        path: "/blogs",
-        name: "Blogs",
-    },
-    {
-        path: "/services",
-        name: "Services",
-    },
-];
-
 export const services = [
     {
         path: "/services",

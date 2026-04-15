@@ -1,7 +1,8 @@
 import Logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
-import { company, professionals, services } from "../../data/footerLinks";
+import { professionals, services } from "../../data/footerLinks";
 import FooterSection from "../sections/footer/FooterSection";
+import { commonLinks } from "../../data/commonLinks";
 
 const Footer = () => {
   const footerLinks =
@@ -37,7 +38,7 @@ const Footer = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-3">
             <FooterSection
               title="Company"
-              links={company}
+              links={commonLinks}
               linkClass={footerLinks}
             />
 
