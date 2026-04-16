@@ -2,6 +2,7 @@ import generateToken from "../utils/generate.token.js";
 import { successResponse } from "../utils/response.handler.js"
 import { asyncHandler } from "../helpers/async.helper.js";
 import { createUser, existingUser } from "../services/auth.services.js";
+import User from "../models/user.model.js";
 
 // Register
 export const register = asyncHandler(async (req, res) => {
@@ -58,12 +59,16 @@ export const login = asyncHandler(async (req, res) => {
 
 // logout
 export const logout = (req, res) => {
-    res.clearCookie("token");
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
+    });
     return successResponse(res, 200, "Logout successful!");
 };
 
 // Me
-export const getMe = async (req, res) => {
+export const getMe = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -78,4 +83,4 @@ export const getMe = async (req, res) => {
             role: user.role,
         },
     });
-};
+});

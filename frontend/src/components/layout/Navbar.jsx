@@ -1,5 +1,5 @@
 import Logo from "../../assets/logo.png";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { User, Menu, X, Moon, Sun, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import Button from "../ui/Button";
@@ -9,6 +9,7 @@ import { links } from "../../data/navigations/links";
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, logout, initialized } = useAuth();
+  const location = useLocation();
 
   const activeLinks = ({ isActive }) =>
     `p-2 font-semibold transition duration-300 ${

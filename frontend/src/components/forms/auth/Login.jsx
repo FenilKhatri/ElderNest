@@ -7,6 +7,7 @@ import { fadeUp, stagger } from "../../../animations/motionVariants";
 import { toast } from "react-toastify";
 import { login } from "../../../api/authapi";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -16,6 +17,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { fetchUser } = useAuth();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -27,6 +29,7 @@ const Login = () => {
     try {
       setLoading(true);
       const res = await login(form);
+      await fetchUser();
 
       setForm({
         email: "",

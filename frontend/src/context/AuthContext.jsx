@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getMe } from "../api/authapi";
+import { logOut } from "../api/logoutapi";
 
 const AuthContext = createContext();
 
@@ -24,15 +25,18 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await logOut();
+    } catch (error) {}
+
     setUser(null);
-    localStorage.clear();
-    window.location.href = "/auth";
+    window.location.href = "/";
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, loading, initialized, logout }}
+      value={{ user, setUser, loading, initialized, logout, fetchUser }}
     >
       {children}
     </AuthContext.Provider>
