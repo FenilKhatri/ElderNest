@@ -15,7 +15,7 @@ const Process = () => {
       >
         <TitleAndDescription
           Description="Seamless Care Process"
-          SubDescription="We've streamlined the journey to finding the perfect care with our AI-driven matching system."
+          SubDescription="Our simple process ensures that families can quickly find and book the right caregiver. From registration to receiving care, every step is designed to be smooth, transparent, and efficient. ElderNest combines technology with human care to deliver the best experience."
           className="text-left md:text-center mx-auto"
         />
       </motion.div>

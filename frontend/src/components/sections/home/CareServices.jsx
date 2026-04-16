@@ -15,8 +15,8 @@ const CareServices = () => {
         className="max-w-2xl mx-auto flex flex-col space-y-6"
       >
         <TitleAndDescription
-          Description="Comprehensive Care Services"
-          SubDescription="Tailored healthcare solutions delivered right to your doorstep, managed through our intelligent platform."
+          Description="Our Home Healthcare Services"
+          SubDescription=" ElderNest offers a wide range of home healthcare services including nursing care, elderly assistance, physiotherapy, and post-hospital recovery. Our caregivers are trained to handle medical and non-medical needs with professionalism and empathy."
           className="text-left md:text-center mx-auto"
         />
       </motion.div>
