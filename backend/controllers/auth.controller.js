@@ -63,9 +63,19 @@ export const logout = (req, res) => {
 };
 
 // Me
-export const getMe = (req, res) => {
-    res.status(200).json({
-        success: true,
-        user: req.user,
+export const getMe = async (req, res) => {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json({
+        user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        },
     });
 };

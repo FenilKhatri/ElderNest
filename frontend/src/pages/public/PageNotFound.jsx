@@ -14,8 +14,8 @@ const PageNotFound = () => {
           </div>
 
           {/* Heading */}
-          <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-3">
-            Page <span className="text-blue-600">Not Found</span>
+          <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-3 text-blue-500">
+            Page <span className="text-[#FF3366]">Not </span>Found
           </h1>
 
           {/* Subtext */}
