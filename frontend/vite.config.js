@@ -24,7 +24,8 @@ export default defineConfig({
         entryFileNames: "assets/js/[name]-[hash].js",
 
         assetFileNames: (assetInfo) => {
-          const ext = assetInfo.name.split(".").pop();
+          const name = assetInfo?.name || "file";
+          const ext = name.includes(".") ? name.split(".").pop() : "";
 
           if (/png|jpe?g|svg|gif|webp|avif/i.test(ext)) {
             return "assets/images/[name]-[hash][extname]";
