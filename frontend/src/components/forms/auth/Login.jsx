@@ -28,15 +28,13 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const res = await login(form);
-      await fetchUser();
 
-      setForm({
-        email: "",
-        password: "",
-      });
-      const data = res?.data;
-      toast.success(data?.message || "Login Successful");
+      const res = await login(form);
+
+      const userData = res?.user; 
+      setUser(userData);
+
+      toast.success(res?.message || "Login Successful");
       navigate("/");
     } catch (error) {
       toast.error(error?.message || "Failed to login!");

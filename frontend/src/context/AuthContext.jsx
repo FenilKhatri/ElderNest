@@ -14,6 +14,9 @@ export const AuthProvider = ({ children }) => {
       const res = await getMe();
       setUser(res?.user || null);
     } catch (err) {
+      if (err?.response?.status !== 401) {
+        console.error(err);
+      }
       setUser(null);
     } finally {
       setLoading(false);

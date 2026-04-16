@@ -9,8 +9,6 @@ export const login = (payload) => {
 };
 
 export const getMe = async () => {
-    const res = await http.get("/auth/me", {
-        withCredentials: true,
-    });
+    const res = await http.get("/auth/me");
     return res;
 };
