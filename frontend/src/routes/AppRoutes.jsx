@@ -1,13 +1,9 @@
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoutes";
-
-import PublicLayout from "../components/layout/PublicLayout";
-import AdminLayout from "../components/layout/AdminLayout";
-import CaregiverLayout from "../components/layout/CaregiverLayout";
 
 import CareGiverLogin from "../components/forms/auth/CaregiverLogin";
 import CareGiverRegister from "../components/forms/auth/CaregiverRegister";
@@ -16,8 +12,14 @@ import UserAuthPage from "../components/forms/auth/UserAuthPage";
 import Bookings from "../pages/admin/Bookings";
 import UpdatePassword from "../pages/admin/UpdatePassword";
 
+// LAYOUTS
+const PublicLayout = lazy(() => import("../components/layout/PublicLayout"));
+const AdminLayout = lazy(() => import("../components/layout/AdminLayout"));
+const CaregiverLayout = lazy(() => import("../components/layout/CaregiverLayout"));
+
 //  PUBLIC
 const Home = lazy(() => import("../pages/public/Home"));
+Home.preload?.();
 const About = lazy(() => import("../pages/public/About"));
 const ContactUs = lazy(() => import("../pages/public/ContactUs"));
 const Blog = lazy(() => import("../pages/public/Blogs"));
@@ -51,7 +53,7 @@ const CaregiverProfile = lazy(() => import("../pages/caregiver/Profile"));
 
 const AppRoutes = ({ theme, toggleTheme }) => {
   return (
-    <>
+    <Suspense fallback={null}>
       <ToastContainer autoClose={5000} />
 
       <Routes>
@@ -128,7 +130,7 @@ const AppRoutes = ({ theme, toggleTheme }) => {
           </Route>
         </Route>
       </Routes>
-    </>
+    </Suspense>
   );
 };
 

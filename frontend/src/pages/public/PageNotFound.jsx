@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Home, ArrowLeft } from "lucide-react";
-import PageNotFoundImg from "../../assets/images/other/pagenotfound.png";
+import PageNotFoundImg from "../../assets/images/other/pagenotfound.avif";
 
 const PageNotFound = () => {
   return (

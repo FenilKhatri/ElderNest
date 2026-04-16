@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { slideLeft, stagger } from "../../../animations/motionVariants";
-import StatsImg from "../../../assets/images/home/carestats.png";
+import StatsImg from "../../../assets/images/home/carestats.avif";
 import { counts } from "../../../data/pages/homeData";
 
 const CareStats = () => {

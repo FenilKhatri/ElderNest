@@ -1,5 +1,5 @@
-import DesktopBg from "../../../assets/images/other/desktopbg.png";
-import MobileBg from "../../../assets/images/other/mobilebg.png";
+import DesktopBg from "../../../assets/images/other/desktopbg.avif";
+import MobileBg from "../../../assets/images/other/mobilebg.avif";
 
 const FormBG = () => {
   return (

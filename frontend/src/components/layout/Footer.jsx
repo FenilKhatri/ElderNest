@@ -1,4 +1,4 @@
-import Logo from "../../assets/logo.png";
+import Logo from "../../assets/logo.avif";
 import { Link } from "react-router-dom";
 import FooterSection from "../sections/footer/FooterSection";
 import { links } from "../../data/navigations/links";

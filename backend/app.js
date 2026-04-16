@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // cors
-const allowedOrgin = ["http://localhost:5173"]
+const allowedOrgin = ["http://localhost:5173", "https://elder-nest-care.vercel.app"]
 app.use(cors({
     origin: allowedOrgin,
     credentials: true,

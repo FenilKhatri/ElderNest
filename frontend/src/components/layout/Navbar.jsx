@@ -1,4 +1,4 @@
-import Logo from "../../assets/logo.png";
+import Logo from "../../assets/logo.avif";
 import { NavLink, useLocation } from "react-router-dom";
 import { User, Menu, X, Moon, Sun, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";

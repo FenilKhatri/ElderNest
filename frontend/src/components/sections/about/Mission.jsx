@@ -1,6 +1,6 @@
 import { fadeUp, scaleIn, stagger } from "../../../animations/motionVariants";
 import { motion } from "framer-motion";
-import MissionImg from "../../../assets/images/aboutus/mission.png";
+import MissionImg from "../../../assets/images/aboutus/mission.avif";
 import TitleAndDescription from "../../ui/TitleAndDescription";
 import { missionData } from "../../../data/pages/aboutData";
 

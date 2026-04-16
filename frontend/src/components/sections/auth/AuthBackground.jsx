@@ -1,6 +1,6 @@
-import UserAuthBG from "../../../assets/images/other/userauthbg.jpg";
+import UserAuthBG from "../../../assets/images/other/userauthbg.avif";
 import H3 from "../../ui/H3";
-import Avatar from "../../../assets/images/other/mobilebg.png";
+import Avatar from "../../../assets/images/other/mobilebg.avif";
 
 const AuthBackground = () => {
   return (
