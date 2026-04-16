@@ -3,13 +3,15 @@ import "./App.css";
 import AppRoutes from "./routes/AppRoutes";
 import ScrollToTop from "./components/layout/ScrollToTop";
 import { BrowserRouter } from "react-router-dom";
-import { getMe } from "./api/authapi";
-import { AuthProvider } from "./context/AuthContext";
+
+import { useAuth } from "./context/AuthContext";
+import GlobalLoader from "./components/ui/GlobalLoader";
 
 function App() {
+  const { initialized } = useAuth();
+
   const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    return savedTheme || "light";
+    return localStorage.getItem("theme") || "light";
   });
 
   useEffect(() => {
@@ -25,21 +27,18 @@ function App() {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => {
-      const next = prev === "light" ? "dark" : "light";
-      return next;
-    });
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
 
+  if (!initialized) {
+    return <GlobalLoader />;
+  }
+
   return (
-    <>
-      <BrowserRouter>
-        <AuthProvider>
-          <ScrollToTop />
-          <AppRoutes theme={theme} toggleTheme={toggleTheme} />
-        </AuthProvider>
-      </BrowserRouter>
-    </>
+    <BrowserRouter>
+      <ScrollToTop />
+      <AppRoutes theme={theme} toggleTheme={toggleTheme} />
+    </BrowserRouter>
   );
 }
 

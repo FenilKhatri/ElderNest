@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
@@ -16,7 +16,7 @@ import UserAuthPage from "../components/forms/auth/UserAuthPage";
 import Bookings from "../pages/admin/Bookings";
 import UpdatePassword from "../pages/admin/UpdatePassword";
 
-//  PUBLIC 
+//  PUBLIC
 const Home = lazy(() => import("../pages/public/Home"));
 const About = lazy(() => import("../pages/public/About"));
 const ContactUs = lazy(() => import("../pages/public/ContactUs"));
@@ -28,13 +28,13 @@ const Services = lazy(() => import("../pages/public/Services"));
 const ServiceDetails = lazy(() => import("../pages/public/ServiceDetails"));
 const PageNotFound = lazy(() => import("../pages/public/PageNotFound"));
 
-//  USER 
+//  USER
 const Dashboard = lazy(() => import("../pages/users/Dashboard"));
 const BookServices = lazy(() => import("../pages/users/BookServices"));
 const MyBookings = lazy(() => import("../pages/users/MyBookings"));
 const UserProfile = lazy(() => import("../pages/users/Profile"));
 
-//  ADMIN 
+//  ADMIN
 const AdminDashboard = lazy(() => import("../pages/admin/Dashboard"));
 const AdminProfile = lazy(() => import("../pages/admin/Profile"));
 const Complaints = lazy(() => import("../pages/admin/Complaints"));
@@ -42,7 +42,7 @@ const Users = lazy(() => import("../pages/admin/Users"));
 const AdminServices = lazy(() => import("../pages/admin/Services"));
 const AdminCaregivers = lazy(() => import("../pages/admin/Caregivers"));
 
-//  CAREGIVER 
+//  CAREGIVER
 const CaregiverDashboard = lazy(() => import("../pages/caregiver/Dashboard"));
 const CareNotes = lazy(() => import("../pages/caregiver/CareNotes"));
 const Requests = lazy(() => import("../pages/caregiver/Requests"));
@@ -51,7 +51,7 @@ const CaregiverProfile = lazy(() => import("../pages/caregiver/Profile"));
 
 const AppRoutes = ({ theme, toggleTheme }) => {
   return (
-    <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
+    <>
       <ToastContainer autoClose={5000} />
 
       <Routes>
@@ -128,7 +128,7 @@ const AppRoutes = ({ theme, toggleTheme }) => {
           </Route>
         </Route>
       </Routes>
-    </Suspense>
+    </>
   );
 };
 

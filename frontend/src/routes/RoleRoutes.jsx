@@ -1,11 +1,11 @@
+import ScreenLoader from "../components/ui/GlobalLoader";
 import { useAuth } from "../context/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
 
 const RoleRoute = ({ allowedRoles }) => {
-  
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <ScreenLoader />;
 
   if (!user) return <Navigate to="/auth" replace />;
 

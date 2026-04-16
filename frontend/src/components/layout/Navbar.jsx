@@ -8,7 +8,7 @@ import { links } from "../../data/navigations/links";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, loading, initialized } = useAuth();
 
   const activeLinks = ({ isActive }) =>
     `p-2 font-semibold transition duration-300 ${
@@ -16,6 +16,8 @@ const Navbar = ({ theme, toggleTheme }) => {
         ? "border-b-4 border-[#2A7DE1] text-[#2A7DE1]"
         : "text-slate-600 dark:text-slate-300 hover:text-[#FF3366] hover:border-b-4 hover:border-[#FF3366]"
     }`;
+  
+    if(!initialized) return <div className="h-16 bg-white dark:bg-slate-900 animate-pulse" />;
 
   return (
     <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-md sticky top-0 z-50 transition-colors duration-300">
