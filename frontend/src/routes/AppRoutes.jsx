@@ -5,9 +5,7 @@ import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoutes";
 
-import CareGiverLogin from "../components/forms/auth/CaregiverLogin";
-import CareGiverRegister from "../components/forms/auth/CaregiverRegister";
-import UserAuthPage from "../components/forms/auth/UserAuthPage";
+import AuthPage from "../components/forms/auth/AuthPage";
 
 import Bookings from "../pages/admin/Bookings";
 import UpdatePassword from "../pages/admin/UpdatePassword";
@@ -72,9 +70,8 @@ const AppRoutes = ({ theme, toggleTheme }) => {
           <Route path="/services/:id" element={<ServiceDetails />} />
 
           {/* Auth */}
-          <Route path="/auth" element={<UserAuthPage />} />
-          <Route path="/caregiver-login" element={<CareGiverLogin />} />
-          <Route path="/caregiver-register" element={<CareGiverRegister />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/caregiver-auth" element={<AuthPage />} />
 
           {/* USER (Protected) */}
           <Route element={<ProtectedRoute />}>

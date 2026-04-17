@@ -69,7 +69,7 @@ const Navbar = ({ theme, toggleTheme }) => {
                   </Button>
                 </NavLink>
 
-                <NavLink to="/caregiver-login">
+                <NavLink to="/caregiver-auth">
                   <Button variant="secondary">
                     <User size={18} /> Become Caregiver
                   </Button>
