@@ -1,15 +1,17 @@
 import Logo from "../../assets/logo.avif";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { User, Menu, X, Moon, Sun, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import Button from "../ui/Button";
 import { useAuth } from "../../context/AuthContext";
 import { links } from "../../data/navigations/links";
+import { logOut } from "../../api/logoutapi";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, logout, initialized } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const activeLinks = ({ isActive }) =>
     `p-2 font-semibold transition duration-300 ${
@@ -18,7 +20,11 @@ const Navbar = ({ theme, toggleTheme }) => {
         : "text-slate-600 dark:text-slate-300 hover:text-[#FF3366]"
     }`;
 
-  // Close menu on route change (important UX fix)
+    const handleLogout = async () => {
+      await logOut();
+      navigate("/");
+    } 
+
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
@@ -70,7 +76,7 @@ const Navbar = ({ theme, toggleTheme }) => {
                 </NavLink>
               </>
             ) : (
-              <Button onClick={logout} className="bg-red-500 hover:bg-red-600">
+              <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600">
                 <LogOut size={16} /> Logout
               </Button>
             )}

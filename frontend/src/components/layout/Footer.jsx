@@ -33,14 +33,14 @@ const Footer = () => {
             Explore our{" "}
             <NavLink
               to="/services"
-              className="relative text-[#FF3366] after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-[#FF3366] after:transition-all after:duration-300 hover:after:w-full"
+              className="relative text-[#FF3366] after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-[#FF3366] after:transition-all after:duration-300 hover:after:w-full"
             >
               elder care services
             </NavLink>{" "}
             or{" "}
             <NavLink
               to="/contact"
-              className="relative text-[#FF3366] after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-[#FF3366] after:transition-all after:duration-300 hover:after:w-full"
+              className="relative text-[#FF3366] after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-[#FF3366] after:transition-all after:duration-300 hover:after:w-full"
             >
               contact our experts
             </NavLink>
