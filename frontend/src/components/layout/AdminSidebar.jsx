@@ -1,10 +1,16 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { LogOut, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { links } from "../../data/navigations/links";
 
 const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
   const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  }
 
   return (
     <>
@@ -85,7 +91,7 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
         {/* LOGOUT */}
         <div className="p-3 border-t border-slate-200 dark:border-slate-800">
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="flex items-center justify-center w-full gap-2
             px-3 py-2 rounded-xl text-sm font-medium
             bg-red-500 hover:bg-red-600 text-white

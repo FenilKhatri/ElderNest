@@ -24,6 +24,11 @@ const Navbar = ({ theme, toggleTheme }) => {
     setMenuOpen(false);
   }, [location.pathname]);
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  }
+
   if (!initialized)
     return <div className="h-16 bg-white dark:bg-slate-900 animate-pulse" />;
 
@@ -93,7 +98,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
                 {/* LOGOUT */}
                 <Button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="bg-red-500 hover:bg-red-600"
                 >
                   <LogOut size={16} /> Logout
