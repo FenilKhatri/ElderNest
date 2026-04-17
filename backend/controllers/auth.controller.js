@@ -57,16 +57,6 @@ export const login = asyncHandler(async (req, res) => {
     });
 });
 
-// logout
-export const logout = (req, res) => {
-    res.clearCookie("token", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
-    });
-    return successResponse(res, 200, "Logout successful!");
-};
-
 // Me
 export const getMe = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id);
@@ -84,3 +74,13 @@ export const getMe = asyncHandler(async (req, res) => {
         },
     });
 });
+
+// logout
+export const logout = (req, res) => {
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
+    });
+    return successResponse(res, 200, "Logout successful!");
+};

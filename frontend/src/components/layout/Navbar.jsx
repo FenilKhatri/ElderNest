@@ -20,11 +20,6 @@ const Navbar = ({ theme, toggleTheme }) => {
         : "text-slate-600 dark:text-slate-300 hover:text-[#FF3366]"
     }`;
 
-    const handleLogout = async () => {
-      await logOut();
-      navigate("/");
-    } 
-
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
@@ -76,9 +71,34 @@ const Navbar = ({ theme, toggleTheme }) => {
                 </NavLink>
               </>
             ) : (
-              <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600">
-                <LogOut size={16} /> Logout
-              </Button>
+              <>
+                {/* ROLE BASED LINKS */}
+                {user?.role === "admin" && (
+                  <NavLink to="/admin/dashboard">
+                    <Button variant="secondary">Admin Panel</Button>
+                  </NavLink>
+                )}
+
+                {user?.role === "caregiver" && (
+                  <NavLink to="/caregiver/dashboard">
+                    <Button variant="secondary">Caregiver Panel</Button>
+                  </NavLink>
+                )}
+
+                {user?.role === "user" && (
+                  <NavLink to="/user/dashboard">
+                    <Button variant="secondary">Dashboard</Button>
+                  </NavLink>
+                )}
+
+                {/* LOGOUT */}
+                <Button
+                  onClick={logout}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  <LogOut size={16} /> Logout
+                </Button>
+              </>
             )}
           </div>
 
@@ -140,31 +160,47 @@ const Navbar = ({ theme, toggleTheme }) => {
           <div className="mt-4 flex flex-col gap-3">
             {!user ? (
               <>
-                <NavLink to="/auth" onClick={() => setMenuOpen(false)}>
-                  <Button className="w-full">
+                <NavLink to="/auth">
+                  <Button>
                     <User size={18} /> Login
                   </Button>
                 </NavLink>
 
-                <NavLink
-                  to="/caregiver-login"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <Button variant="secondary" className="w-full">
+                <NavLink to="/caregiver-auth">
+                  <Button variant="secondary">
                     <User size={18} /> Become Caregiver
                   </Button>
                 </NavLink>
               </>
             ) : (
-              <Button
-                onClick={() => {
-                  logout();
-                  setMenuOpen(false);
-                }}
-                className="w-full bg-red-500 hover:bg-red-600"
-              >
-                <LogOut size={16} /> Logout
-              </Button>
+              <>
+                {/* ROLE BASED LINKS */}
+                {user?.role === "admin" && (
+                  <NavLink to="/admin/dashboard">
+                    <Button variant="secondary">Admin Panel</Button>
+                  </NavLink>
+                )}
+
+                {user?.role === "caregiver" && (
+                  <NavLink to="/caregiver/dashboard">
+                    <Button variant="secondary">Caregiver Panel</Button>
+                  </NavLink>
+                )}
+
+                {user?.role === "user" && (
+                  <NavLink to="/user/dashboard">
+                    <Button variant="secondary">Dashboard</Button>
+                  </NavLink>
+                )}
+
+                {/* LOGOUT */}
+                <Button
+                  onClick={logout}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  <LogOut size={16} /> Logout
+                </Button>
+              </>
             )}
           </div>
         </div>
