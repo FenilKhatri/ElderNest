@@ -14,18 +14,24 @@ app.use(express.json());
 app.use(cookieParser());
 
 // cors
-const allowedOrgin = ["http://localhost:5173", "https://elder-nest-care.vercel.app"]
-app.use(cors({
-    origin: allowedOrgin,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    maxAge: 86400,
-}));
+const allowedOrigin = [
+    "http://localhost:5173",
+    "https://elder-nest-care.vercel.app",
+];
+
+app.use(
+    cors({
+        origin: allowedOrigin,
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
+app.options("/*", cors()); 
 
 app.use(helmet());
 app.use((req, res, next) => {
-    if (req.method === "OPTIONS") return next();
+    if (req.method === "OPTIONS") return res.sendStatus(200);;
     limiter(req, res, next);
 });
 
