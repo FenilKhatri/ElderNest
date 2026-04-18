@@ -7,7 +7,6 @@ import helmet from "helmet";
 import { limiter } from "./helpers/rate.limiter.js";
 
 const app = express();
-
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 app.use(express.json());
@@ -23,11 +22,20 @@ app.use(
     cors({
         origin: allowedOrigin,
         credentials: true,
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
-app.options("/*", cors()); 
+// Handle preflight fetch
+app.options("/.*/", cors()); 
+app.use(express.urlencoded({ extended: true }));
+
+// Disable caching
+app.set("etag", false);
+app.use((req, res, next) => {
+    res.set("Cache-Control", "no-store");
+    next();
+});
 
 app.use(helmet());
 app.use((req, res, next) => {
@@ -35,9 +43,16 @@ app.use((req, res, next) => {
     limiter(req, res, next);
 });
 
-
 // Routes
 app.use("/api/auth", authRoutes);
+
+// Health check
+app.get("/", (req, res) => {
+    res.status(200).json({
+        ok: true,
+        message: "Server is running!",
+    });
+});
 
 // Global error handler
 app.use((err, req, res, next) => {
