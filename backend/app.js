@@ -27,7 +27,7 @@ app.use(
     })
 );
 // Handle preflight fetch
-app.options("/.*/", cors()); 
+app.options(/.*/, cors()); 
 app.use(express.urlencoded({ extended: true }));
 
 // Disable caching
