@@ -9,10 +9,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-console.log("apiKey:", import.meta.env.VITE_FIREBASE_API_KEY);
-console.log("authDomain:", import.meta.env.VITE_FIREBASE_AUTH_DOMAIN);
-console.log("projectId:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
-console.log("appId:", import.meta.env.VITE_FIREBASE_APP_ID);
 
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
