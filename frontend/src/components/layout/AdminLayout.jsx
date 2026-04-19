@@ -43,7 +43,7 @@ const AdminLayout = ({ theme, toggleTheme }) => {
             <input
               type="text"
               placeholder="Search..."
-              className="bg-transparent outline-none ml-2 w-full text-sm dark:placeholder:text-slate-500"
+              className="bg-transparent outline-none ml-2 w-full text-sm"
             />
           </div>
 

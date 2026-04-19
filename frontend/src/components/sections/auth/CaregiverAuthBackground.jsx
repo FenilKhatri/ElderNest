@@ -1,11 +1,15 @@
-import React from 'react'
-import AuthBackground from '../../ui/AuthBackground'
-import CareGiverBG from "../../../assets/images/other/caregiverauthbg.avif";
+import CaregiverAuthBG from "../../../assets/images/other/caregiverauthbg.avif";
+import AuthBackground from "../../ui/AuthBackground";
 
 const CaregiverAuthBackground = () => {
   return (
-    <AuthBackground AuthBG={CaregiverBG} Description="Caregiver auth description" PersonDesignation="Caregiver designation" PersonName="Caregiver name"  />
-  )
-}
+    <AuthBackground
+      AuthBG={CaregiverAuthBG}
+      Description="Joining ElderNest helped me connect with families who truly value care. It’s not just a job — it’s meaningful work with dignity and trust."
+      PersonName="Anita Sharma"
+      PersonDesignation="Professional Caregiver, Mumbai"
+    />
+  );
+};
 
-export default CaregiverAuthBackground
+export default CaregiverAuthBackground;

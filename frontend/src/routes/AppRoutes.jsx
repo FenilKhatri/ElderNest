@@ -7,13 +7,12 @@ import RoleRoute from "./RoleRoutes";
 
 import AuthPage from "../components/forms/auth/AuthPage";
 
-import Bookings from "../pages/admin/Bookings";
-import UpdatePassword from "../pages/admin/UpdatePassword";
-
 // LAYOUTS
 const PublicLayout = lazy(() => import("../components/layout/PublicLayout"));
 const AdminLayout = lazy(() => import("../components/layout/AdminLayout"));
-const CaregiverLayout = lazy(() => import("../components/layout/CaregiverLayout"));
+const CaregiverLayout = lazy(
+  () => import("../components/layout/CaregiverLayout"),
+);
 
 //  PUBLIC
 const Home = lazy(() => import("../pages/public/Home"));
@@ -37,16 +36,19 @@ const UserProfile = lazy(() => import("../pages/users/Profile"));
 //  ADMIN
 const AdminDashboard = lazy(() => import("../pages/admin/Dashboard"));
 const AdminProfile = lazy(() => import("../pages/admin/Profile"));
-const Complaints = lazy(() => import("../pages/admin/Complaints"));
-const Users = lazy(() => import("../pages/admin/Users"));
+const AdminComplaints = lazy(() => import("../pages/admin/Complaints"));
+const AdminUsers = lazy(() => import("../pages/admin/Users"));
 const AdminServices = lazy(() => import("../pages/admin/Services"));
 const AdminCaregivers = lazy(() => import("../pages/admin/Caregivers"));
+const AdminBookings = lazy(() => import("../pages/admin/Bookings"));
 
 //  CAREGIVER
 const CaregiverDashboard = lazy(() => import("../pages/caregiver/Dashboard"));
-const CareNotes = lazy(() => import("../pages/caregiver/CareNotes"));
-const Requests = lazy(() => import("../pages/caregiver/Requests"));
-const ActiveServices = lazy(() => import("../pages/caregiver/ActiveServices"));
+const CaregiverCareNotes = lazy(() => import("../pages/caregiver/CareNotes"));
+const CaregiverRequests = lazy(() => import("../pages/caregiver/Requests"));
+const CaregiverActiveServices = lazy(
+  () => import("../pages/caregiver/ActiveServices"),
+);
 const CaregiverProfile = lazy(() => import("../pages/caregiver/Profile"));
 
 const AppRoutes = ({ theme, toggleTheme }) => {
@@ -91,16 +93,12 @@ const AppRoutes = ({ theme, toggleTheme }) => {
               element={<AdminLayout theme={theme} toggleTheme={toggleTheme} />}
             >
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/caregivers" element={<AdminCaregivers />} />
               <Route path="/admin/services" element={<AdminServices />} />
-              <Route path="/admin/bookings" element={<Bookings />} />
-              <Route path="/admin/complaints" element={<Complaints />} />
+              <Route path="/admin/bookings" element={<AdminBookings />} />
+              <Route path="/admin/complaints" element={<AdminComplaints />} />
               <Route path="/admin/profile" element={<AdminProfile />} />
-              <Route
-                path="/admin/update-password"
-                element={<UpdatePassword />}
-              />
             </Route>
           </Route>
         </Route>
@@ -118,10 +116,16 @@ const AppRoutes = ({ theme, toggleTheme }) => {
               />
               <Route
                 path="/caregiver/active-services"
-                element={<ActiveServices />}
+                element={<CaregiverActiveServices />}
               />
-              <Route path="/caregiver/care-notes" element={<CareNotes />} />
-              <Route path="/caregiver/requests" element={<Requests />} />
+              <Route
+                path="/caregiver/care-notes"
+                element={<CaregiverCareNotes />}
+              />
+              <Route
+                path="/caregiver/requests"
+                element={<CaregiverRequests />}
+              />
               <Route path="/caregiver/profile" element={<CaregiverProfile />} />
             </Route>
           </Route>

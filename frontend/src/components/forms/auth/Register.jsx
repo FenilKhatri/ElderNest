@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { register } from "../../../api/authapi";
 import { useNavigate } from "react-router-dom";
 import { fields } from "../../../data/forms/inputFields";
+import GoogleButton from "../../ui/GoogleAuthButton";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -17,10 +18,12 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -33,21 +36,14 @@ const Register = () => {
       toast.error("Passwords do not match");
       return;
     }
-    
+
     try {
       setLoading(true);
+
       const data = await register(form);
 
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword: "",
-      });
-      toast.success(data?.message || "Register successfully!");
+      toast.success(data?.message || "Registered successfully!");
       navigate("/auth");
-
     } catch (error) {
       toast.error(error?.message || "Failed to Register!");
     } finally {
@@ -61,28 +57,29 @@ const Register = () => {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="space-y-4"
+      className="space-y-5"
     >
-      {/* Name, Emial, Phone */}
+      {/* Basic Fields */}
       {fields?.map((field) => {
-        const Icon = field?.icon;
+        const Icon = field.icon;
 
         return (
-          <Input
-            label={field?.label}
-            labelName={field?.labelName}
-            icon={Icon}
-            type={field?.type}
-            placeholder={field?.placeholder}
-            id={field?.id}
-            name={field?.name}
-            value={form[field?.name]}
-            onChange={handleChange}
-          />
+          <motion.div key={field.name} variants={fadeUp}>
+            <Input
+              label={field.label}
+              labelName={field.labelName}
+              icon={Icon}
+              type={field.type}
+              placeholder={field.placeholder}
+              name={field.name}
+              value={form[field.name]}
+              onChange={handleChange}
+            />
+          </motion.div>
         );
       })}
 
-      {/* Password */}
+      {/* Password Fields */}
       {[
         {
           name: "password",
@@ -104,7 +101,6 @@ const Register = () => {
             icon={Lock}
             type={field.show ? "text" : "password"}
             placeholder={`Enter your ${field.label.toLowerCase()}...`}
-            id={field.name}
             name={field.name}
             value={form[field.name]}
             onChange={handleChange}
@@ -113,23 +109,34 @@ const Register = () => {
           <button
             type="button"
             onClick={field.toggle}
-            className="absolute right-3 top-10 text-slate-500"
+            className="absolute right-3 top-10 text-slate-500 hover:text-slate-700"
           >
             {field.show ? <Eye size={18} /> : <EyeOff size={18} />}
           </button>
         </motion.div>
       ))}
 
-      {/* Button */}
-      <motion.div variants={fadeUp} whileTap={{ scale: 0.97 }}>
+      {/* Register Button */}
+      <motion.div variants={fadeUp}>
         <Button
           type="submit"
-          className={`w-full hover:opacity-90 ${
-            loading ? "cursor-not-allowed opacity-60" : ""
-          }`}
+          disabled={loading}
+          className={`w-full ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
         >
           {loading ? "Signing up..." : "Sign Up →"}
         </Button>
+      </motion.div>
+
+      {/* Divider */}
+      <motion.div variants={fadeUp} className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        <span className="text-sm text-slate-500">OR</span>
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+      </motion.div>
+
+      {/* Google Signup */}
+      <motion.div variants={fadeUp}>
+        <GoogleButton />
       </motion.div>
     </motion.form>
   );

@@ -68,12 +68,6 @@ const Navbar = ({ theme, toggleTheme }) => {
                     <User size={18} /> Login
                   </Button>
                 </NavLink>
-
-                <NavLink to="/caregiver-auth">
-                  <Button variant="secondary">
-                    <User size={18} /> Become Caregiver
-                  </Button>
-                </NavLink>
               </>
             ) : (
               <>
@@ -168,12 +162,6 @@ const Navbar = ({ theme, toggleTheme }) => {
                 <NavLink to="/auth">
                   <Button>
                     <User size={18} /> Login
-                  </Button>
-                </NavLink>
-
-                <NavLink to="/caregiver-auth">
-                  <Button variant="secondary">
-                    <User size={18} /> Become Caregiver
                   </Button>
                 </NavLink>
               </>

@@ -103,7 +103,7 @@ export const links = {
             { path: "/services", name: "Dementia Care" },
         ],
         professionals: [
-            { path: "/caregiver-login", name: "Join as Caregiver" },
+            { path: "/caregiver-auth", name: "Join as Caregiver" },
             { path: "*", name: "Partner Clinics" },
             { path: "*", name: "Training Resources" },
         ],

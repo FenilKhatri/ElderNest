@@ -8,14 +8,17 @@ import { toast } from "react-toastify";
 import { login } from "../../../api/authapi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
+import GoogleButton from "../../ui/GoogleAuthButton";
 
 const Login = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const { fetchUser } = useAuth();
 
@@ -31,10 +34,8 @@ const Login = () => {
 
       const res = await login(form);
 
-      const userData = res?.user; 
-      setUser(userData);
-
       toast.success(res?.message || "Login Successful");
+      await fetchUser(); // ✅ better than setUser
       navigate("/");
     } catch (error) {
       toast.error(error?.message || "Failed to login!");
@@ -49,7 +50,7 @@ const Login = () => {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="space-y-4"
+      className="space-y-5"
     >
       {/* Email */}
       <motion.div variants={fadeUp}>
@@ -59,7 +60,6 @@ const Login = () => {
           icon={Mail}
           type="email"
           placeholder="Enter your email..."
-          id="email"
           name="email"
           value={form.email}
           onChange={handleChange}
@@ -74,35 +74,41 @@ const Login = () => {
           icon={Lock}
           type={showPassword ? "text" : "password"}
           placeholder="Enter your password..."
-          id="password"
           name="password"
           value={form.password}
           onChange={handleChange}
         />
 
-        {/* Eye Icon */}
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-10 text-slate-500"
+          className="absolute right-3 top-10 text-slate-500 hover:text-slate-700"
         >
           {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
         </button>
       </motion.div>
 
-      {/* Button */}
+      {/* Login Button */}
       <motion.div variants={fadeUp}>
         <Button
           type="submit"
           disabled={loading}
-          className={`w-full ${
-            loading
-              ? "cursor-not-allowed opacity-60"
-              : "hover:opacity-90 cursor-pointer"
-          }`}
+          className={`w-full ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
         >
           {loading ? "Logging in..." : "Login →"}
         </Button>
+      </motion.div>
+
+      {/* Divider */}
+      <motion.div variants={fadeUp} className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        <span className="text-sm text-slate-500">OR</span>
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+      </motion.div>
+
+      {/* Google Login */}
+      <motion.div variants={fadeUp}>
+        <GoogleButton />
       </motion.div>
     </motion.form>
   );

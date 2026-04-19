@@ -1,10 +1,11 @@
 import express from "express";
 import authRoutes from "./routes/auth.routes.js";
+import caregiverAuthRoutes from "./routes/caregivers.routes.js";
 import dns from "dns";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
-import { limiter } from "./helpers/rate.limiter.js";
+import { apiLimiter } from "./helpers/limiter.js";
 
 const app = express();
 dns.setServers(['8.8.8.8', '8.8.4.4']);
@@ -27,7 +28,6 @@ app.use(
     })
 );
 // Handle preflight fetch
-app.options(/.*/, cors()); 
 app.use(express.urlencoded({ extended: true }));
 
 // Disable caching
@@ -38,13 +38,11 @@ app.use((req, res, next) => {
 });
 
 app.use(helmet());
-app.use((req, res, next) => {
-    if (req.method === "OPTIONS") return res.sendStatus(200);;
-    limiter(req, res, next);
-});
+app.use(apiLimiter);
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/caregiver/auth", caregiverAuthRoutes);
 
 // Health check
 app.get("/", (req, res) => {
@@ -56,13 +54,22 @@ app.get("/", (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-    console.error(err);
+    console.error("ERROR:", err);
 
     const statusCode = err.statusCode || 500;
 
-    res.status(statusCode).json({
+    // If it's a known error → show message
+    if (err.isOperational) {
+        return res.status(statusCode).json({
+            success: false,
+            message: err.message,
+        });
+    }
+
+    // Unknown error → hide message
+    return res.status(500).json({
         success: false,
-        message: err.message || "Internal Server Error",
+        message: "Something went wrong",
     });
 });
 

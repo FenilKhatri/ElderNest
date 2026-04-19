@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema(
             unique: true,
             lowercase: true,
             trim: true,
+            index: true,
         },
 
         phone: {
@@ -30,7 +31,7 @@ const userSchema = new mongoose.Schema(
 
         role: {
             type: String,
-            enum: ["user", "admin"],
+            enum: ["user", "admin", "caregiver"],
             default: "user",
         },
 
@@ -47,6 +48,17 @@ const userSchema = new mongoose.Schema(
         lockUntil: {
             type: Date,
             default: null,
+        },
+
+        isApproved: {
+            type: Boolean,
+            default: false,
+        },
+
+        status: {
+            type: String,
+            enum: ["pending", "approved", "rejected"],
+            default: "pending",
         },
     },
     {

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Login from "./Login";
 import Register from "./Register";
 import UserAuthBackground from "../../sections/auth/UserAuthBackground";
+import CaregiverAuthBackground from "../../sections/auth/CaregiverAuthBackground";
 import { fadeUp } from "../../../animations/motionVariants";
 import H2 from "../../ui/H2";
 import { useLocation } from "react-router-dom";
@@ -20,7 +21,11 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Side */}
-      <UserAuthBackground />
+      {isCaregiverRoute ? (
+        <CaregiverAuthBackground />
+      ) : (
+        <UserAuthBackground />
+      )}
 
       {/* Right Side */}
       <div className="w-full md:w-1/2 flex items-center justify-center dark:bg-linear-to-br from-slate-900 to-slate-800 p-6">

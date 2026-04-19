@@ -1,5 +1,5 @@
 import H3 from "./H3";
-import Avatar from "../../assets/images/other/mobilebg.avif";
+import Avatar from "../../assets/images/other/authbg.avif";
 
 const AuthBackground = ({
   PersonName,
