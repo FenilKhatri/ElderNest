@@ -1,6 +1,6 @@
 import Google from "../../assets/images/google.avif";
 import { firebaseGoogleLogin } from "../../services/auth.service";
-import { googleAuthApi } from "../../api/googleapi";
+import { googleAuthApi } from "../../api/googleApi";
 
 const GoogleAuthButton = ({ role = "user" }) => {
   const handleGoogleLogin = async () => {
