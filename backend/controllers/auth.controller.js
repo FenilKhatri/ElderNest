@@ -1,9 +1,11 @@
 import { asyncHandler } from "../helpers/async.helper.js";
-import { createUser } from "../services/auth.services.js";
+import { createUser, existingUser } from "../services/auth.services.js";
 import { ROLES } from "../utils/constants.js";
 import { setAuthCookie } from "../utils/cookie.utils.js";
 import generateToken from "../utils/generateToke.utils.js";
 import { successResponse, errorResponse } from "../utils/responseHandler.utils.js";
+import admin from "firebase-admin";
+import User from "../models/user.model.js";
 
 // Register
 export const register = asyncHandler(async (req, res) => {
@@ -58,7 +60,8 @@ export const googleAuthController = async (req, res) => {
 
         return successResponse(res, 200, "Google login successful", { user });
     } catch (error) {
-        return errorResponse(res, 401, "Invalid Google token");
+        console.error("Google Auth Error:", error);
+        return errorResponse(res, 401, error.message || "Invalid Google token");
     }
 };
 
