@@ -54,85 +54,94 @@ const CaregiverProfile = lazy(() => import("../pages/caregiver/Profile"));
 
 const AppRoutes = ({ theme, toggleTheme }) => {
   return (
-    <Suspense fallback={null}>
+    <>
       <ToastContainer autoClose={5000} />
+      <Suspense fallback={null}>
+        <Routes>
+          {/*  PUBLIC  */}
+          <Route
+            element={<PublicLayout theme={theme} toggleTheme={toggleTheme} />}
+          >
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/blogs" element={<Blog />} />
+            <Route path="/blogs/:id" element={<BlogDetails />} />
+            <Route path="/caregivers" element={<Caregivers />} />
+            <Route path="/caregivers/:id" element={<CaregiverDetails />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/services/:id" element={<ServiceDetails />} />
 
-      <Routes>
-        {/*  PUBLIC  */}
-        <Route
-          element={<PublicLayout theme={theme} toggleTheme={toggleTheme} />}
-        >
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/blogs" element={<Blog />} />
-          <Route path="/blogs/:id" element={<BlogDetails />} />
-          <Route path="/caregivers" element={<Caregivers />} />
-          <Route path="/caregivers/:id" element={<CaregiverDetails />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/services/:id" element={<ServiceDetails />} />
+            {/* Auth */}
+            <Route path="/auth" element={<AuthPage role={ROLES?.USER} />} />
+            <Route
+              path="/caregiver-auth"
+              element={<AuthPage role={ROLES?.CAREGIVER} />}
+            />
 
-          {/* Auth */}
-          <Route path="/auth" element={<AuthPage role={ROLES?.USER} />} />
-          <Route path="/caregiver-auth" element={<AuthPage role={ROLES?.CAREGIVER} />} />
+            {/* USER (Protected) */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/user/dashboard" element={<Dashboard />} />
+              <Route path="/user/book-services" element={<BookServices />} />
+              <Route path="/user/my-bookings" element={<MyBookings />} />
+              <Route path="/user/profile" element={<UserProfile />} />
+            </Route>
 
-          {/* USER (Protected) */}
+            {/*  404  */}
+            <Route path="*" element={<PageNotFound />} />
+          </Route>
+          {/*  ADMIN  */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/user/dashboard" element={<Dashboard />} />
-            <Route path="/user/book-services" element={<BookServices />} />
-            <Route path="/user/my-bookings" element={<MyBookings />} />
-            <Route path="/user/profile" element={<UserProfile />} />
-          </Route>
-
-          {/*  404  */}
-          <Route path="*" element={<PageNotFound />} />
-        </Route>
-        {/*  ADMIN  */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<RoleRoute allowedRoles={["admin"]} />}>
-            <Route
-              element={<AdminLayout theme={theme} toggleTheme={toggleTheme} />}
-            >
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/caregivers" element={<AdminCaregivers />} />
-              <Route path="/admin/services" element={<AdminServices />} />
-              <Route path="/admin/bookings" element={<AdminBookings />} />
-              <Route path="/admin/complaints" element={<AdminComplaints />} />
-              <Route path="/admin/profile" element={<AdminProfile />} />
+            <Route element={<RoleRoute allowedRoles={["admin"]} />}>
+              <Route
+                element={
+                  <AdminLayout theme={theme} toggleTheme={toggleTheme} />
+                }
+              >
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/caregivers" element={<AdminCaregivers />} />
+                <Route path="/admin/services" element={<AdminServices />} />
+                <Route path="/admin/bookings" element={<AdminBookings />} />
+                <Route path="/admin/complaints" element={<AdminComplaints />} />
+                <Route path="/admin/profile" element={<AdminProfile />} />
+              </Route>
             </Route>
           </Route>
-        </Route>
-        {/*  CAREGIVER  */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<RoleRoute allowedRoles={["caregiver"]} />}>
-            <Route
-              element={
-                <CaregiverLayout theme={theme} toggleTheme={toggleTheme} />
-              }
-            >
+          {/*  CAREGIVER  */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<RoleRoute allowedRoles={["caregiver"]} />}>
               <Route
-                path="/caregiver/dashboard"
-                element={<CaregiverDashboard />}
-              />
-              <Route
-                path="/caregiver/active-services"
-                element={<CaregiverActiveServices />}
-              />
-              <Route
-                path="/caregiver/care-notes"
-                element={<CaregiverCareNotes />}
-              />
-              <Route
-                path="/caregiver/requests"
-                element={<CaregiverRequests />}
-              />
-              <Route path="/caregiver/profile" element={<CaregiverProfile />} />
+                element={
+                  <CaregiverLayout theme={theme} toggleTheme={toggleTheme} />
+                }
+              >
+                <Route
+                  path="/caregiver/dashboard"
+                  element={<CaregiverDashboard />}
+                />
+                <Route
+                  path="/caregiver/active-services"
+                  element={<CaregiverActiveServices />}
+                />
+                <Route
+                  path="/caregiver/care-notes"
+                  element={<CaregiverCareNotes />}
+                />
+                <Route
+                  path="/caregiver/requests"
+                  element={<CaregiverRequests />}
+                />
+                <Route
+                  path="/caregiver/profile"
+                  element={<CaregiverProfile />}
+                />
+              </Route>
             </Route>
           </Route>
-        </Route>
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </>
   );
 };
 
