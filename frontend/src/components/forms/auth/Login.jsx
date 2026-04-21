@@ -8,7 +8,9 @@ import { toast } from "react-toastify";
 import { login } from "../../../api/authapi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
-import GoogleButton from "../../ui/GoogleAuthButton";
+import GoogleAuthButton from "../../ui/GoogleAuthButton";
+import { getRedirectByRole } from "../../../utils/roleRedirect";
+import { ROLES } from "../../../utils/constants";
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -35,8 +37,10 @@ const Login = () => {
       const res = await login(form);
 
       toast.success(res?.message || "Login Successful");
-      await fetchUser(); // ✅ better than setUser
-      navigate("/");
+
+      await fetchUser();
+
+      navigate(getRedirectByRole(res?.user?.role));
     } catch (error) {
       toast.error(error?.message || "Failed to login!");
     } finally {
@@ -108,7 +112,7 @@ const Login = () => {
 
       {/* Google Login */}
       <motion.div variants={fadeUp}>
-        <GoogleButton />
+        <GoogleAuthButton role={ROLES?.USER} />
       </motion.div>
     </motion.form>
   );

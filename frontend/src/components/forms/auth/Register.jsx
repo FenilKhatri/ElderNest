@@ -8,7 +8,9 @@ import { toast } from "react-toastify";
 import { register } from "../../../api/authapi";
 import { useNavigate } from "react-router-dom";
 import { fields } from "../../../data/forms/inputFields";
-import GoogleButton from "../../ui/GoogleAuthButton";
+import GoogleAuthButton from "../../ui/GoogleAuthButton";
+import { ROLES } from "../../../utils/constants";
+import { getRedirectByRole } from "../../../utils/roleRedirect";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -43,7 +45,7 @@ const Register = () => {
       const data = await register(form);
 
       toast.success(data?.message || "Registered successfully!");
-      navigate("/auth");
+      navigate(getRedirectByRole(data?.user?.role));
     } catch (error) {
       toast.error(error?.message || "Failed to Register!");
     } finally {
@@ -136,7 +138,7 @@ const Register = () => {
 
       {/* Google Signup */}
       <motion.div variants={fadeUp}>
-        <GoogleButton />
+        <GoogleAuthButton role={ROLES?.USER} />
       </motion.div>
     </motion.form>
   );

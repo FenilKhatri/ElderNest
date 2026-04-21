@@ -1,30 +1,20 @@
-import generateToken from "../utils/generate.token.js";
-import { successResponse } from "../utils/response.handler.js"
 import { asyncHandler } from "../helpers/async.helper.js";
-import { createUser, existingUser } from "../services/auth.services.js";
-import User from "../models/user.model.js";
+import { createUser } from "../services/auth.services.js";
+import { ROLES } from "../utils/constants.js";
+import { setAuthCookie } from "../utils/cookie.utils.js";
+import generateToken from "../utils/generateToke.utils.js";
+import { successResponse } from "../utils/responseHandler.utils.js";
 
 // Register
 export const register = asyncHandler(async (req, res) => {
     const user = await createUser(req.body);
 
-    const token = generateToken(user._id, "user");
+    const token = generateToken(user._id, ROLES?.USER);
 
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    setAuthCookie(res, token);
 
     return successResponse(res, 201, "User registered successfully!", {
-        user: {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            role: user.role || "user",
-        },
+        user,
     });
 });
 
@@ -34,66 +24,41 @@ export const login = asyncHandler(async (req, res) => {
 
     const token = generateToken(user._id, user.role);
 
-    res.cookie("token", token, {
-        httpOnly: true, // Protect from XSS
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    setAuthCookie(res, token);
+
+    return successResponse(res, 200, "Login successful!", {
+        user,
     });
-
-    const responseData = {
-        user: {
-            id: user._id,
-            email: user.email,
-            role: user.role || "user",
-        },
-    };
-
-    return successResponse(res, 200, "Login successful!", responseData);
 });
 
-// Google OAuth
+// Google Auth
 export const googleAuthController = async (req, res) => {
     try {
-        const { name, email, profileImage } = req.body;
+        const { token } = req.body;
+
+        const decoded = await admin.auth().verifyIdToken(token);
+        const { name, email, picture } = decoded;
 
         let user = await User.findOne({ email });
 
-        // Create if not exists
         if (!user) {
             user = await User.create({
                 name,
                 email,
-                profileImage,
-                role: "user",
+                profileImage: picture,
+                role: ROLES?.USER,
                 isApproved: true,
                 status: "approved",
             });
         }
 
-        const token = generateToken(user._id, user.role);
+        const jwtToken = generateToken(user._id, user.role);
 
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "none",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
+        setAuthCookie(res, jwtToken);
 
-        return successResponse(res, 200, "Google login successful", {
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
-        });
+        return successResponse(res, 200, "Google login successful", { user });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: "Google authentication failed",
-        });
+        return errorResponse(res, 401, "Invalid Google token");
     }
 };
 

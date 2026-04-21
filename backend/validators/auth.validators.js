@@ -1,4 +1,4 @@
-import { errorResponse } from "../utils/response.handler.js";
+import { errorResponse } from "../utils/responseHandler.utils.js";
 
 // Register
 export const validateRegister = (req, res, next) => {

@@ -8,6 +8,9 @@ import { toast } from "react-toastify";
 import { register } from "../../../api/authapi";
 import { useNavigate } from "react-router-dom";
 import { fields } from "../../../data/forms/inputFields";
+import GoogleAuthButton from "../../ui/GoogleAuthButton";
+import { ROLES } from "../../../utils/constants";
+import { getRedirectByRole } from "../../../utils/roleRedirect";
 
 const CaregiverRegister = () => {
   const [form, setForm] = useState({
@@ -46,7 +49,8 @@ const CaregiverRegister = () => {
         confirmPassword: "",
       });
       toast.success(data?.message || "Register successfully!");
-      navigate("/auth");
+      
+      navigate(getRedirectByRole(data?.user?.role));
     } catch (error) {
       toast.error(error?.message || "Failed to Register!");
     } finally {
@@ -129,6 +133,18 @@ const CaregiverRegister = () => {
         >
           {loading ? "Signing up..." : "Sign Up →"}
         </Button>
+      </motion.div>
+
+      {/* Divider */}
+      <motion.div variants={fadeUp} className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        <span className="text-sm text-slate-500">OR</span>
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+      </motion.div>
+
+      {/* Google Login */}
+      <motion.div variants={fadeUp}>
+        <GoogleAuthButton role={ROLES?.CAREGIVER} />
       </motion.div>
     </motion.form>
   );

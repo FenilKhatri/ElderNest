@@ -1,61 +1,37 @@
-import generateToken from "../utils/generate.token.js";
-import { successResponse } from "../utils/response.handler.js";
 import { asyncHandler } from "../helpers/async.helper.js";
-import User from "../models/user.model.js";
 import Caregiver from "../models/caregiver.model.js";
-import {
-    createCaregiver,
-    existingCaregiver,
-} from "../services/caregiver.auth.services.js";
+import { createCaregiver, existingCaregiver } from "../services/caregiver.auth.services.js";
+import { ROLES } from "../utils/constants.js";
+import { setAuthCookie } from "../utils/cookie.utils.js";
+import generateToken from "../utils/generateToke.utils.js";
+import { successResponse } from "../utils/responseHandler.utils.js";
 
-// Register
+// Register caregiver
 export const registerCaregiver = asyncHandler(async (req, res) => {
     const user = await createCaregiver(req.body);
 
     const token = generateToken(user._id, user.role);
 
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    setAuthCookie(res, token);
 
-    return successResponse(res, 201, "Caregiver registered successfully!", {
-        user: {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            role: user.role || "caregiver",
-            status: user.status || "pending",
-            profileCompleted: false,
-        },
+    return successResponse(res, 201, "Caregiver registered!", {
+        user,
     });
 });
 
-// Login
+// Login caregiver
 export const loginCaregiver = asyncHandler(async (req, res) => {
     const user = await existingCaregiver(req.body);
 
+    if (!user.isApproved) {
+        return errorResponse(res, 403, "Awaiting admin approval");
+    }
+
     const token = generateToken(user._id, user.role);
 
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    setAuthCookie(res, token);
 
-    const responseData = {
-        user: {
-            id: user._id,
-            email: user.email,
-            role: user.role || "caregiver",
-        },
-    };
-
-    return successResponse(res, 200, "Login successful!", responseData);
+    return successResponse(res, 200, "Login successful", { user });
 });
 
 // me

@@ -6,26 +6,21 @@ import UserAuthBackground from "../../sections/auth/UserAuthBackground";
 import CaregiverAuthBackground from "../../sections/auth/CaregiverAuthBackground";
 import { fadeUp } from "../../../animations/motionVariants";
 import H2 from "../../ui/H2";
-import { useLocation } from "react-router-dom";
 import CaregiverLogin from "./CaregiverLogin";
 import CaregiverRegister from "./CaregiverRegister";
 
-const AuthPage = () => {
+const AuthPage = ({ role = "user" }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const location = useLocation();
-  const isCaregiverRoute = location.pathname.includes("caregiver");
 
-  const LoginComponent = isCaregiverRoute ? CaregiverLogin : Login;
-  const RegisterComponent = isCaregiverRoute ? CaregiverRegister : Register;
+  const isCaregiver = role === "caregiver";
+
+  const LoginComponent = isCaregiver ? CaregiverLogin : Login;
+  const RegisterComponent = isCaregiver ? CaregiverRegister : Register;
 
   return (
     <div className="min-h-screen flex">
       {/* Left Side */}
-      {isCaregiverRoute ? (
-        <CaregiverAuthBackground />
-      ) : (
-        <UserAuthBackground />
-      )}
+      {isCaregiver ? <CaregiverAuthBackground /> : <UserAuthBackground />}
 
       {/* Right Side */}
       <div className="w-full md:w-1/2 flex items-center justify-center dark:bg-linear-to-br from-slate-900 to-slate-800 p-6">
@@ -40,12 +35,12 @@ const AuthPage = () => {
           >
             <H2 className="text-2xl font-bold text-slate-900">
               {isLogin
-                ? `Welcome back ${isCaregiverRoute ? "Caregiver" : ""}`
-                : `Create your ${isCaregiverRoute ? "Caregiver" : ""} account`}
+                ? `Welcome back ${isCaregiver ? "Caregiver" : ""}`
+                : `Create your ${isCaregiver ? "Caregiver" : ""} account`}
             </H2>
 
             <p className="text-slate-400 text-sm">
-              {isCaregiverRoute
+              {isCaregiver
                 ? isLogin
                   ? "Login to manage your caregiving services."
                   : "Join as a caregiver and offer your services."
@@ -55,12 +50,11 @@ const AuthPage = () => {
             </p>
           </motion.div>
 
-          {/* Toggle Buttons */}
+          {/* Toggle */}
           <div className="flex mb-6 bg-slate-200 dark:bg-slate-800 rounded-lg p-1">
             <button
-              type="button"
               onClick={() => setIsLogin(true)}
-              className={`w-1/2 py-2 rounded-md text-sm font-semibold transition ${
+              className={`w-1/2 py-2 rounded-md text-sm font-semibold ${
                 isLogin
                   ? "bg-slate-100 text-slate-800 shadow"
                   : "text-slate-500"
@@ -70,9 +64,8 @@ const AuthPage = () => {
             </button>
 
             <button
-              type="button"
               onClick={() => setIsLogin(false)}
-              className={`w-1/2 py-2 rounded-md text-sm font-semibold transition ${
+              className={`w-1/2 py-2 rounded-md text-sm font-semibold ${
                 !isLogin
                   ? "bg-slate-100 text-slate-800 shadow"
                   : "text-slate-500"
@@ -82,26 +75,15 @@ const AuthPage = () => {
             </button>
           </div>
 
+          {/* Forms */}
           <AnimatePresence mode="wait">
             {isLogin ? (
-              <motion.div
-                key="login"
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
-                transition={{ duration: 0.3 }}
-              >
-                <LoginComponent />
+              <motion.div key="login">
+                <LoginComponent role={role} />
               </motion.div>
             ) : (
-              <motion.div
-                key="register"
-                initial={{ opacity: 0, x: -40 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 40 }}
-                transition={{ duration: 0.3 }}
-              >
-                <RegisterComponent />
+              <motion.div key="register">
+                <RegisterComponent role={role} />
               </motion.div>
             )}
           </AnimatePresence>

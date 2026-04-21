@@ -6,6 +6,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoutes";
 
 import AuthPage from "../components/forms/auth/AuthPage";
+import { ROLES } from "../utils/constants";
 
 // LAYOUTS
 const PublicLayout = lazy(() => import("../components/layout/PublicLayout"));
@@ -72,8 +73,8 @@ const AppRoutes = ({ theme, toggleTheme }) => {
           <Route path="/services/:id" element={<ServiceDetails />} />
 
           {/* Auth */}
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/caregiver-auth" element={<AuthPage />} />
+          <Route path="/auth" element={<AuthPage role={ROLES?.USER} />} />
+          <Route path="/caregiver-auth" element={<AuthPage role={ROLES?.CAREGIVER} />} />
 
           {/* USER (Protected) */}
           <Route element={<ProtectedRoute />}>

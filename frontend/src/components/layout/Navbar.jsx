@@ -6,6 +6,8 @@ import Button from "../ui/Button";
 import { useAuth } from "../../context/AuthContext";
 import { links } from "../../data/navigations/links";
 import { logOut } from "../../api/logoutapi";
+import { signOut } from "firebase/auth";
+import { auth } from "../../config/firebase";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -25,9 +27,14 @@ const Navbar = ({ theme, toggleTheme }) => {
   }, [location.pathname]);
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  }
+      try {
+        await signOut(auth);
+        await logout();
+        navigate("/");
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
   if (!initialized)
     return <div className="h-16 bg-white dark:bg-slate-900 animate-pulse" />;

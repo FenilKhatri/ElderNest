@@ -8,6 +8,9 @@ import { toast } from "react-toastify";
 import { login } from "../../../api/authapi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
+import GoogleAuthButton from "../../ui/GoogleAuthButton";
+import { ROLES } from "../../../utils/constants";
+import { getRedirectByRole } from "../../../utils/roleRedirect";
 
 const CaregiverLogin = () => {
   const [form, setForm] = useState({
@@ -31,11 +34,10 @@ const CaregiverLogin = () => {
 
       const res = await login(form);
 
-      const userData = res?.user;
-      setUser(userData);
-
       toast.success(res?.message || "Login Successful");
-      navigate("/");
+      await fetchUser();
+      
+      navigate(getRedirectByRole(res?.user?.role));
     } catch (error) {
       toast.error(error?.message || "Failed to login!");
     } finally {
@@ -103,6 +105,18 @@ const CaregiverLogin = () => {
         >
           {loading ? "Logging in..." : "Login →"}
         </Button>
+      </motion.div>
+
+      {/* Divider */}
+      <motion.div variants={fadeUp} className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        <span className="text-sm text-slate-500">OR</span>
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+      </motion.div>
+
+      {/* Google Login */}
+      <motion.div variants={fadeUp}>
+        <GoogleAuthButton role={ROLES?.CAREGIVER} />
       </motion.div>
     </motion.form>
   );

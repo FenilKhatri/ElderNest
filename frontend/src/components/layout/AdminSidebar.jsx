@@ -2,15 +2,22 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { LogOut, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { links } from "../../data/navigations/links";
+import { signOut } from "firebase/auth";
+import { auth } from "../../config/firebase";
 
 const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  }
+    try {
+      await signOut(auth);
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
