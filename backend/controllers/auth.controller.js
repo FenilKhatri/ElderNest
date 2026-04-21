@@ -4,9 +4,8 @@ import { ROLES } from "../utils/constants.js";
 import { setAuthCookie } from "../utils/cookie.utils.js";
 import generateToken from "../utils/generateToke.utils.js";
 import { successResponse, errorResponse } from "../utils/responseHandler.utils.js";
-import admin from "firebase-admin";
-import User from "../models/user.model.js";
 import admin from "../config/firebaseAdmin.js";
+import User from "../models/user.model.js";
 
 // Register
 export const register = asyncHandler(async (req, res) => {
