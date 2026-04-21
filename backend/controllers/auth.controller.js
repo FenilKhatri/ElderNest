@@ -3,7 +3,7 @@ import { createUser } from "../services/auth.services.js";
 import { ROLES } from "../utils/constants.js";
 import { setAuthCookie } from "../utils/cookie.utils.js";
 import generateToken from "../utils/generateToke.utils.js";
-import { successResponse } from "../utils/responseHandler.utils.js";
+import { successResponse, errorResponse } from "../utils/responseHandler.utils.js";
 
 // Register
 export const register = asyncHandler(async (req, res) => {
