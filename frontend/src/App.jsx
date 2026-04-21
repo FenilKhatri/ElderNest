@@ -3,7 +3,7 @@ import "./App.css";
 import AppRoutes from "./routes/AppRoutes";
 import ScrollToTop from "./components/layout/ScrollToTop";
 import { BrowserRouter } from "react-router-dom";
-
+import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./context/AuthContext";
 import GlobalLoader from "./components/ui/GlobalLoader";
 

@@ -55,7 +55,7 @@ const CaregiverProfile = lazy(() => import("../pages/caregiver/Profile"));
 const AppRoutes = ({ theme, toggleTheme }) => {
   return (
     <>
-      <ToastContainer autoClose={5000} />
+      <ToastContainer autoClose={5000} position="top-right" newestOnTop />
       <Suspense fallback={null}>
         <Routes>
           {/*  PUBLIC  */}
