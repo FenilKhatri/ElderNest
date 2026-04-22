@@ -5,7 +5,7 @@ import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
 import { toast } from "react-toastify";
-import { login } from "../../../api/authapi";
+import { login } from "../../../api/caregiversapi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import GoogleAuthButton from "../../ui/GoogleAuthButton";
