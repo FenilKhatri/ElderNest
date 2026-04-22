@@ -1,18 +1,27 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getMe } from "../api/authapi";
-import { logOut } from "../api/logoutapi";
+import { getMe as getUserMe } from "../api/authapi";
+import { getMe as getCaregiverMe } from "../api/caregiversapi";
+import { ROLES } from "../utils/constants";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [initialized, setInitialized] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchUser = async () => {
     try {
-      const res = await getMe();
-      setUser(res?.user || null);
+      const res = await getUserMe();
+
+      if (res?.user?.role === ROLES?.CAREGIVER) {
+        const cg = await getCaregiverMe();
+        setUser({
+          ...cg.user,
+          caregiver: cg.caregiver,
+        });
+      } else {
+        setUser(res.user);
+      }
     } catch (err) {
       setUser(null);
     } finally {
@@ -25,17 +34,11 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = async () => {
-    try {
-      await logOut();
-    } catch (error) {}
-
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, setUser, loading, initialized, logout, fetchUser }}
-    >
+    <AuthContext.Provider value={{ user, setUser, loading, fetchUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -9,5 +9,6 @@ export const login = (payload) => {
 };
 
 export const getMe = async () => {
-    return await http.get("/auth/me");
+    const res = await http.get("/auth/me");
+    return res.data;
 };

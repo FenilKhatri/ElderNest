@@ -7,6 +7,7 @@ import { protect } from "../middlewares/auth.middleware.js";
 import { logout } from "../controllers/logout.controller.js";
 import { authLimiter } from "../helpers/limiter.js";
 import {
+  caregiverDashboard,
   getMeCaregiver,
   loginCaregiver,
   registerCaregiver,
@@ -24,8 +25,12 @@ router.post("/logout", logout);
 
 // Protected Routes for caregivers
 router.use(protect);
-router.use(authorizeRoles(ROLES?.CAREGIVER));
 
 router.get("/me", getMeCaregiver);
+
+// Only approved caregivers can access these routes
+router.use(authorizeRoles(ROLES?.CAREGIVER));
+
+router.get("/dashboard", caregiverDashboard);
 
 export default router;
