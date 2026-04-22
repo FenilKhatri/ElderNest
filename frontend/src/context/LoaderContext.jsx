@@ -9,7 +9,13 @@ export const LoaderProvider = ({ children }) => {
   const hideLoader = () => setLoading(false);
 
   return (
-    <LoaderContext.Provider value={{ loading, showLoader, hideLoader }}>
+    <LoaderContext.Provider
+      value={{
+        loading,
+        showLoader: () => setLoading(true),
+        hideLoader: () => setLoading(false),
+      }}
+    >
       {children}
     </LoaderContext.Provider>
   );

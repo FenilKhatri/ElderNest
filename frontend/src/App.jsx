@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./context/AuthContext";
 import GlobalLoader from "./components/ui/GlobalLoader";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const { initialized } = useAuth();
@@ -30,13 +31,11 @@ function App() {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
 
-  if (!initialized) {
-    return <GlobalLoader />;
-  }
-
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <ToastContainer autoClose={5000} position="top-right" newestOnTop />
+
       <AppRoutes theme={theme} toggleTheme={toggleTheme} />
     </BrowserRouter>
   );

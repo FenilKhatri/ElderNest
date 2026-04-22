@@ -36,9 +36,6 @@ const Navbar = ({ theme, toggleTheme }) => {
       }
     };
 
-  if (!initialized)
-    return <div className="h-16 bg-white dark:bg-slate-900 animate-pulse" />;
-
   return (
     <>
       <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-md sticky top-0 z-50">

@@ -1,5 +1,5 @@
 import http from "./axios"
 
 export const logOut = async () => {
-    return res = await http.post("/auth/logout", {});
+    return await http.post("/auth/logout", {});
 };

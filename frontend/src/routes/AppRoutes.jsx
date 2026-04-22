@@ -1,12 +1,12 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 
 import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoutes";
+import { ROLES } from "../utils/constants";
 
 import AuthPage from "../components/forms/auth/AuthPage";
-import { ROLES } from "../utils/constants";
+import GlobalLoader from "../components/ui/GlobalLoader";
 
 // LAYOUTS
 const PublicLayout = lazy(() => import("../components/layout/PublicLayout"));
@@ -17,7 +17,6 @@ const CaregiverLayout = lazy(
 
 //  PUBLIC
 const Home = lazy(() => import("../pages/public/Home"));
-Home.preload?.();
 const About = lazy(() => import("../pages/public/About"));
 const ContactUs = lazy(() => import("../pages/public/ContactUs"));
 const Blog = lazy(() => import("../pages/public/Blogs"));
@@ -55,14 +54,20 @@ const CaregiverProfile = lazy(() => import("../pages/caregiver/Profile"));
 const AppRoutes = ({ theme, toggleTheme }) => {
   return (
     <>
-      <ToastContainer autoClose={5000} position="top-right" newestOnTop />
-      <Suspense fallback={null}>
+      <Suspense fallback={<GlobalLoader />}>
         <Routes>
           {/*  PUBLIC  */}
           <Route
             element={<PublicLayout theme={theme} toggleTheme={toggleTheme} />}
           >
-            <Route path="/" element={<Home />} />
+            <Route
+              path="/"
+              element={
+                <Suspense fallback={<GlobalLoader />}>
+                  <Home />
+                </Suspense>
+              }
+            />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/blogs" element={<Blog />} />
