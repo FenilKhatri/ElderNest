@@ -33,38 +33,6 @@ export const login = asyncHandler(async (req, res) => {
     });
 });
 
-// Google Auth
-export const googleAuthController = async (req, res) => {
-    try {
-        const { token } = req.body;
-
-        const decoded = await admin.auth().verifyIdToken(token);
-        const { name, email, picture } = decoded;
-
-        let user = await User.findOne({ email });
-
-        if (!user) {
-            user = await User.create({
-                name,
-                email,
-                profileImage: picture,
-                role: ROLES?.USER,
-                isApproved: true,
-                status: "approved",
-            });
-        }
-
-        const jwtToken = generateToken(user._id, user.role);
-
-        setAuthCookie(res, jwtToken);
-
-        return successResponse(res, 200, "Google login successful", { user });
-    } catch (error) {
-        console.error("Google Auth Error:", error);
-        return errorResponse(res, 401, error.message || "Invalid Google token");
-    }
-};
-
 // Me
 export const getMe = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id);

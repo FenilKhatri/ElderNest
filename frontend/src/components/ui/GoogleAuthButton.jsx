@@ -1,9 +1,10 @@
 import Google from "../../assets/images/google.avif";
 import { firebaseGoogleLogin } from "../../services/auth.service";
-import { googleAuthApi } from "../../api/googleApi";
+import { googleAuthApi } from "../../api/googleapi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getRedirectByRole } from "../../utils/roleRedirect";
+import { toast } from "react-toastify";
 
 const GoogleAuthButton = ({ role = "user" }) => {
   const navigate = useNavigate();
@@ -11,18 +12,24 @@ const GoogleAuthButton = ({ role = "user" }) => {
 
   const handleGoogleLogin = async () => {
     try {
-      const token = await firebaseGoogleLogin();
+      const { idToken, role: selectedRole } = await firebaseGoogleLogin(role);
 
       const res = await googleAuthApi({
-        token,
-        role,
+        token: idToken,
+        role: selectedRole,
       });
 
       await fetchUser();
 
       navigate(getRedirectByRole(res?.user?.role));
+      toast.success(res?.message || "Login successful");
     } catch (error) {
-      console.error(error);
+      const actualRole = error?.response?.data?.role || role;
+      toast.error(error?.message || "Login failed");
+
+      if(actualRole) {
+        navigate(getRedirectByRole(actualRole));
+      }
     }
   };
 

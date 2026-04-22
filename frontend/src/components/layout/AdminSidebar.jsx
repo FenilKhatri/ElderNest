@@ -3,7 +3,8 @@ import { LogOut, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { links } from "../../data/navigations/links";
 import { signOut } from "firebase/auth";
-import { auth } from "../../config/firebase";
+import { auth, googleProvider } from "../../config/firebase";
+import { toast } from "react-toastify";
 
 const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
   const { logout } = useAuth();
@@ -14,6 +15,7 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
       await signOut(auth);
       await logout();
       navigate("/");
+      toast.success("Logged out successfully!");
     } catch (error) {
       console.error(error);
     }

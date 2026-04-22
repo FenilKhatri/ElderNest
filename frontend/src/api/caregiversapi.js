@@ -9,6 +9,5 @@ export const login = (payload) => {
 };
 
 export const getMe = async () => {
-    const res = await http.get("/caregiver/auth/me");
-    return res;
+    return await http.get("/caregiver/auth/me");
 };

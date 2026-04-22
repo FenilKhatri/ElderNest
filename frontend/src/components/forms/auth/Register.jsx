@@ -44,8 +44,8 @@ const Register = () => {
 
       const data = await register(form);
 
-      toast.success(data?.message || "Registered successfully!");
       navigate(getRedirectByRole(data?.user?.role));
+      toast.success(data?.message || "Registered successfully!");
     } catch (error) {
       toast.error(error?.message || "Failed to Register!");
     } finally {

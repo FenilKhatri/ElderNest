@@ -13,6 +13,11 @@ export const getFirebase = async () => {
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
+    // Asking to choose to login with an account if there are multiple accounts
+    provider.setCustomParameters({
+        prompt: "select_account",
+    });
+
     return { auth, provider };
 };
 

@@ -36,11 +36,10 @@ const Login = () => {
 
       const res = await login(form);
 
-      toast.success(res?.message || "Login Successful");
-
       await fetchUser();
-
+      
       navigate(getRedirectByRole(res?.user?.role));
+      toast.success(res?.message || "Login Successful");
     } catch (error) {
       toast.error(error?.message || "Failed to login!");
     } finally {

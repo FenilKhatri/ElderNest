@@ -8,6 +8,7 @@ import { links } from "../../data/navigations/links";
 import { logOut } from "../../api/logoutapi";
 import { signOut } from "firebase/auth";
 import { auth } from "../../config/firebase";
+import { toast } from "react-toastify";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,14 +28,15 @@ const Navbar = ({ theme, toggleTheme }) => {
   }, [location.pathname]);
 
   const handleLogout = async () => {
-      try {
-        await signOut(auth);
-        await logout();
-        navigate("/");
-      } catch (error) {
-        console.error(error);
-      }
-    };
+    try {
+      await signOut(auth);
+      await logout();
+      navigate("/");
+      toast.success("Logged out successfully!");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <>

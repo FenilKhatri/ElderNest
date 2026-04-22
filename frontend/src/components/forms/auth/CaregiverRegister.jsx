@@ -48,9 +48,9 @@ const CaregiverRegister = () => {
         password: "",
         confirmPassword: "",
       });
-      toast.success(data?.message || "Register successfully!");
       
       navigate(getRedirectByRole(data?.user?.role));
+      toast.success(data?.message || "Register successfully!");
     } catch (error) {
       toast.error(error?.message || "Failed to Register!");
     } finally {
