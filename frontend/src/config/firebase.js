@@ -15,3 +15,5 @@ export const getFirebase = async () => {
 
     return { auth, provider };
 };
+
+export const { auth, provider: googleProvider } = await getFirebase();
