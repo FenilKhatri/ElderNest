@@ -3,14 +3,14 @@ import Caregiver from "../models/caregiver.model.js";
 import { createCaregiver, existingCaregiver } from "../services/caregiver.auth.services.js";
 import { ROLES } from "../utils/constants.js";
 import { setAuthCookie } from "../utils/cookie.utils.js";
-import generateToken from "../utils/generateToke.utils.js";
-import { successResponse } from "../utils/responseHandler.utils.js";
+import generateToken from "../utils/generateToken.utils.js";
+import { successResponse, errorResponse } from "../utils/responseHandler.utils.js";
 
 // Register caregiver
 export const registerCaregiver = asyncHandler(async (req, res) => {
     const user = await createCaregiver(req.body);
 
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(user);
 
     setAuthCookie(res, token);
 
@@ -23,15 +23,11 @@ export const registerCaregiver = asyncHandler(async (req, res) => {
 export const loginCaregiver = asyncHandler(async (req, res) => {
     const user = await existingCaregiver(req.body);
 
-    if (!user.isApproved) {
-        return errorResponse(res, 403, "Awaiting admin approval");
-    }
-
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(user);
 
     setAuthCookie(res, token);
 
-    return successResponse(res, 200, "Login successful", { user });
+    return successResponse(res, 200, "Login successful", { user, isApproved: user.isApproved });
 });
 
 // me

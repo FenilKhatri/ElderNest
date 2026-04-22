@@ -3,7 +3,7 @@ import Caregiver from "../models/caregiver.model.js";
 import User from "../models/user.model.js";
 import { ROLES } from "../utils/constants.js";
 import { setAuthCookie } from "../utils/cookie.utils.js";
-import generateToken from "../utils/generateToke.utils.js";
+import generateToken from "../utils/generateToken.utils.js";
 import { successResponse, errorResponse } from "../utils/responseHandler.utils.js";
 
 export const googleAuthController = async (req, res) => {
@@ -32,16 +32,12 @@ export const googleAuthController = async (req, res) => {
             if (!caregiver) {
                 return errorResponse(res, 404, "Caregiver not found!");
             }
-
-            if (!user.isApproved) {
-                return errorResponse(res, 403, "Awaiting admin approval");
-            }
         }
 
-        const jwtToken = generateToken(user._id, user.role);
+        const jwtToken = generateToken(user);
         setAuthCookie(res, jwtToken);
 
-        return successResponse(res, 200, "Login successful", { user });
+        return successResponse(res, 200, "Login successful", { user, isApproved: user.isApproved });
 
     } catch (error) {
         console.error("Google Auth Error:", error);

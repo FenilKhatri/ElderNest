@@ -23,7 +23,8 @@ router.post("/google", googleAuthController);
 router.post("/logout", logout);
 
 // Protected Routes for caregivers
-router.use(protect, authorizeRoles(ROLES?.CAREGIVER));
+router.use(protect);
+router.use(authorizeRoles(ROLES?.CAREGIVER));
 
 router.get("/me", getMeCaregiver);
 

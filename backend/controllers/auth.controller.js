@@ -2,7 +2,7 @@ import { asyncHandler } from "../helpers/async.helper.js";
 import { createUser, existingUser } from "../services/auth.services.js";
 import { ROLES } from "../utils/constants.js";
 import { setAuthCookie } from "../utils/cookie.utils.js";
-import generateToken from "../utils/generateToke.utils.js";
+import generateToken from "../utils/generateToken.utils.js";
 import { successResponse, errorResponse } from "../utils/responseHandler.utils.js";
 import admin from "../config/firebaseAdmin.js";
 import User from "../models/user.model.js";
@@ -11,7 +11,7 @@ import User from "../models/user.model.js";
 export const register = asyncHandler(async (req, res) => {
     const user = await createUser(req.body);
 
-    const token = generateToken(user._id, ROLES?.USER);
+    const token = generateToken(user);
 
     setAuthCookie(res, token);
 
@@ -24,7 +24,7 @@ export const register = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
     const user = await existingUser(req.body);
 
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(user);
 
     setAuthCookie(res, token);
 

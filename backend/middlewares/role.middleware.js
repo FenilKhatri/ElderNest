@@ -4,9 +4,14 @@ import { errorResponse } from "../utils/responseHandler.utils.js";
 // Role-based access
 export const authorizeRoles = (...roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
+        const userRole = req.user.role?.toLowerCase();
+
+        const allowedRoles = roles.map(r => r.toLowerCase());
+
+        if (!allowedRoles.includes(userRole)) {
             return errorResponse(res, 403, "Access denied!");
         }
+
         next();
     };
 };
@@ -19,7 +24,7 @@ export const requireApprovedCaregiver = async (req, res, next) => {
         return errorResponse(res, 403, "Caregiver profile not found");
     }
 
-    if (!req.user.isApproved || req.user.status !== "approved") {
+    if (caregiver.status !== "approved" || !caregiver.isApproved) {
         return errorResponse(
             res,
             403,
