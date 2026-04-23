@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       const res = await getUserMe();
+      console.log("User data:", res?.data);
 
       if (res?.user?.role === ROLES?.CAREGIVER) {
         const cg = await getCaregiverMe();
