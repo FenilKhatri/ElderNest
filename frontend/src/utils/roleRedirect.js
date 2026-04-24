@@ -7,7 +7,7 @@ export const getRedirectByRole = (role) => {
         case ROLES?.CAREGIVER:
             return "/caregiver/dashboard";
         case ROLES?.USER:
-            return "/user/dashboard";
+            return "/user/profile";
         default:
             return "/";
     }

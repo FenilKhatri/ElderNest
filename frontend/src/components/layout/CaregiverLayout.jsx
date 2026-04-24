@@ -1,16 +1,13 @@
-import { Outlet } from "react-router-dom";
+import DashboardLayout from "./DashboardLayout";
+import CaregiverSidebar from "./sidebar/CaregiverSidebar";
 
-const CaregiverLayout = ({ theme, toggleTheme }) => {
+const CaregiverLayout = (props) => {
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-800 text-white p-4">Caregiver Menu</aside>
-
-      {/* Main */}
-      <div className="flex-1 p-6">
-        <Outlet />
-      </div>
-    </div>
+    <DashboardLayout
+      title="Caregiver Panel"
+      Sidebar={CaregiverSidebar}
+      {...props}
+    />
   );
 };
 

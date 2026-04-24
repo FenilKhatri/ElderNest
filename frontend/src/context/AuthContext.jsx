@@ -11,8 +11,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await getMe();
       setUser(res.user);
-    } catch {
+    } catch (error) {
       setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -21,12 +23,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const init = async () => {
-      await fetchUser();
-      setLoading(false);
-    };
-
-    init();
+    fetchUser();
   }, []);
 
   return (

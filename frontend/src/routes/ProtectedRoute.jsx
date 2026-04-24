@@ -5,7 +5,7 @@ import ScreenLoader from "../components/ui/GlobalLoader";
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
 
-  if (loading && user === undefined) return <ScreenLoader />;
+  if (loading) return <ScreenLoader />;
 
   if (!user) return <Navigate to="/auth" replace />;
 

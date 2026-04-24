@@ -1,4 +1,5 @@
 import {
+    BarChart,
     Bell,
     Briefcase,
     Calendar,
@@ -6,9 +7,12 @@ import {
     KeyRound,
     LayoutDashboard,
     MessageSquare,
+    Settings,
     Stethoscope,
     User,
     Users,
+    CreditCard,
+    Home,
 } from "lucide-react";
 
 export const links = {
@@ -40,6 +44,11 @@ export const links = {
             icon: Calendar,
         },
         {
+            to: "/admin/reports",
+            label: "Reports",
+            icon: BarChart,
+        },
+        {
             to: "/admin/complaints",
             label: "Complaints",
             icon: MessageSquare,
@@ -50,9 +59,9 @@ export const links = {
             icon: User,
         },
         {
-            to: "/admin/update-password",
-            label: "Update Password",
-            icon: KeyRound,
+            to: "/admin/settings",
+            label: "Settings",
+            icon: Settings,
         },
     ],
 
@@ -62,6 +71,11 @@ export const links = {
             to: "/caregiver/dashboard",
             label: "Dashboard",
             icon: LayoutDashboard,
+        },
+        {
+            to: "/caregiver/requests",
+            label: "Requests",
+            icon: Bell,
         },
         {
             to: "/caregiver/active-services",
@@ -74,14 +88,48 @@ export const links = {
             icon: FileText,
         },
         {
-            to: "/caregiver/requests",
-            label: "Requests",
-            icon: Bell,
+            to: "/caregiver/availability",
+            label: "Availability",
+            icon: Calendar,
+        },
+        {
+            to: "/caregiver/history",
+            label: "Service History",
+            icon: Stethoscope,
+        },
+        {
+            to: "/caregiver/reviews",
+            label: "Ratings/Reviews",
+            icon: MessageSquare,
         },
         {
             to: "/caregiver/profile",
             label: "Profile",
             icon: User,
+        },
+    ],
+
+    //  USER 
+    user: [
+        {
+            to: "/user/profile",
+            label: "Profile",
+            icon: User,
+        },
+        {
+            to: "/user/services",
+            label: "Browse Services",
+            icon: Briefcase,
+        },
+        {
+            to: "/user/bookings",
+            label: "My Bookings",
+            icon: Calendar,
+        },
+        {
+            to: "/user/history",
+            label: "Service History",
+            icon: FileText,
         },
     ],
 

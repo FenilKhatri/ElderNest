@@ -1,6 +1,6 @@
 import Logo from "../../assets/logo.avif";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { User, Menu, X, Moon, Sun, LogOut } from "lucide-react";
+import { User, Menu, X, Moon, Sun, LogOut, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import Button from "../ui/Button";
 import { useAuth } from "../../context/AuthContext";
@@ -9,9 +9,11 @@ import { logOut } from "../../api/logoutapi";
 import { signOut } from "firebase/auth";
 import { auth } from "../../config/firebase";
 import { toast } from "react-toastify";
+import UserDropdown from "../ui/UserDropdown";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
   const { user, logout, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -93,9 +95,19 @@ const Navbar = ({ theme, toggleTheme }) => {
                 )}
 
                 {user?.role === "user" && (
-                  <NavLink to="/user/dashboard">
-                    <Button variant="primary">User Dashboard</Button>
-                  </NavLink>
+                  <>
+                    <div className="relative">
+                      <button
+                        onClick={() => setUserOpen((prev) => !prev)}
+                        className="flex items-center justify-center gap-3 px-3 py-2 rounded bg-slate-200 dark:bg-slate-800"
+                      >
+                        {user.name}
+                        <ChevronDown size={18} />
+                      </button>
+
+                      <UserDropdown open={userOpen} setOpen={setUserOpen} />
+                    </div>
+                  </>
                 )}
 
                 {/* LOGOUT */}
@@ -189,8 +201,8 @@ const Navbar = ({ theme, toggleTheme }) => {
                 )}
 
                 {user?.role === "user" && (
-                  <NavLink to="/user/dashboard">
-                    <Button variant="primary">User Dashboard</Button>
+                  <NavLink to="/user/profile">
+                    <Button variant="primary">User Panel</Button>
                   </NavLink>
                 )}
 
