@@ -1,6 +1,6 @@
-import { asyncHandler } from "../helpers/async.helper";
-import Caregiver from "../models/caregiver.model";
-import User from "../models/user.model";
+import { asyncHandler } from "../helpers/async.helper.js";
+import Caregiver from "../models/caregiver.model.js";
+import User from "../models/user.model.js";
 
 export const getMe = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id);
