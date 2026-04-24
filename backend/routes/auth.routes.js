@@ -1,5 +1,5 @@
 import express from "express";
-import { getMe, login, register } from "../controllers/auth.controller.js";
+import { login, register } from "../controllers/auth.controller.js";
 import { validateLogin, validateRegister } from "../validators/auth.validators.js";
 import { protect } from "../middlewares/auth.middleware.js";
 import { logout } from "../controllers/logout.controller.js";
@@ -16,8 +16,6 @@ router.post("/google", googleAuthController);
 router.post("/logout", logout);
 
 // Protected Routes
-router.use(protect);
-
-router.get("/me", getMe);
+router.use(protect, authorizeRoles(ROLES?.USER, ROLES?.ADMIN));
 
 export default router;
