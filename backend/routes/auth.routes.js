@@ -16,7 +16,7 @@ router.post("/google", googleAuthController);
 router.post("/logout", logout);
 
 // Protected Routes
-router.use(protect, authorizeRoles(ROLES?.ADMIN || ROLES?.USER));
+router.use(protect);
 
 router.get("/me", getMe);
 

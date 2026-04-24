@@ -4,12 +4,10 @@ import AppRoutes from "./routes/AppRoutes";
 import ScrollToTop from "./components/layout/ScrollToTop";
 import { BrowserRouter } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth } from "./context/AuthContext";
 import GlobalLoader from "./components/ui/GlobalLoader";
 import { ToastContainer } from "react-toastify";
 
 function App() {
-  const { initialized } = useAuth();
 
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("theme") || "light";
@@ -35,7 +33,6 @@ function App() {
     <BrowserRouter>
       <ScrollToTop />
       <ToastContainer autoClose={5000} position="top-right" newestOnTop />
-
       <AppRoutes theme={theme} toggleTheme={toggleTheme} />
     </BrowserRouter>
   );

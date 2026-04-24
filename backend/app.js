@@ -1,11 +1,12 @@
 import express from "express";
-import authRoutes from "./routes/auth.routes.js";
-import caregiverAuthRoutes from "./routes/caregivers.routes.js";
 import dns from "dns";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import { apiLimiter } from "./helpers/limiter.js";
+import authRoutes from "./routes/auth.routes.js";
+import caregiverAuthRoutes from "./routes/caregivers.routes.js";
+import meRoutes from "./routes/me.routes.js";
 
 const app = express();
 dns.setServers(['8.8.8.8', '8.8.4.4']);
@@ -43,6 +44,7 @@ app.use(apiLimiter);
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/caregiver/auth", caregiverAuthRoutes);
+app.use("/api/me", meRoutes);
 
 // Health check
 app.get("/", (req, res) => {

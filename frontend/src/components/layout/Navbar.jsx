@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, logout, initialized } = useAuth();
+  const { user, logout, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -37,6 +37,8 @@ const Navbar = ({ theme, toggleTheme }) => {
       console.error(error);
     }
   };
+
+  if (loading) return null;
 
   return (
     <>
@@ -92,7 +94,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
                 {user?.role === "user" && (
                   <NavLink to="/user/dashboard">
-                    <Button variant="secondary">Dashboard</Button>
+                    <Button variant="primary">User Dashboard</Button>
                   </NavLink>
                 )}
 
@@ -188,7 +190,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
                 {user?.role === "user" && (
                   <NavLink to="/user/dashboard">
-                    <Button variant="secondary">Dashboard</Button>
+                    <Button variant="primary">User Dashboard</Button>
                   </NavLink>
                 )}
 

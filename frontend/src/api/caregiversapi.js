@@ -7,8 +7,3 @@ export const register = (payload) => {
 export const login = (payload) => {
     return http.post("/caregiver/auth/login", payload);
 };
-
-export const getMe = async () => {
-    const res = await http.get("/caregiver/auth/me");
-    return res.data;
-};

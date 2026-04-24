@@ -8,7 +8,6 @@ import { logout } from "../controllers/logout.controller.js";
 import { authLimiter } from "../helpers/limiter.js";
 import {
   caregiverDashboard,
-  getMeCaregiver,
   loginCaregiver,
   registerCaregiver,
 } from "../controllers/caregivers.controller.js";
@@ -24,12 +23,7 @@ router.post("/google", googleAuthController);
 router.post("/logout", logout);
 
 // Protected Routes for caregivers
-router.use(protect);
-
-router.get("/me", getMeCaregiver);
-
-// Only approved caregivers can access these routes
-router.use(authorizeRoles(ROLES?.CAREGIVER));
+router.use(protect, authorizeRoles(ROLES?.CAREGIVER));
 
 router.get("/dashboard", caregiverDashboard);
 

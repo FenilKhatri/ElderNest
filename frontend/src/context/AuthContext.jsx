@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getMe as getUserMe } from "../api/authapi";
-import { getMe as getCaregiverMe } from "../api/caregiversapi";
-import { ROLES } from "../utils/constants";
+import { getMe } from "../api/authapi";
 
 const AuthContext = createContext();
 
@@ -11,35 +9,28 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const res = await getUserMe();
-      console.log("User data:", res?.data);
-
-      if (res?.user?.role === ROLES?.CAREGIVER) {
-        const cg = await getCaregiverMe();
-        setUser({
-          ...cg.user,
-          caregiver: cg.caregiver,
-        });
-      } else {
-        setUser(res.user);
-      }
-    } catch (err) {
+      const res = await getMe();
+      setUser(res.user);
+    } catch {
       setUser(null);
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
-
-  const logout = async () => {
+  const logout = () => {
     setUser(null);
   };
 
+  useEffect(() => {
+    const init = async () => {
+      await fetchUser();
+      setLoading(false);
+    };
+
+    init();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, fetchUser, logout }}>
+    <AuthContext.Provider value={{ user, loading, fetchUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

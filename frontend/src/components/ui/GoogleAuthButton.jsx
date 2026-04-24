@@ -19,9 +19,11 @@ const GoogleAuthButton = ({ role = "user" }) => {
         role: selectedRole,
       });
 
-      await fetchUser();
+      await fetchUser(res);
 
-      navigate(getRedirectByRole(res?.user?.role));
+      setTimeout(() => {
+        navigate(getRedirectByRole(res?.user?.role));
+      }, 0);
       toast.success(res?.message || "Login successful");
     } catch (error) {
       const actualRole = error?.response?.data?.role || role;
