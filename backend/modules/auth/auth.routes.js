@@ -20,12 +20,12 @@ const router = express.Router();
 router.post("/register", validateRegister, register);
 router.post("/login", authLimiter, validateLogin, login);
 router.post("/google", googleAuth);
+router.get("/me", getMe);
 
 // Protected Routes
 router.use(protect);
 
 router.post("/logout", logout);
-router.get("/me", getMe);
 
 // Role based access control
 router.use(authorizeRoles(ROLES.USER, ROLES.ADMIN));
