@@ -1,4 +1,4 @@
-import Caregiver from "../models/caregiver.model.js";
+import Caregiver from "../../modules/caregiver/caregiver.model.js";
 import { errorResponse } from "../utils/responseHandler.utils.js";
 
 // Role-based access

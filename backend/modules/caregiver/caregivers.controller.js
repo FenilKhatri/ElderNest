@@ -1,10 +1,8 @@
-import { asyncHandler } from "../helpers/async.helper.js";
-import Caregiver from "../models/caregiver.model.js";
-import { createCaregiver, existingCaregiver } from "../services/caregiver.auth.services.js";
-import { ROLES } from "../utils/constants.js";
-import { setAuthCookie } from "../utils/cookie.utils.js";
-import generateToken from "../utils/generateToken.utils.js";
-import { successResponse, errorResponse } from "../utils/responseHandler.utils.js";
+import { asyncHandler } from "../../common/middlewares/async.helper.js";
+import { setAuthCookie } from "../../common/utils/cookie.utils.js";
+import generateToken from "../../common/utils/generateToken.utils.js";
+import { successResponse } from "../../common/utils/responseHandler.utils.js";
+import { createCaregiver, existingCaregiver } from "./caregiver.auth.services.js";
 
 // Register caregiver
 export const registerCaregiver = asyncHandler(async (req, res) => {

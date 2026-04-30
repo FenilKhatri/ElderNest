@@ -1,17 +1,18 @@
 import bcrypt from "bcrypt";
-import { LOCK_TIME, MAX_FAILED_ATTEMPTS, ROLES } from "../utils/constants.js";
-import User from "../models/user.model.js";
-import { AppError } from "../utils/appError.js";
+import User from "../user/user.model.js";
+import { ROLES, LOCK_TIME } from "../../common/utils/constants.js";
+import { AppError } from "../../common/utils/appError.js";
 
-// Register
+// Registration Logic
 export const createUser = async (data) => {
     const { name, email, phone, password } = data;
 
-    const existingUser = await User.findOne({ email });
+    const existing = await User.findOne({ email });
+    if (existing) {
+        throw new AppError("User already exists!", 400);
+    }
 
-    if (existingUser) throw new AppError("User already exists!", 400);
-
-    const hashedPassword = await bcrypt.hash(password, 8);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
         name,
@@ -24,35 +25,40 @@ export const createUser = async (data) => {
     return user;
 };
 
-// Login
+// Login Logic
 export const existingUser = async (data) => {
     const { email, password } = data;
 
     const user = await User.findOne({ email }).select("+password +role");
+
     if (!user) {
-        throw new Error("User not exists!");
+        throw new AppError("User does not exist!", 404);
     }
 
+    // Check if account is locked
     if (user.lockUntil && user.lockUntil > Date.now()) {
-        const error = new Error("Account is locked. Try again later!");
-        error.statusCode = 403;
-        throw error;
-    };
+        throw new AppError("Account is locked. Try again later!", 403);
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
         user.failedLoginAttempts += 1;
 
-        if (user.failedLoginAttempts !== 0 || user.lockUntil !== null) {
+        // Lock account after failed attempts
+        if (user.failedLoginAttempts >= 3) {
             user.lockUntil = Date.now() + LOCK_TIME;
         }
 
         await user.save();
-        throw new Error("Invalid credentials");
+
+        throw new AppError("Invalid credentials!", 401);
     }
 
+    // Reset login attempts on success
     user.failedLoginAttempts = 0;
     user.lockUntil = null;
+
     await user.save();
 
     return user;

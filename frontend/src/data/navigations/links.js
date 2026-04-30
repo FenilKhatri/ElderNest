@@ -13,11 +13,17 @@ import {
     Users,
     CreditCard,
     Home,
+    HomeIcon,
 } from "lucide-react";
 
 export const links = {
     //  ADMIN 
     admin: [
+        {
+            to: "/",
+            label: "Home",
+            icon: HomeIcon,
+        },
         {
             to: "/admin/dashboard",
             label: "Dashboard",
@@ -67,6 +73,11 @@ export const links = {
 
     //  CAREGIVER 
     caregiver: [
+        {
+            to: "/",
+            label: "Home",
+            icon: HomeIcon,
+        },
         {
             to: "/caregiver/dashboard",
             label: "Dashboard",

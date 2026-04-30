@@ -90,7 +90,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
                 {user?.role === "caregiver" && (
                   <NavLink to="/caregiver/dashboard">
-                    <Button variant="secondary">Caregiver Panel</Button>
+                    <Button variant="primary">Caregiver Panel</Button>
                   </NavLink>
                 )}
 

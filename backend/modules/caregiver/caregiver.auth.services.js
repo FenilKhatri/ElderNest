@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
-import { LOCK_TIME, MAX_FAILED_ATTEMPTS, ROLES } from "../utils/constants.js";
-import User from "../models/user.model.js";
-import Caregiver from "../models/caregiver.model.js";
-import { AppError } from "../utils/appError.js";
+import { LOCK_TIME, MAX_FAILED_ATTEMPTS, ROLES } from "../../common/utils/constants.js";
+import User from "../user/user.model.js";
+import Caregiver from "./caregiver.model.js";
+import { AppError } from "../../common/utils/appError.js";
 
 // Register
 export const createCaregiver = async (data) => {
@@ -43,12 +43,12 @@ export const existingCaregiver = async (data) => {
     const user = await User.findOne({ email }).select("+password +role");
 
     if (!user || user.role !== ROLES.CAREGIVER) {
-        throw new Error("Caregiver not found!");
+        throw new AppError("Caregiver not found!", 404);
     }
 
     // 2. Check account lock
     if (user.lockUntil && user.lockUntil > Date.now()) {
-        const error = new Error("Account is locked. Try again later!");
+        const error = new AppError("Account is locked. Try again later!", 403);
         error.statusCode = 403;
         throw error;
     }
@@ -65,7 +65,7 @@ export const existingCaregiver = async (data) => {
         }
 
         await user.save();
-        throw new Error("Invalid credentials");
+        throw new AppError("Invalid credentials", 401);
     }
 
     user.failedLoginAttempts = 0;

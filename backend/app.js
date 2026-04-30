@@ -3,10 +3,9 @@ import dns from "dns";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
-import { apiLimiter } from "./helpers/limiter.js";
-import authRoutes from "./routes/auth.routes.js";
-import caregiverAuthRoutes from "./routes/caregivers.routes.js";
-import meRoutes from "./routes/me.routes.js";
+
+import routes from "./routes/index.js";
+import { apiLimiter } from "./common/middlewares/limiter.js";
 
 const app = express();
 dns.setServers(['8.8.8.8', '8.8.4.4']);
@@ -14,7 +13,7 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 app.use(express.json());
 app.use(cookieParser());
 
-// cors
+// CORS
 const allowedOrigin = [
     "http://localhost:5173",
     "https://elder-nest-care.vercel.app",
@@ -28,7 +27,7 @@ app.use(
         allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
-// Handle preflight fetch
+
 app.use(express.urlencoded({ extended: true }));
 
 // Disable caching
@@ -41,10 +40,7 @@ app.use((req, res, next) => {
 app.use(helmet());
 app.use(apiLimiter);
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/caregiver/auth", caregiverAuthRoutes);
-app.use("/api/me", meRoutes);
+app.use("/api", routes);
 
 // Health check
 app.get("/", (req, res) => {
@@ -60,7 +56,6 @@ app.use((err, req, res, next) => {
 
     const statusCode = err.statusCode || 500;
 
-    // If it's a known error → show message
     if (err.isOperational) {
         return res.status(statusCode).json({
             success: false,
@@ -68,7 +63,6 @@ app.use((err, req, res, next) => {
         });
     }
 
-    // Unknown error → hide message
     return res.status(500).json({
         success: false,
         message: "Something went wrong",
