@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       const res = await getMe();
-      setUser(res.user);
+      setUser(res.data?.user ?? res.data?.caregiver ?? null);
     } catch (error) {
       setUser(null);
     } finally {
