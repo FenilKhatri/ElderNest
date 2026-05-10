@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getRedirectResult, signOut } from "firebase/auth";
+import { toast } from "react-toastify";
+
+import { auth } from "../lib/firebase";
+import http from "../lib/axios";
+
 import { getMe } from "../features/auth/api/auth.api";
 import { googleAuthApi } from "../features/auth/api/google.api";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import http from "../lib/axios";
-import { auth } from "../lib/firebase";
 import { getRedirectByRole } from "../utils/roleRedirect";
 
 const AuthContext = createContext();
@@ -17,10 +18,12 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       const res = await getMe();
-      setUser(res?.data?.user ?? res?.data?.caregiver ?? null);
+      const loggedUser = res?.data?.user || res?.data?.caregiver || null;
+
+      setUser(loggedUser);
     } catch (error) {
       if (error?.response?.status !== 401) {
-        console.error(error);
+        console.error("fetchUser error:", error);
       }
       setUser(null);
     } finally {
@@ -33,14 +36,16 @@ export const AuthProvider = ({ children }) => {
       await signOut(auth);
       await http.post("/auth/logout");
     } catch (error) {
-      console.log(error);
+      console.log("Logout error:", error);
     }
+
     setUser(null);
   };
 
   useEffect(() => {
     const initAuth = async () => {
       setLoading(true);
+
       try {
         const result = await getRedirectResult(auth);
 
@@ -50,25 +55,34 @@ export const AuthProvider = ({ children }) => {
           sessionStorage.removeItem("google_role");
 
           try {
-            const res = await googleAuthApi({ token: idToken, role });
+            const res = await googleAuthApi({
+              token: idToken,
+              role,
+            });
+
             const loggedInUser =
               res?.data?.user || res?.data?.caregiver || null;
             setUser(loggedInUser);
             toast.success(res?.message || "Login successful");
 
+            // redirect after login
             if (loggedInUser?.role) {
               window.location.href = getRedirectByRole(loggedInUser.role);
             }
           } catch (googleErr) {
-            console.error("Google auth backend error:", googleErr);
+            console.error("Google login error:", googleErr);
             toast.error(googleErr?.message || "Google login failed");
             await signOut(auth);
             setUser(null);
           }
-        } else {
-          const res = await getMe();
-          setUser(res?.data?.user || res?.data?.caregiver || null);
+
+          return;
         }
+
+        const res = await getMe();
+        const loggedUser = res?.data?.user || res?.data?.caregiver || null;
+
+        setUser(loggedUser);
       } catch (error) {
         if (error?.response?.status !== 401) {
           console.error("initAuth error:", error);
@@ -83,7 +97,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, fetchUser, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        fetchUser,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
