@@ -1,13 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getRedirectResult, signOut } from "firebase/auth";
 import { toast } from "react-toastify";
-
 import { auth } from "../lib/firebase";
 import http from "../lib/axios";
-
 import { getMe } from "../features/auth/api/auth.api";
 import { googleAuthApi } from "../features/auth/api/google.api";
-import { getRedirectByRole } from "../utils/roleRedirect";
+import { getRedirectByRole } from "../utils/auth/roleRedirect";
 
 const AuthContext = createContext();
 

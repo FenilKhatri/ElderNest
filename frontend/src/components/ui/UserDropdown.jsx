@@ -5,7 +5,6 @@ import { userRoutes } from "../../features/public/data/routes/user.routes";
 const UserDropdown = ({ open, setOpen }) => {
   const ref = useRef();
 
-  // close on outside click
   useEffect(() => {
     const handleClick = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
@@ -22,6 +21,7 @@ const UserDropdown = ({ open, setOpen }) => {
   return (
     <div
       ref={ref}
+      title="User menu"
       className="
         absolute right-0 mt-3 w-56
         bg-white dark:bg-slate-900

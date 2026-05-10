@@ -39,7 +39,8 @@ const DashboardLayout = ({ theme, toggleTheme }) => {
           <div className="hidden md:flex items-center gap-3">
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-2 rounded bg-slate-200 dark:bg-slate-800"
+              title={collapsed ? "Click to expand sidebar" : "Click to collapse sidebar"}
+              className="p-2 rounded bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 cursor-pointer transtion-all duration-300"
             >
               {collapsed ? <ChevronRight /> : <ChevronLeft />}
             </button>
@@ -47,16 +48,6 @@ const DashboardLayout = ({ theme, toggleTheme }) => {
             <h1 className="font-semibold text-lg hidden sm:block dark:text-slate-100">
               {title}
             </h1>
-          </div>
-
-          {/* SEARCH */}
-          <div className="hidden md:flex items-center bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg w-1/3">
-            <Search size={18} className="text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="bg-transparent outline-none ml-2 w-full text-sm"
-            />
           </div>
 
           {/* RIGHT */}

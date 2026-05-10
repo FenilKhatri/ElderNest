@@ -4,6 +4,7 @@ const variants = {
     "bg-[#FF3366]/30 text-[#FF3366] hover:bg-[#FF3366]/10 dark:border-[#ff6b8f] dark:text-[#ff6b8f] dark:hover:bg-[#FF3366]/20 cursor-pointer transition duration-300 dark:bg-transparent dark:border",
   outline:
     "border border-[#FF3366] text-[#FF3366] hover:bg-[#FF3366] hover:border-[#FF3366] hover:text-white cursor-pointer",
+  danger: "bg-red-500 text-white hover:bg-red-600 cursor-pointer transition duration-300 dark:bg-red-600 dark:hover:bg-red-700 dark:text-white",
   ghost: "text-slate-600 hover:bg-slate-100 cursor-pointer",
 };
 

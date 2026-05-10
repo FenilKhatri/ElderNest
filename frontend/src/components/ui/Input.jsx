@@ -1,6 +1,4 @@
-import React from "react";
-
-const Input = ({ icon: Icon, label, labelName, ...props }) => {
+const Input = ({ icon: Icon, label, labelName, rightElement, ...props }) => {
   return (
     <div className="flex flex-col w-full gap-1.5">
       {labelName && (
@@ -11,7 +9,7 @@ const Input = ({ icon: Icon, label, labelName, ...props }) => {
           {labelName}
         </label>
       )}
-      <div className="flex items-center justify-start gap-3 px-4 py-2.5 bg-transperant border border-slate-300 rounded-xl shadow-sm transition-all duration-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/20 group">
+      <div className="relative flex items-center justify-start gap-3 px-4 py-2.5 bg-transparent border border-slate-300 rounded-xl shadow-sm transition-all duration-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/20 group">
         {Icon && (
           <Icon
             size={18}
@@ -22,8 +20,14 @@ const Input = ({ icon: Icon, label, labelName, ...props }) => {
         <input
           id={label}
           {...props}
-          className="w-full bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none text-sm md:text-base"
+          className="w-full bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none text-sm md:text-base pr-8"
         />
+
+        {rightElement && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">
+            {rightElement}
+          </div>
+        )}
       </div>
     </div>
   );

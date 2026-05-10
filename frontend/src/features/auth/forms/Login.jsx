@@ -1,53 +1,34 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import Button from "../../../components/ui/Button";
-import Input from "../../../components/ui/Input";
-import { fadeUp, stagger } from "../../../animations/motionVariants";
-import { login } from "../../auth/api/auth.api";
-import { useAuth } from "../../../context/AuthContext";
+import FormFields from "../../../components/ui/FormFields";
 import GoogleAuthButton from "../../../components/ui/GoogleAuthButton";
-import { getRedirectByRole } from "../../../utils/roleRedirect";
 import { ROLES } from "../../../utils/constants";
+import { useAuth } from "../../../context/AuthContext";
+import { login } from "../../auth/api/auth.api";
+import { loginFields } from "./data/inputFields";
+import { stagger, fadeUp } from "../../../animations/motionVariants";
+import { handleChange } from "../../../utils/auth/handleChange";
+import { handleAuthSubmit } from "../../../utils/auth/handleAuthSubmit";
 
 const Login = () => {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-
-  const [showPassword, setShowPassword] = useState(false);
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
   const { fetchUser } = useAuth();
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      setLoading(true);
-
-      const res = await login(form);
-      const { message, data } = res.data; 
-
-      await fetchUser();
-
-      setTimeout(() => {
-        navigate(getRedirectByRole(data?.user?.role));
-      }, 0);
-      toast.success(message || "Login Successful");
-    } catch (error) {
-      toast.error(error?.message || "Failed to login!");
-    } finally {
-      setLoading(false);
-    }
+    await handleAuthSubmit({
+      apiCall: login,
+      form,
+      navigate,
+      setLoading,
+      fetchUser,
+      successMessage: "Login Successful",
+    });
   };
 
   return (
@@ -58,43 +39,12 @@ const Login = () => {
       animate="show"
       className="space-y-5"
     >
-      {/* Email */}
-      <motion.div variants={fadeUp}>
-        <Input
-          label="email"
-          labelName="Email"
-          icon={Mail}
-          type="email"
-          placeholder="Enter your email..."
-          name="email"
-          value={form.email}
-          onChange={handleChange}
-        />
-      </motion.div>
+      <FormFields
+        fields={loginFields}
+        form={form}
+        onChange={(e) => handleChange(e, setForm)}
+      />
 
-      {/* Password */}
-      <motion.div variants={fadeUp} className="relative">
-        <Input
-          label="password"
-          labelName="Password"
-          icon={Lock}
-          type={showPassword ? "text" : "password"}
-          placeholder="Enter your password..."
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-        />
-
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-10 text-slate-500 hover:text-slate-700"
-        >
-          {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
-        </button>
-      </motion.div>
-
-      {/* Login Button */}
       <motion.div variants={fadeUp}>
         <Button
           type="submit"
@@ -105,16 +55,14 @@ const Login = () => {
         </Button>
       </motion.div>
 
-      {/* Divider */}
       <motion.div variants={fadeUp} className="flex items-center gap-3">
         <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
         <span className="text-sm text-slate-500">OR</span>
         <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
       </motion.div>
 
-      {/* Google Login */}
       <motion.div variants={fadeUp}>
-        <GoogleAuthButton role={ROLES?.USER} />
+        <GoogleAuthButton role={ROLES.USER} />
       </motion.div>
     </motion.form>
   );

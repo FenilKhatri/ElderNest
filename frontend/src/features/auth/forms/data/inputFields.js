@@ -1,6 +1,6 @@
-import { Mail, Phone, UserCircle } from "lucide-react";
+import { Mail, Phone, UserCircle, Lock } from "lucide-react";
 
-export const fields = [
+export const basicFields = [
     {
         name: "name",
         id: "name",
@@ -29,3 +29,47 @@ export const fields = [
         type: "tel",
     },
 ];
+
+export const passwordFields = [
+    {
+        name: "password",
+        id: "password",
+        label: "password",
+        labelName: "Password",
+        icon: Lock,
+        placeholder: "Enter your password...",
+        type: "password",
+        isPassword: true,
+    },
+    {
+        name: "confirmPassword",
+        id: "confirmPassword",
+        label: "confirmPassword",
+        labelName: "Confirm Password",
+        icon: Lock,
+        placeholder: "Enter your confirm password...",
+        type: "password",
+        isPassword: true,
+    },
+];
+
+export const loginFields = [
+    {
+        name: "email",
+        id: "email",
+        label: "email",
+        labelName: "Email",
+        icon: Mail,
+        placeholder: "Enter your email...",
+        type: "email",
+    },
+    {
+        ...passwordFields[0],
+    },
+];
+
+// Register
+export const registerFields = [...basicFields, ...passwordFields];
+
+// Caregiver register
+export const caregiverRegisterFields = registerFields;

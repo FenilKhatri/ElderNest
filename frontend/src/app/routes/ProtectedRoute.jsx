@@ -7,7 +7,7 @@ const ProtectedRoute = () => {
 
   if (loading) return <GlobalLoader />;
 
-  if (!user) return <Navigate to="/auth" replace />;
+  if (!user) return <Navigate to="/" replace />;
 
   return <Outlet />;
 };

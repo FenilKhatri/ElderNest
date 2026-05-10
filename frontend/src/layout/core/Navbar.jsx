@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { User, Menu, X, Moon, Sun, LogOut, ChevronDown } from "lucide-react";
+import { User, Menu, X, Moon, Sun, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import Logo from "../../assets/logo.avif";
@@ -9,11 +9,12 @@ import Button from "../../components/ui/Button";
 import UserDropdown from "../../components/ui/UserDropdown";
 import AuthSkeleton from "../../components/feedback/skeleton/AuthSkeleton";
 import MobileAuthSkeleton from "../../components/feedback/skeleton/MobileAuthSkeleton";
+import LogoutButton from "../../components/ui/LogoutButton";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
-  const { user, logout, loading } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -27,17 +28,6 @@ const Navbar = ({ theme, toggleTheme }) => {
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/");
-      toast.success("Logged out successfully!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Logout failed!");
-    }
-  };
 
   const DesktopAuthButtons = () => {
     if (loading) return <AuthSkeleton />;
@@ -55,13 +45,13 @@ const Navbar = ({ theme, toggleTheme }) => {
     return (
       <div className="flex items-center gap-3">
         {user?.role === "admin" && (
-          <NavLink to="/admin/dashboard">
+          <NavLink to="/admin/profile" title="Go to Admin Panel">
             <Button variant="secondary">Admin Panel</Button>
           </NavLink>
         )}
 
         {user?.role === "caregiver" && (
-          <NavLink to="/caregiver/dashboard">
+          <NavLink to="/caregiver/profile" title="Go to Caregiver Panel">
             <Button variant="primary">Caregiver Panel</Button>
           </NavLink>
         )}
@@ -70,6 +60,7 @@ const Navbar = ({ theme, toggleTheme }) => {
           <div className="relative">
             <button
               onClick={() => setUserOpen((prev) => !prev)}
+              title="User Dropdown"
               className="flex items-center justify-center gap-3 px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 cursor-pointer"
             >
               {user.name}
@@ -79,9 +70,7 @@ const Navbar = ({ theme, toggleTheme }) => {
           </div>
         )}
 
-        <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600">
-          <LogOut size={16} /> Logout
-        </Button>
+        <LogoutButton />
       </div>
     );
   };
@@ -102,13 +91,13 @@ const Navbar = ({ theme, toggleTheme }) => {
     return (
       <div className="flex flex-col gap-3">
         {user?.role === "admin" && (
-          <NavLink to="/admin/dashboard">
+          <NavLink to="/admin/profile">
             <Button variant="secondary">Admin Panel</Button>
           </NavLink>
         )}
 
         {user?.role === "caregiver" && (
-          <NavLink to="/caregiver/dashboard">
+          <NavLink to="/caregiver/profile">
             <Button variant="secondary">Caregiver Panel</Button>
           </NavLink>
         )}
@@ -119,9 +108,7 @@ const Navbar = ({ theme, toggleTheme }) => {
           </NavLink>
         )}
 
-        <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600">
-          <LogOut size={16} /> Logout
-        </Button>
+        <LogoutButton />
       </div>
     );
   };
@@ -149,6 +136,7 @@ const Navbar = ({ theme, toggleTheme }) => {
             {/* THEME */}
             <button
               onClick={toggleTheme}
+              title="Toggle Theme"
               className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 cursor-pointer"
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}

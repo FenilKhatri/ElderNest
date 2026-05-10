@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { Eye, EyeOff, Lock } from "lucide-react";
 import { motion } from "framer-motion";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
+import FormFields from "../../../components/ui/FormFields";
 import GoogleAuthButton from "../../../components/ui/GoogleAuthButton";
-import { fadeUp, stagger } from "../../../animations/motionVariants";
-import { register } from "../../caregiver/api/caregiver.api";
 import { ROLES } from "../../../utils/constants";
-import { fields } from "./data/inputFields";
-import { getRedirectByRole } from "../../../utils/roleRedirect";
+import { register } from "../../caregiver/api/caregiver.api";
+import { caregiverRegisterFields } from "./data/inputFields";
+import { stagger, fadeUp } from "../../../animations/motionVariants";
+import { handleAuthSubmit } from "../../../utils/auth/handleAuthSubmit";
+import { handleChange } from "../../../utils/auth/handleChange";
 
 const CaregiverRegister = () => {
   const [form, setForm] = useState({
@@ -20,42 +19,27 @@ const CaregiverRegister = () => {
     password: "",
     confirmPassword: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (form.password !== form.confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
+    await handleAuthSubmit({
+      apiCall: register,
+      form,
+      navigate,
+      setLoading,
+      successMessage: "Registered successfully!",
 
-    try {
-      setLoading(true);
-      const data = await register(form);
+      validate: () => {
+        if (form.password !== form.confirmPassword) {
+          return "Passwords do not match";
+        }
 
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword: "",
-      });
-      
-      navigate(getRedirectByRole(data?.user?.role));
-      toast.success(data?.message || "Register successfully!");
-    } catch (error) {
-      toast.error(error?.message || "Failed to Register!");
-    } finally {
-      setLoading(false);
-    }
+        return null;
+      },
+    });
   };
 
   return (
@@ -66,85 +50,32 @@ const CaregiverRegister = () => {
       animate="show"
       className="space-y-4"
     >
-      {/* Name, Emial, Phone */}
-      {fields?.map((field) => {
-        const Icon = field?.icon;
+      <FormFields
+        fields={caregiverRegisterFields}
+        form={form}
+        onChange={(e) => handleChange(e, setForm)}
+      />
 
-        return (
-          <Input
-            label={field?.label}
-            labelName={field?.labelName}
-            icon={Icon}
-            type={field?.type}
-            placeholder={field?.placeholder}
-            id={field?.id}
-            name={field?.name}
-            value={form[field?.name]}
-            onChange={handleChange}
-          />
-        );
-      })}
-
-      {/* Password */}
-      {[
-        {
-          name: "password",
-          label: "Password",
-          show: showPassword,
-          toggle: () => setShowPassword(!showPassword),
-        },
-        {
-          name: "confirmPassword",
-          label: "Confirm Password",
-          show: showConfirmPassword,
-          toggle: () => setShowConfirmPassword(!showConfirmPassword),
-        },
-      ].map((field) => (
-        <motion.div key={field.name} variants={fadeUp} className="relative">
-          <Input
-            label={field.name}
-            labelName={field.label}
-            icon={Lock}
-            type={field.show ? "text" : "password"}
-            placeholder={`Enter your ${field.label.toLowerCase()}...`}
-            id={field.name}
-            name={field.name}
-            value={form[field.name]}
-            onChange={handleChange}
-          />
-
-          <button
-            type="button"
-            onClick={field.toggle}
-            className="absolute right-3 top-10 text-slate-500"
-          >
-            {field.show ? <Eye size={18} /> : <EyeOff size={18} />}
-          </button>
-        </motion.div>
-      ))}
-
-      {/* Button */}
       <motion.div variants={fadeUp} whileTap={{ scale: 0.97 }}>
         <Button
           type="submit"
-          className={`w-full hover:opacity-90 ${
-            loading ? "cursor-not-allowed opacity-60" : ""
+          disabled={loading}
+          className={`w-full ${
+            loading ? "opacity-60 cursor-not-allowed" : "hover:opacity-90"
           }`}
         >
           {loading ? "Signing up..." : "Sign Up →"}
         </Button>
       </motion.div>
 
-      {/* Divider */}
       <motion.div variants={fadeUp} className="flex items-center gap-3">
         <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
         <span className="text-sm text-slate-500">OR</span>
         <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
       </motion.div>
 
-      {/* Google Login */}
       <motion.div variants={fadeUp}>
-        <GoogleAuthButton role={ROLES?.CAREGIVER} />
+        <GoogleAuthButton role={ROLES.CAREGIVER} />
       </motion.div>
     </motion.form>
   );
