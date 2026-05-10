@@ -59,42 +59,40 @@ export const googleAuth = asyncHandler(async (req, res) => {
     const { token, role } = req.body;
     if (!token) {
         return errorResponse(res, 400, "Token missing");
-     }
+    }
 
     const decoded = await admin.auth().verifyIdToken(token);
     const { name, email, picture } = decoded;
 
     let user = await User.findOne({ email });
-    if (user && user.role !== role) {
-        return errorResponse(
-            res,
-            400,
-            `Account already exists as ${user.role}`
-        );
-    }
 
-    if (!user) {
-        user = await User.create({
-            name,
-            email,
-            profileImage: picture,
-            role: role === ROLES.CAREGIVER
-                ? ROLES.CAREGIVER
-                : ROLES.USER,
-            isApproved: role === ROLES.USER,
-            authProvider: "google",
-            status: role === ROLES.USER ? CAREGIVER_STATUSES.APPROVED : CAREGIVER_STATUSES.PENDING,
+    if (user) {
+        // ✅ User exists — authenticate with their actual role, ignore role param
+        const jwtToken = generateToken(user);
+        setAuthCookie(res, jwtToken);
+
+        return successResponse(res, 200, "Login successful", {
+            user,
+            isApproved: user.isApproved,
         });
     }
 
-    // caregiver validation
+    // ✅ New user — create with provided role
+    user = await User.create({
+        name,
+        email,
+        profileImage: picture,
+        role: role === ROLES.CAREGIVER ? ROLES.CAREGIVER : ROLES.USER,
+        isApproved: role === ROLES.USER,
+        authProvider: "google",
+        status: role === ROLES.USER ? CAREGIVER_STATUSES.APPROVED : CAREGIVER_STATUSES.PENDING,
+    });
+
+    // Create caregiver profile if needed
     if (role === ROLES.CAREGIVER) {
         let caregiver = await Caregiver.findOne({ userId: user._id });
-
         if (!caregiver) {
-            caregiver = await Caregiver.create({
-                userId: user._id,
-            });
+            caregiver = await Caregiver.create({ userId: user._id });
         }
     }
 

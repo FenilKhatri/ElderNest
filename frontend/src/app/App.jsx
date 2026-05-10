@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import "../App.css";
-import { BrowserRouter } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import ScrollToTop from "../layout/core/ScrollToTop";
@@ -29,11 +28,11 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
+    <>
       <ScrollToTop />
       <ToastContainer autoClose={5000} position="top-right" newestOnTop />
       <AppRoutes theme={theme} toggleTheme={toggleTheme} />
-    </BrowserRouter>
+    </>
   );
 }
 

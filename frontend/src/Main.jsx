@@ -4,11 +4,14 @@ import App from './app/App.jsx';
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from './context/AuthContext.jsx';
 import { LoaderProvider } from "./context/LoaderContext.jsx";
+import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")).render(
-  <LoaderProvider>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </LoaderProvider>,
+  <BrowserRouter>
+    <LoaderProvider>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </LoaderProvider>
+  </BrowserRouter>
 );

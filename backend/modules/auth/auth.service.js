@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import User from "../user/user.model.js";
-import { ROLES, LOCK_TIME, MAX_FAILED_ATTEMPTS } from "../../common/utils/constants.js";
+import { ROLES, LOCK_TIME, MAX_FAILED_ATTEMPTS, CAREGIVER_STATUSES } from "../../common/utils/constants.js";
 import { AppError } from "../../common/utils/appError.js";
 import Caregiver from "../caregiver/caregiver.model.js";
 
