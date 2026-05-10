@@ -1,11 +1,12 @@
 import User from "../user/user.model.js";
 import { errorResponse, successResponse } from "../../common/utils/responseHandler.utils.js";
+import { CAREGIVER_STATUSES } from "../../common/utils/constants.js";
 
 // Get pending caregivers
 export const getPendingCaregivers = async (req, res) => {
     const caregivers = await User.find({
         role: "caregiver",
-        status: "pending",
+        status: CAREGIVER_STATUSES.PENDING,
     });
 
     return successResponse(res, 200, "Pending caregivers", caregivers);
@@ -17,7 +18,7 @@ export const approveCaregiver = async (req, res) => {
 
     const user = await User.findByIdAndUpdate(
         id,
-        { isApproved: true, status: "approved" },
+        { isApproved: true, status: CAREGIVER_STATUSES.APPROVED },
         { new: true }
     );
 

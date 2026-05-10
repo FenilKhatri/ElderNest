@@ -3,9 +3,9 @@ import { ROLES } from "./constants";
 export const getRedirectByRole = (role) => {
     switch (role) {
         case ROLES?.ADMIN:
-            return "/admin/dashboard";
+            return "/admin/profile";
         case ROLES?.CAREGIVER:
-            return "/caregiver/dashboard";
+            return "/caregiver/profile";
         case ROLES?.USER:
             return "/user/profile";
         default:

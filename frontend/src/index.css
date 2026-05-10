@@ -12,3 +12,23 @@
 .dropdown-item:hover {
   background: #f1f5f9;
 }
+
+/* Sidebar */
+/* sidebar scrollbar */
+
+aside::-webkit-scrollbar {
+  width: 6px;
+}
+
+aside::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.4);
+  border-radius: 999px;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184 / 0.7);
+}

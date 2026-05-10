@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
-import { links } from "../../data/navigations/links";
+import { userRoutes } from "../../features/public/data/routes/user.routes";
 
 const UserDropdown = ({ open, setOpen }) => {
   const ref = useRef();
@@ -29,7 +29,7 @@ const UserDropdown = ({ open, setOpen }) => {
         shadow-xl rounded-2xl p-2 z-50
       "
     >
-      {links.user.map(({ to, label, icon: Icon }) => (
+      {userRoutes.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
           to={to}

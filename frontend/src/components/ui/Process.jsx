@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { processSteps } from "../../data/pages/aboutData";
 import { fadeUp } from "../../animations/motionVariants";
-import TitleAndDescription from "./TitleAndDescription";
+import TitleAndDescription from "../../components/ui/TitleAndDescription";
+import { processSteps } from "../../features/public/data/aboutData";
 
 const Process = () => {
   return (
@@ -35,7 +35,7 @@ const Process = () => {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
-          {processSteps.map((step, index) => {
+          {processSteps?.map((step, index) => {
             const Icon = step.icon;
             return (
               <motion.div

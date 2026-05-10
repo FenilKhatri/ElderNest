@@ -43,7 +43,7 @@ app.use(apiLimiter);
 app.use("/api", routes);
 
 // Health check
-app.get("/", (req, res) => {
+app.get("/api/health", (req, res) => {
     res.status(200).json({
         ok: true,
         message: "Server is running!",

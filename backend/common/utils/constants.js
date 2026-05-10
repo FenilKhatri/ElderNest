@@ -4,6 +4,12 @@ export const ROLES = {
   ADMIN: "admin",
 };
 
+export const CAREGIVER_STATUSES = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+};
+
 export const BOOKING_STATUS = {
   PENDING: "pending",
   ACCEPTED: "accepted",

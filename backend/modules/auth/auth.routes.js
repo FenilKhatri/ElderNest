@@ -5,7 +5,9 @@ import {
     login,
     googleAuth,
     logout,
-    getMe
+    getMe,
+    registerCaregiver,
+    loginCaregiver
 } from "./auth.controller.js";
 
 import { validateRegister, validateLogin } from "./auth.validator.js";
@@ -19,6 +21,8 @@ const router = express.Router();
 // Public Routes
 router.post("/register", validateRegister, register);
 router.post("/login", authLimiter, validateLogin, login);
+router.post("/caregiver-register", validateRegister, registerCaregiver);
+router.post("/caregiver-login", authLimiter, validateLogin, loginCaregiver);
 router.post("/google", googleAuth);
 
 // Protected Routes
