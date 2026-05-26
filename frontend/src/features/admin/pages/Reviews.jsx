@@ -1,9 +1,6 @@
-import React from 'react'
+import PagePlaceholder from "../../../components/ui/PagePlaceholder";
 
-const Reviews = () => {
-  return (
-    <div>Reviews</div>
-  )
-}
-
-export default Reviews
+const Reviews = () => (
+  <PagePlaceholder title="Review Management" description="Monitor and moderate all caregiver reviews." />
+);
+export default Reviews;

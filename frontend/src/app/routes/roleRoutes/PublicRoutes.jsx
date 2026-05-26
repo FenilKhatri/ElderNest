@@ -18,8 +18,8 @@ const Services = lazy(() => import("../../../features/public/pages/Services"));
 const ServiceDetails = lazy(
   () => import("../../../features/public/pages/ServiceDetails"),
 );
-const Privacypolicy = lazy(
-  () => import("../../../features/public/pages/Privacypolicy"),
+const PrivacyPolicy = lazy(
+  () => import("../../../features/public/pages/PrivacyPolicy"),
 );
 const TermsOfService = lazy(
   () => import("../../../features/public/pages/TermsOfService"),
@@ -36,7 +36,7 @@ const PublicRoutes = () => (
     <Route path="/caregivers/:id" element={<CaregiverDetails />} />
     <Route path="/services" element={<Services />} />
     <Route path="/services/:id" element={<ServiceDetails />} />
-    <Route path="/privacy-policy" element={<Privacypolicy />} />
+    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     <Route path="/terms-of-service" element={<TermsOfService />} />
 
     {/* AUTH */}

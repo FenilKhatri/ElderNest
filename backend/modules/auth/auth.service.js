@@ -13,7 +13,16 @@ export const createUser = async (data) => {
         throw new AppError("User already exists!", 400);
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (!password || typeof password !== "string") {
+        throw new AppError("Password is required", 400);
+    }
+
+    let hashedPassword;
+    try {
+        hashedPassword = await bcrypt.hash(password, 10);
+    } catch {
+        throw new AppError("Invalid password format", 400);
+    }
 
     const user = await User.create({
         name,
@@ -32,7 +41,7 @@ export const createUser = async (data) => {
 export const existingUser = async (data) => {
     const { email, password } = data;
 
-    const user = await User.findOne({ email }).select("+password +role");
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
         throw new AppError("User does not exist!", 404);
@@ -43,7 +52,21 @@ export const existingUser = async (data) => {
         throw new AppError("Account is locked. Try again later!", 403);
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Check if password exists (for OAuth users)
+    if (!user.password || typeof user.password !== "string") {
+        throw new AppError("Please login with Google", 400);
+    }
+
+    if (!password || typeof password !== "string") {
+        throw new AppError("Invalid credentials!", 401);
+    }
+
+    let isMatch;
+    try {
+        isMatch = await bcrypt.compare(password, user.password);
+    } catch {
+        throw new AppError("Invalid credentials!", 401);
+    }
 
     if (!isMatch) {
         user.failedLoginAttempts += 1;
@@ -78,7 +101,16 @@ export const createCaregiver = async (data) => {
     if (existingUser) throw new AppError("User already exists!", 400);
 
     // 2. Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (!password || typeof password !== "string") {
+        throw new AppError("Password is required", 400);
+    }
+
+    let hashedPassword;
+    try {
+        hashedPassword = await bcrypt.hash(password, 10);
+    } catch {
+        throw new AppError("Invalid password format", 400);
+    }
 
     // 3. Create user (auth layer)
     const user = await User.create({
@@ -104,7 +136,7 @@ export const existingCaregiver = async (data) => {
     const { email, password } = data;
 
     // 1. Find user
-    const user = await User.findOne({ email }).select("+password +role");
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user || user.role !== ROLES.CAREGIVER) {
         throw new AppError("Caregiver not found!", 404);
@@ -117,8 +149,22 @@ export const existingCaregiver = async (data) => {
         throw error;
     }
 
+    // Check if password exists (for OAuth users)
+    if (!user.password || typeof user.password !== "string") {
+        throw new AppError("Please login with Google", 400);
+    }
+
+    if (!password || typeof password !== "string") {
+        throw new AppError("Invalid credentials", 401);
+    }
+
     // 3. Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
+    let isMatch;
+    try {
+        isMatch = await bcrypt.compare(password, user.password);
+    } catch {
+        throw new AppError("Invalid credentials", 401);
+    }
 
     // WRONG PASSWORD
     if (!isMatch) {

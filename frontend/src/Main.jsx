@@ -5,12 +5,18 @@ import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from './context/AuthContext.jsx';
 import { LoaderProvider } from "./context/LoaderContext.jsx";
 import { BrowserRouter } from "react-router-dom";
+import { NotificationProvider } from './context/NotificationContext.jsx';
+import { ServiceProvider } from './context/ServiceContext.jsx';
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <LoaderProvider>
       <AuthProvider>
-        <App />
+        <ServiceProvider>
+          <NotificationProvider>
+            <App />
+          </NotificationProvider>
+        </ServiceProvider>
       </AuthProvider>
     </LoaderProvider>
   </BrowserRouter>

@@ -1,9 +1,10 @@
-import React from 'react'
+import PagePlaceholder from "../../../components/ui/PagePlaceholder";
 
-const Payments = () => {
-  return (
-    <div>Payments</div>
-  )
-}
+const Payments = () => (
+  <PagePlaceholder
+    title="Payments"
+    description="Your earnings and payment history will be displayed here."
+  />
+);
 
-export default Payments
+export default Payments;

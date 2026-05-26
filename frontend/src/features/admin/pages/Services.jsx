@@ -1,9 +1,6 @@
-import React from 'react'
+import PagePlaceholder from "../../../components/ui/PagePlaceholder";
 
-const Services = () => {
-  return (
-    <div>Services</div>
-  )
-}
-
-export default Services
+const Services = () => (
+  <PagePlaceholder title="Service Management" description="Create and manage the care services available on the platform." />
+);
+export default Services;

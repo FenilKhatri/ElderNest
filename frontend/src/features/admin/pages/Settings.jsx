@@ -1,9 +1,6 @@
-import React from 'react'
+import PagePlaceholder from "../../../components/ui/PagePlaceholder";
 
-const Settings = () => {
-  return (
-    <div>Settings</div>
-  )
-}
-
-export default Settings
+const Settings = () => (
+  <PagePlaceholder title="Settings" description="Configure platform settings and preferences." />
+);
+export default Settings;

@@ -1,9 +1,6 @@
-import React from 'react'
+import PagePlaceholder from "../../../components/ui/PagePlaceholder";
 
-const Payments = () => {
-  return (
-    <div>Payments</div>
-  )
-}
-
-export default Payments
+const Payments = () => (
+  <PagePlaceholder title="Payment Management" description="View all transactions and payment records." />
+);
+export default Payments;

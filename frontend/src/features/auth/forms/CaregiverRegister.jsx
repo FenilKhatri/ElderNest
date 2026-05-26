@@ -5,7 +5,7 @@ import Button from "../../../components/ui/Button";
 import FormFields from "../../../components/ui/FormFields";
 import GoogleAuthButton from "../../../components/ui/GoogleAuthButton";
 import { ROLES } from "../../../utils/constants";
-import { register } from "../../caregiver/api/caregiver.api";
+import { registerCaregiver } from "../api/auth.api";
 import { caregiverRegisterFields } from "./data/inputFields";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { handleAuthSubmit } from "../../../utils/auth/handleAuthSubmit";
@@ -26,7 +26,7 @@ const CaregiverRegister = () => {
     e.preventDefault();
 
     await handleAuthSubmit({
-      apiCall: register,
+      apiCall: registerCaregiver,
       form,
       navigate,
       setLoading,

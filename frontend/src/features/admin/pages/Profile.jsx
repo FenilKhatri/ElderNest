@@ -1,9 +1,6 @@
-import React from 'react'
+import PagePlaceholder from "../../../components/ui/PagePlaceholder";
 
-const Profile = () => {
-  return (
-    <div>Profile</div>
-  )
-}
-
-export default Profile
+const Profile = () => (
+  <PagePlaceholder title="Admin Profile" description="Manage your admin account details here." />
+);
+export default Profile;

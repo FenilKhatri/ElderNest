@@ -1,0 +1,125 @@
+// Indian States and Cities Data
+export const indianStates = [
+    "Andhra Pradesh",
+    "Arunachal Pradesh",
+    "Assam",
+    "Bihar",
+    "Chhattisgarh",
+    "Goa",
+    "Gujarat",
+    "Haryana",
+    "Himachal Pradesh",
+    "Jharkhand",
+    "Karnataka",
+    "Kerala",
+    "Madhya Pradesh",
+    "Maharashtra",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Odisha",
+    "Punjab",
+    "Rajasthan",
+    "Sikkim",
+    "Tamil Nadu",
+    "Telangana",
+    "Tripura",
+    "Uttar Pradesh",
+    "Uttarakhand",
+    "West Bengal",
+    "Andaman and Nicobar Islands",
+    "Chandigarh",
+    "Dadra and Nagar Haveli and Daman and Diu",
+    "Delhi",
+    "Jammu and Kashmir",
+    "Ladakh",
+    "Lakshadweep",
+    "Puducherry",
+];
+
+export const stateCityMap = {
+    "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool", "Tirupati"],
+    "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Pasighat"],
+    "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat", "Nagaon"],
+    "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Darbhanga"],
+    "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur", "Korba", "Durg"],
+    "Goa": ["Panaji", "Margao", "Vasco da Gama", "Mapusa"],
+    "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar"],
+    "Haryana": ["Faridabad", "Gurgaon", "Panipat", "Ambala", "Yamunanagar", "Rohtak"],
+    "Himachal Pradesh": ["Shimla", "Dharamshala", "Solan", "Mandi", "Kullu"],
+    "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Deoghar"],
+    "Karnataka": ["Bangalore", "Mysore", "Hubli", "Mangalore", "Belgaum", "Gulbarga"],
+    "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam"],
+    "Madhya Pradesh": ["Bhopal", "Indore", "Jabalpur", "Gwalior", "Ujjain"],
+    "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik", "Aurangabad"],
+    "Manipur": ["Imphal", "Thoubal", "Bishnupur"],
+    "Meghalaya": ["Shillong", "Tura", "Jowai"],
+    "Mizoram": ["Aizawl", "Lunglei", "Champhai"],
+    "Nagaland": ["Kohima", "Dimapur", "Mokokchung"],
+    "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Puri", "Berhampur"],
+    "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda"],
+    "Rajasthan": ["Jaipur", "Jodhpur", "Kota", "Bikaner", "Udaipur", "Ajmer"],
+    "Sikkim": ["Gangtok", "Namchi", "Gyalshing"],
+    "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tirunelveli"],
+    "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Khammam", "Karimnagar"],
+    "Tripura": ["Agartala", "Udaipur", "Dharmanagar"],
+    "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi", "Meerut", "Allahabad"],
+    "Uttarakhand": ["Dehradun", "Haridwar", "Roorkee", "Haldwani", "Rudrapur"],
+    "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri"],
+    "Andaman and Nicobar Islands": ["Port Blair"],
+    "Chandigarh": ["Chandigarh"],
+    "Dadra and Nagar Haveli and Daman and Diu": ["Daman", "Diu", "Silvassa"],
+    "Delhi": ["New Delhi", "North Delhi", "South Delhi", "East Delhi", "West Delhi"],
+    "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag"],
+    "Ladakh": ["Leh", "Kargil"],
+    "Lakshadweep": ["Kavaratti"],
+    "Puducherry": ["Puducherry", "Karaikal", "Mahe", "Yanam"],
+};
+
+// Pincode validation ranges (simplified)
+export const statePincodeRanges = {
+    "Andhra Pradesh": { start: 500000, end: 535999 },
+    "Arunachal Pradesh": { start: 790000, end: 792999 },
+    "Assam": { start: 781000, end: 788999 },
+    "Bihar": { start: 800000, end: 855999 },
+    "Chhattisgarh": { start: 490000, end: 497999 },
+    "Goa": { start: 403000, end: 403999 },
+    "Gujarat": { start: 360000, end: 396999 },
+    "Haryana": { start: 121000, end: 136999 },
+    "Himachal Pradesh": { start: 171000, end: 177999 },
+    "Jharkhand": { start: 813000, end: 835999 },
+    "Karnataka": { start: 560000, end: 591999 },
+    "Kerala": { start: 670000, end: 695999 },
+    "Madhya Pradesh": { start: 450000, end: 488999 },
+    "Maharashtra": { start: 400000, end: 445999 },
+    "Manipur": { start: 795000, end: 795999 },
+    "Meghalaya": { start: 793000, end: 794999 },
+    "Mizoram": { start: 796000, end: 796999 },
+    "Nagaland": { start: 797000, end: 798999 },
+    "Odisha": { start: 750000, end: 770999 },
+    "Punjab": { start: 140000, end: 160999 },
+    "Rajasthan": { start: 300000, end: 345999 },
+    "Sikkim": { start: 737000, end: 737999 },
+    "Tamil Nadu": { start: 600000, end: 643999 },
+    "Telangana": { start: 500000, end: 509999 },
+    "Tripura": { start: 799000, end: 799999 },
+    "Uttar Pradesh": { start: 200000, end: 285999 },
+    "Uttarakhand": { start: 244000, end: 263999 },
+    "West Bengal": { start: 700000, end: 743999 },
+    "Delhi": { start: 110000, end: 110099 },
+};
+
+// Validate pincode for state
+export const validatePincode = (pincode, state) => {
+    const range = statePincodeRanges[state];
+    if (!range) return true; // Allow if state not in range map
+    
+    const pin = parseInt(pincode);
+    return pin >= range.start && pin <= range.end;
+};
+
+// Get cities by state
+export const getCitiesByState = (state) => {
+    return stateCityMap[state] || [];
+};

@@ -1,9 +1,10 @@
-import React from 'react'
+import PagePlaceholder from "../../../components/ui/PagePlaceholder";
 
-const Reviews = () => {
-  return (
-    <div>Reviews</div>
-  )
-}
+const Reviews = () => (
+  <PagePlaceholder
+    title="Reviews"
+    description="Ratings and reviews from families you've cared for will appear here."
+  />
+);
 
-export default Reviews
+export default Reviews;

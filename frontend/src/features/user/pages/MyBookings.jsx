@@ -1,9 +1,6 @@
-import React from 'react'
+import PagePlaceholder from "../../../components/ui/PagePlaceholder";
 
-const MyBookings = () => {
-  return (
-    <div>MyBookings</div>
-  )
-}
-
-export default MyBookings
+const MyBookings = () => (
+  <PagePlaceholder title="My Bookings" description="All your active and upcoming care bookings are shown here." />
+);
+export default MyBookings;

@@ -6,11 +6,11 @@ import FormFields from "../../../components/ui/FormFields";
 import GoogleAuthButton from "../../../components/ui/GoogleAuthButton";
 import { ROLES } from "../../../utils/constants";
 import { useAuth } from "../../../context/AuthContext";
-import { login } from "../../caregiver/api/caregiver.api";
 import { loginFields } from "./data/inputFields";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { handleAuthSubmit } from "../../../utils/auth/handleAuthSubmit";
 import { handleChange } from "../../../utils/auth/handleChange";
+import { loginCaregiver } from "../api/auth.api";
 
 const CaregiverLogin = () => {
   const [form, setForm] = useState({
@@ -25,7 +25,7 @@ const CaregiverLogin = () => {
     e.preventDefault();
 
     await handleAuthSubmit({
-      apiCall: login,
+      apiCall: loginCaregiver,
       form,
       navigate,
       setLoading,

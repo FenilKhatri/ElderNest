@@ -12,52 +12,64 @@ const caregiverSchema = new mongoose.Schema(
         },
 
         // Basic Profile
+        fullName: {
+            type: String,
+            trim: true,
+        },
+        email: {
+            type: String,
+            trim: true,
+            lowercase: true,
+        },
+        contactNumber: {
+            type: String,
+            trim: true,
+        },
+        alternateContact: {
+            type: String,
+            trim: true,
+        },
         bio: {
             type: String,
             trim: true,
-            default: "",
+            maxlength: 1000,
         },
-
         gender: {
             type: String,
             enum: ["male", "female", "other"],
         },
-
         age: {
             type: Number,
             min: 18,
+            max: 80,
         },
-
         experienceYears: {
-            type: Number,
-            default: 0,
-        },
-
-        // Skills & Languages
-        skills: {
-            type: [String],
-            default: [],
-        },
-
-        languages: {
-            type: [String],
-            default: ["English"],
-        },
-
-        // Pricing
-        hourlyRate: {
             type: Number,
             default: 0,
             min: 0,
         },
 
-        // Location
+        // Profile Image
+        profileImage: {
+            type: String,
+            default: "",
+        },
+
+        // Location Details
         location: {
+            state: {
+                type: String,
+                trim: true,
+            },
             city: {
                 type: String,
                 trim: true,
             },
-            state: {
+            pincode: {
+                type: String,
+                trim: true,
+            },
+            fullAddress: {
                 type: String,
                 trim: true,
             },
@@ -67,34 +79,58 @@ const caregiverSchema = new mongoose.Schema(
             },
         },
 
-        // Documents
-        documents: {
-            aadhar: String,
-            idProof: String,
-            certificates: [String],
+        // Services Offered (max 3)
+        servicesOffered: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Service",
+                }
+            ],
+            validate: {
+                validator: function (v) {
+                    return v.length <= 3;
+                },
+                message: "Cannot select more than 3 services",
+            },
+            default: [],
         },
 
-        // Rating System
-        rating: {
-            type: Number,
-            default: 0,
-            min: 0,
-            max: 5,
+        // Skills & Languages
+        languages: {
+            type: [String],
+            default: [],
         },
 
-        totalReviews: {
-            type: Number,
-            default: 0,
-            min: 0,
+        // Certifications
+        certifications: {
+            type: [String],
+            default: [],
         },
 
-        // Status Control
-        isActive: {
-            type: Boolean,
-            default: true,
+        // Pricing
+        pricing: {
+            hourlyRate: {
+                type: Number,
+                min: 0,
+            },
+            dailyRate: {
+                type: Number,
+                min: 0,
+            },
+            monthlyRate: {
+                type: Number,
+                min: 0,
+            },
         },
 
-        // Availability
+        // Availability Timing
+        availableTiming: {
+            type: String,
+            enum: ["morning", "afternoon", "evening", "night", "full-day", "flexible"],
+        },
+
+        // Availability Schedule
         availability: [
             {
                 day: {
@@ -109,14 +145,63 @@ const caregiverSchema = new mongoose.Schema(
                         "Sunday",
                     ],
                 },
-                from: String,
-                to: String, 
+                slots: [
+                    {
+                        startTime: String,
+                        endTime: String,
+                        isBooked: {
+                            type: Boolean,
+                            default: false,
+                        },
+                    },
+                ],
             },
         ],
 
+        // Documents
+        documents: {
+            aadharCard: String,
+            idProof: String,
+            certificates: [String],
+            policeClearance: String,
+        },
+
+        // Rating System
+        rating: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 5,
+        },
+        totalReviews: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        // Status Control
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
         profileCompleted: {
             type: Boolean,
             default: false,
+        },
+        profileApprovalStatus: {
+            type: String,
+            enum: ["pending", "approved", "rejected", "changes-required"],
+            default: "pending",
+        },
+        adminFeedback: {
+            type: String,
+            trim: true,
+        },
+
+        // Total Bookings
+        totalBookings: {
+            type: Number,
+            default: 0,
         },
     },
     {
