@@ -13,6 +13,7 @@ const AuthPage = ({ role = "user" }) => {
   const [isLogin, setIsLogin] = useState(true);
 
   const isCaregiver = role === "caregiver";
+  const isAdmin = role === "admin";
 
   const LoginComponent = isCaregiver ? CaregiverLogin : Login;
   const RegisterComponent = isCaregiver ? CaregiverRegister : Register;
@@ -35,8 +36,8 @@ const AuthPage = ({ role = "user" }) => {
           >
             <H2 className="text-2xl font-bold text-slate-900">
               {isLogin
-                ? `Welcome back ${isCaregiver ? "Caregiver" : ""}`
-                : `Create your ${isCaregiver ? "Caregiver" : ""} account`}
+                ? `Welcome back ${isCaregiver ? "Caregiver" : isAdmin ? "Admin" : ""}`
+                : `Create your ${isCaregiver ? "Caregiver" : isAdmin ? "Admin" : ""} account`}
             </H2>
 
             <p className="text-slate-400 text-sm">
@@ -44,9 +45,13 @@ const AuthPage = ({ role = "user" }) => {
                 ? isLogin
                   ? "Login to manage your caregiving services."
                   : "Join as a caregiver and offer your services."
-                : isLogin
-                  ? "Log in to manage your care network and appointments."
-                  : "Join ElderNest and get trusted care services."}
+                : isAdmin
+                  ? isLogin
+                    ? "Access the admin dashboard to manage the platform."
+                    : "Create an admin account to manage the platform."
+                  : isLogin
+                    ? "Log in to manage your care network and appointments."
+                    : "Join ElderNest and get trusted care services."}
             </p>
           </motion.div>
 

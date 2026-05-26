@@ -1,15 +1,7 @@
 import { toast } from "react-toastify";
 import { getRedirectByRole } from "./roleRedirect";
+import { ROLES } from "../constants";
 
-/**
- * Unified auth submit handler for login and register flows.
- *
- * Root cause of previous bug:
- * - For register flows, fetchUser was not called, so AuthContext.user stayed null.
- * - ProtectedRoute saw null user and immediately redirected to "/" after navigate().
- * - Fix: always call fetchUser() if provided before navigating, so context is
- *   populated before the protected route renders.
- */
 export const handleAuthSubmit = async ({
     apiCall,
     form,
@@ -18,9 +10,9 @@ export const handleAuthSubmit = async ({
     fetchUser,
     validate,
     successMessage,
+    allowedRole, // optional — if set, block other roles from logging in
 }) => {
     try {
-        // Client-side validation (e.g. confirm password check)
         if (validate) {
             const errorMessage = validate();
             if (errorMessage) {
@@ -33,8 +25,6 @@ export const handleAuthSubmit = async ({
 
         const res = await apiCall(form);
 
-        // Axios interceptor already unwraps res.data (the response body).
-        // Body shape: { success, message, data: { user } }
         const responseData = res?.data || res;
         const message = res?.message || responseData?.message;
         const user =
@@ -43,14 +33,26 @@ export const handleAuthSubmit = async ({
             responseData?.user ||
             responseData?.caregiver;
 
-        // Refresh auth context BEFORE navigating so ProtectedRoute passes
+        // Block wrong-role logins (e.g. caregiver trying user form)
+        if (allowedRole && user?.role) {
+            const allowedRoles = Array.isArray(allowedRole) ? allowedRole : [allowedRole];
+            
+            if (!allowedRoles.includes(user.role)) {
+                toast.error(
+                    user.role === ROLES.CAREGIVER
+                        ? "Caregivers must use the caregiver login page."
+                        : "Please use the correct login page for your account."
+                );
+                setLoading(false);
+                return;
+            }
+        }
+
         if (fetchUser) {
             await fetchUser();
         }
 
-        // Navigate based on role returned from API (covers both login + register)
         navigate(getRedirectByRole(user?.role));
-
         toast.success(message || successMessage || "Success");
     } catch (error) {
         toast.error(

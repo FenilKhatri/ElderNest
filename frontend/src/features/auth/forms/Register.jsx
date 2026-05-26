@@ -13,7 +13,7 @@ import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { handleChange } from "../../../utils/auth/handleChange";
 import { handleAuthSubmit } from "../../../utils/auth/handleAuthSubmit";
 
-const Register = () => {
+const Register = ({ role = ROLES.USER }) => {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -74,7 +74,7 @@ const Register = () => {
       </motion.div>
 
       <motion.div variants={fadeUp}>
-        <GoogleAuthButton role={ROLES.USER} />
+        <GoogleAuthButton role={role} />
       </motion.div>
     </motion.form>
   );

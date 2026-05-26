@@ -34,11 +34,18 @@ const Navbar = ({ theme, toggleTheme }) => {
 
     if (!user) {
       return (
-        <NavLink to="/auth">
-          <Button>
-            <User size={18} /> Login
-          </Button>
-        </NavLink>
+        <div className="flex items-center gap-2">
+          <NavLink to="/auth">
+            <Button>
+              <User size={18} /> Login
+            </Button>
+          </NavLink>
+          <NavLink to="/admin-auth">
+            <Button variant="secondary">
+              Admin Login
+            </Button>
+          </NavLink>
+        </div>
       );
     }
 
@@ -80,11 +87,18 @@ const Navbar = ({ theme, toggleTheme }) => {
 
     if (!user) {
       return (
-        <NavLink to="/auth">
-          <Button>
-            <User size={18} /> Login
-          </Button>
-        </NavLink>
+        <div className="flex flex-col gap-2">
+          <NavLink to="/auth">
+            <Button>
+              <User size={18} /> Login
+            </Button>
+          </NavLink>
+          <NavLink to="/admin-auth">
+            <Button variant="secondary">
+              Admin Login
+            </Button>
+          </NavLink>
+        </div>
       );
     }
 

@@ -12,11 +12,19 @@ import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { handleChange } from "../../../utils/auth/handleChange";
 import { handleAuthSubmit } from "../../../utils/auth/handleAuthSubmit";
 
-const Login = () => {
+const Login = ({ role = ROLES.USER }) => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { fetchUser } = useAuth();
+
+  // Determine allowed roles based on the role prop
+  const getAllowedRoles = () => {
+    if (role === ROLES.ADMIN) {
+      return [ROLES.ADMIN, ROLES.USER]; // Admin page allows both admin and user login
+    }
+    return [ROLES.USER, ROLES.ADMIN]; // User page allows both user and admin login
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +35,7 @@ const Login = () => {
       navigate,
       setLoading,
       fetchUser,
+      allowedRole: getAllowedRoles(),
       successMessage: "Login Successful",
     });
   };
@@ -62,7 +71,7 @@ const Login = () => {
       </motion.div>
 
       <motion.div variants={fadeUp}>
-        <GoogleAuthButton role={ROLES.USER} />
+        <GoogleAuthButton role={role} />
       </motion.div>
     </motion.form>
   );
