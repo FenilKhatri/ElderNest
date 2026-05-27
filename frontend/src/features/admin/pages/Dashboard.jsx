@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { Users, UserCheck, Calendar, MessageSquare, Clock, TrendingUp, CheckCircle, AlertCircle } from "lucide-react";
 import { getDashboardStats } from "../api/admin.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
-import { formatCurrency } from "../../../utils/helpers";
 import { useNavigate } from "react-router-dom";
 
 const StatCard = ({ title, value, icon: Icon, color, onClick, sub }) => {

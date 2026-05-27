@@ -210,3 +210,18 @@ export const updateContactStatus = async (contactId, status, adminId, adminNotes
     await contact.save();
     return contact;
 };
+
+// Delete user or caregiver
+export const deleteUser = async (userId) => {
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    if (user.role === "caregiver") {
+        await Caregiver.findOneAndDelete({ userId });
+    }
+
+    await User.findByIdAndDelete(userId);
+    return true;
+};

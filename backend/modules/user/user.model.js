@@ -59,13 +59,17 @@ const userSchema = new mongoose.Schema(
 
         isApproved: {
             type: Boolean,
-            default: false,
+            default: function() {
+                return this.role !== "caregiver";
+            },
         },
 
         status: {
             type: String,
             enum: ["pending", "approved", "rejected"],
-            default: "pending",
+            default: function() {
+                return this.role === "caregiver" ? "pending" : "approved";
+            },
         },
     },
     {

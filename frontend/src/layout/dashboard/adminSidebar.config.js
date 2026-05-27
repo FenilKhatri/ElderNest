@@ -1,32 +1,30 @@
 import {
-  LayoutDashboard,
-  Users,
-  Settings,
-  User,
   Home,
-  Notebook,
+  LayoutDashboard,
+  User,
+  Settings,
+  Users,
+  Briefcase,
   CreditCard,
-  BarChart,
+  MessageSquare,
   Bell,
-  FileText,
-  Briefcase
 } from "lucide-react";
 
-export const adminRoutes = [
+export const adminSidebarLinks = [
   {
     to: "/",
     label: "Home",
     icon: Home,
   },
   {
-    to: "/admin/profile",
-    label: "Profile",
-    icon: User,
-  },
-  {
     to: "/admin/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    to: "/admin/profile",
+    label: "Profile",
+    icon: User,
   },
   {
     to: "/admin/settings",
@@ -37,10 +35,9 @@ export const adminRoutes = [
     label: "Users",
     icon: Users,
     subLinks: [
-      { to: "/admin/users", label: "Users" },
+      { to: "/admin/users", label: "All Users" },
       { to: "/admin/caregivers", label: "Caregivers" },
-      { to: "/admin/patients", label: "Patient" },
-    ]
+    ],
   },
   {
     label: "Management",
@@ -49,40 +46,26 @@ export const adminRoutes = [
       { to: "/admin/services", label: "Services" },
       { to: "/admin/bookings", label: "Bookings" },
       { to: "/admin/blogs", label: "Blogs" },
-    ]
-  },
-  {
-    label: "Reports",
-    icon: FileText,
-    subLinks: [
-      { to: "/admin/reports/revenue", label: "Revenue Reports" },
-      { to: "/admin/reports/booking", label: "Booking Reports" },
-      { to: "/admin/reports/service", label: "Service Reports" },
-    ]
+    ],
   },
   {
     label: "Payments",
     icon: CreditCard,
     subLinks: [
       { to: "/admin/payments/transactions", label: "Transactions" },
-      { to: "/admin/payments/payouts", label: "Payouts" },
       { to: "/admin/payments/refunds", label: "Refund Requests" },
-    ]
+      { to: "/admin/payments/payouts", label: "Payouts" },
+    ],
   },
   {
     label: "Complaints",
-    icon: Notebook,
+    icon: MessageSquare,
     subLinks: [
       { to: "/admin/complaints/user", label: "User Complaints" },
       { to: "/admin/complaints/caregiver", label: "Caregiver Complaints" },
       { to: "/admin/complaints/resolved", label: "Resolved Complaints" },
       { to: "/admin/complaints/pending", label: "Pending Complaints" },
-    ]
-  },
-  {
-    to: "/admin/analytics",
-    label: "Analytics",
-    icon: BarChart,
+    ],
   },
   {
     to: "/admin/notifications",

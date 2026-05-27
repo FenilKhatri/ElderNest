@@ -12,6 +12,9 @@ router.use(protect, authorizeRoles(ROLES.ADMIN));
 // Dashboard stats
 router.get("/dashboard/stats", adminController.getDashboardStats);
 
+// Caregiver details by user ID
+router.get("/caregivers/user/:userId", adminController.getCaregiverByUserIdAdmin);
+
 // Caregiver registration approval
 router.get("/caregivers/pending", adminController.getPendingCaregivers);
 router.patch("/caregivers/:userId/approve", adminController.approveCaregiverRegistration);
@@ -24,9 +27,14 @@ router.patch("/profiles/:caregiverId/reject", adminController.rejectCaregiverPro
 
 // User management
 router.get("/users", adminController.getAllUsers);
+router.delete("/users/:userId", adminController.deleteUser);
 
 // Contact management
 router.get("/contacts", adminController.getAllContacts);
 router.patch("/contacts/:contactId/status", adminController.updateContactStatus);
+
+// Settings
+router.get("/settings", adminController.getSettings);
+router.patch("/settings", adminController.updateSettings);
 
 export default router;

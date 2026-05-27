@@ -1,19 +1,12 @@
 import { body, param } from "express-validator";
 
 export const createServiceValidator = [
-    body("name")
+    body("title")
         .notEmpty()
-        .withMessage("Service name is required")
+        .withMessage("Service title is required")
         .trim()
         .isLength({ min: 2, max: 100 })
-        .withMessage("Service name must be between 2-100 characters"),
-    
-    body("description")
-        .notEmpty()
-        .withMessage("Description is required")
-        .trim()
-        .isLength({ min: 10, max: 500 })
-        .withMessage("Description must be between 10-500 characters"),
+        .withMessage("Service title must be between 2-100 characters"),
     
     body("category")
         .notEmpty()
@@ -28,24 +21,14 @@ export const createServiceValidator = [
         ])
         .withMessage("Invalid category"),
     
-    body("basePrice")
+    body("description")
         .notEmpty()
-        .withMessage("Base price is required")
-        .isFloat({ min: 0 })
-        .withMessage("Base price must be a positive number"),
+        .withMessage("Description is required")
+        .trim()
+        .isLength({ min: 10, max: 500 })
+        .withMessage("Description must be between 10-500 characters"),
     
-    body("duration")
-        .notEmpty()
-        .withMessage("Duration is required")
-        .isInt({ min: 1 })
-        .withMessage("Duration must be at least 1 hour"),
-    
-    body("features")
-        .optional()
-        .isArray()
-        .withMessage("Features must be an array"),
-    
-    body("icon")
+    body("image")
         .optional()
         .trim(),
 ];
@@ -55,17 +38,11 @@ export const updateServiceValidator = [
         .isMongoId()
         .withMessage("Invalid service ID"),
     
-    body("name")
+    body("title")
         .optional()
         .trim()
         .isLength({ min: 2, max: 100 })
-        .withMessage("Service name must be between 2-100 characters"),
-    
-    body("description")
-        .optional()
-        .trim()
-        .isLength({ min: 10, max: 500 })
-        .withMessage("Description must be between 10-500 characters"),
+        .withMessage("Service title must be between 2-100 characters"),
     
     body("category")
         .optional()
@@ -79,25 +56,20 @@ export const updateServiceValidator = [
         ])
         .withMessage("Invalid category"),
     
-    body("basePrice")
+    body("description")
         .optional()
-        .isFloat({ min: 0 })
-        .withMessage("Base price must be a positive number"),
+        .trim()
+        .isLength({ min: 10, max: 500 })
+        .withMessage("Description must be between 10-500 characters"),
     
-    body("duration")
+    body("image")
         .optional()
-        .isInt({ min: 1 })
-        .withMessage("Duration must be at least 1 hour"),
+        .trim(),
     
     body("isActive")
         .optional()
         .isBoolean()
         .withMessage("isActive must be a boolean"),
-    
-    body("features")
-        .optional()
-        .isArray()
-        .withMessage("Features must be an array"),
 ];
 
 export const deleteServiceValidator = [

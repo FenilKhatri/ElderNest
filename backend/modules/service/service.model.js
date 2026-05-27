@@ -2,13 +2,7 @@ import mongoose from "mongoose";
 
 const serviceSchema = new mongoose.Schema(
     {
-        name: {
-            type: String,
-            required: true,
-            trim: true,
-            unique: true,
-        },
-        description: {
+        title: {
             type: String,
             required: true,
             trim: true,
@@ -25,27 +19,18 @@ const serviceSchema = new mongoose.Schema(
                 "emergency-care",
             ],
         },
-        icon: {
+        description: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        image: {
             type: String,
             default: "",
-        },
-        basePrice: {
-            type: Number,
-            required: true,
-            min: 0,
-        },
-        duration: {
-            type: Number, // in hours
-            required: true,
-            min: 1,
         },
         isActive: {
             type: Boolean,
             default: true,
-        },
-        features: {
-            type: [String],
-            default: [],
         },
     },
     {

@@ -44,7 +44,7 @@ const Complaints = () => {
   const handleUpdateStatus = async () => {
     try {
       setSaving(true);
-      await updateContactStatus(viewContact._id, { status: newStatus, adminNotes });
+      await updateContactStatus(viewContact._id, newStatus, adminNotes);
       toast.success("Contact updated!");
       setViewContact(null);
       fetchContacts();

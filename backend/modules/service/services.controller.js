@@ -11,7 +11,7 @@ export const getAllServices = asyncHandler(async (req, res) => {
     if (category) query.category = category;
     if (isActive !== undefined) query.isActive = isActive === "true";
 
-    const services = await Service.find(query).sort({ name: 1 });
+    const services = await Service.find(query).sort({ title: 1 });
     return successResponse(res, 200, "Services fetched", { services });
 });
 

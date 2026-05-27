@@ -24,7 +24,7 @@ export const requireApprovedCaregiver = async (req, res, next) => {
         return errorResponse(res, 403, "Caregiver profile not found");
     }
 
-    if (caregiver.status !== "approved" || !caregiver.isApproved) {
+    if (req.user.status !== "approved" || !req.user.isApproved) {
         return errorResponse(
             res,
             403,

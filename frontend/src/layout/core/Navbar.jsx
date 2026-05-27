@@ -40,11 +40,6 @@ const Navbar = ({ theme, toggleTheme }) => {
               <User size={18} /> Login
             </Button>
           </NavLink>
-          <NavLink to="/admin-auth">
-            <Button variant="secondary">
-              Admin Login
-            </Button>
-          </NavLink>
         </div>
       );
     }
@@ -91,11 +86,6 @@ const Navbar = ({ theme, toggleTheme }) => {
           <NavLink to="/auth">
             <Button>
               <User size={18} /> Login
-            </Button>
-          </NavLink>
-          <NavLink to="/admin-auth">
-            <Button variant="secondary">
-              Admin Login
             </Button>
           </NavLink>
         </div>

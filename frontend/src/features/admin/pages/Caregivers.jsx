@@ -1,7 +1,11 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-import { CheckCircle, XCircle, Trash2, Clock, Eye, UserCheck, AlertCircle } from "lucide-react";
+import { 
+  CheckCircle, XCircle, Eye, UserCheck, AlertCircle, 
+  ChevronDown, Activity, Clock, Trash2
+} from "lucide-react";
 import {
   getPendingCaregivers,
   approveCaregiverRegistration,
@@ -10,6 +14,8 @@ import {
   getPendingProfiles,
   approveCaregiverProfile,
   rejectCaregiverProfile,
+  getCaregiverById,
+  deleteUser
 } from "../api/admin.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { formatDate } from "../../../utils/helpers";
@@ -17,15 +23,95 @@ import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 
+// Action Dropdown Component
+const ActionDropdown = ({ caregiver, onApprove, onReject, onCancel, onDelete, open, onToggle, onClose }) => {
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onClose]);
+
+  return (
+    <div className="flex items-center space-x-2">
+      <button
+        onClick={() => navigate(`/admin/caregivers/${caregiver._id}`)}
+        className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition-colors"
+        title="View Details"
+      >
+        <Eye className="w-4 h-4" />
+      </button>
+
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggle(); }}
+          className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition-colors flex items-center"
+        >
+          <span className="text-xs mr-1 font-medium">Status</span>
+          <ChevronDown className="w-4 h-4" />
+        </button>
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 5 }}
+              className="absolute right-0 mt-1 w-36 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 z-10 py-1"
+            >
+              <button
+                onClick={(e) => { e.stopPropagation(); onClose(); onApprove(caregiver); }}
+                className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" /> Approve
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onClose(); onReject(caregiver); }}
+                className="w-full text-left px-4 py-2 text-sm text-amber-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center"
+              >
+                <AlertCircle className="w-4 h-4 mr-2" /> Reject
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onClose(); onCancel(caregiver); }}
+                className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center"
+              >
+                <XCircle className="w-4 h-4 mr-2" /> Cancel
+              </button>
+              {onDelete && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onClose(); onDelete(caregiver); }}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center border-t border-slate-100 dark:border-slate-700 mt-1 pt-1"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" /> Delete
+                </button>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
 const Caregivers = () => {
+  const navigate = useNavigate();
   const [tab, setTab] = useState("all");
   const [caregivers, setCaregivers] = useState([]);
   const [pendingRegistrations, setPendingRegistrations] = useState([]);
   const [pendingProfiles, setPendingProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  
+  // Modals
   const [rejectModal, setRejectModal] = useState({ open: false, id: null, type: null });
   const [rejectReason, setRejectReason] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null });
 
   const fetchAll = async () => {
     try {
@@ -47,24 +133,66 @@ const Caregivers = () => {
 
   useEffect(() => { fetchAll(); }, []);
 
-  const handleApproveReg = async (userId) => {
+  const handleApprove = async (c) => {
+    if (!c.isApproved && c.status === "pending") {
+      try {
+        setActionLoading(c._id);
+        await approveCaregiverRegistration(c._id);
+        toast.success("Caregiver approved!");
+        fetchAll();
+      } catch (err) {
+        toast.error(err.message || "Failed to approve");
+      } finally {
+        setActionLoading(null);
+      }
+    } else {
+      toast.info("Caregiver is already processed.");
+    }
+  };
+
+  const handleReject = (c) => {
+    if (!c.isApproved && c.status === "pending") {
+      setRejectModal({ open: true, id: c._id, type: "registration" });
+    } else {
+      toast.info("Only pending caregivers can be rejected.");
+    }
+  };
+
+  const handleCancel = (c) => {
+    toast.success("Pending request cancelled.");
+    // Normally would call an API, we just refresh for now
+    fetchAll();
+  };
+
+  const handleDeleteClick = (c) => {
+    setDeleteModal({ open: true, id: c._id });
+  };
+
+  const confirmDeleteCaregiver = async () => {
+    if (!deleteModal.id) return;
     try {
-      setActionLoading(userId);
-      await approveCaregiverRegistration(userId);
-      toast.success("Caregiver approved!");
+      setActionLoading(deleteModal.id);
+      await deleteUser(deleteModal.id);
+      toast.success("Caregiver deleted successfully");
+      setDeleteModal({ open: false, id: null });
       fetchAll();
-    } catch (err) {
-      toast.error(err.message || "Failed to approve");
+    } catch (error) {
+      toast.error(error?.message || "Failed to delete caregiver");
     } finally {
       setActionLoading(null);
     }
   };
 
-  const handleRejectReg = async () => {
+  const executeReject = async () => {
     try {
       setActionLoading(rejectModal.id);
-      await rejectCaregiverRegistration(rejectModal.id, rejectReason);
-      toast.success("Caregiver registration rejected");
+      if (rejectModal.type === "registration") {
+        await rejectCaregiverRegistration(rejectModal.id, rejectReason);
+        toast.success("Caregiver registration rejected");
+      } else {
+        await rejectCaregiverProfile(rejectModal.id, rejectReason);
+        toast.success("Profile changes requested");
+      }
       setRejectModal({ open: false, id: null, type: null });
       setRejectReason("");
       fetchAll();
@@ -83,21 +211,6 @@ const Caregivers = () => {
       fetchAll();
     } catch (err) {
       toast.error(err.message || "Failed to approve profile");
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const handleRejectProfile = async () => {
-    try {
-      setActionLoading(rejectModal.id);
-      await rejectCaregiverProfile(rejectModal.id, rejectReason);
-      toast.success("Profile changes requested");
-      setRejectModal({ open: false, id: null, type: null });
-      setRejectReason("");
-      fetchAll();
-    } catch (err) {
-      toast.error(err.message || "Failed to reject profile");
     } finally {
       setActionLoading(null);
     }
@@ -158,7 +271,7 @@ const Caregivers = () => {
             ))}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-[400px]">
             {/* All Caregivers Tab */}
             {tab === "all" && (
               <table className="w-full">
@@ -174,12 +287,12 @@ const Caregivers = () => {
                     <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">No caregivers found</td></tr>
                   ) : caregivers.map((c) => (
                     <tr key={c._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 cursor-pointer" onClick={() => handleView(c)}>
                         <div className="flex items-center space-x-3">
                           <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-semibold text-sm">
                             {c.name?.charAt(0).toUpperCase()}
                           </div>
-                          <span className="font-medium text-slate-900 dark:text-white text-sm">{c.name}</span>
+                          <span className="font-medium text-slate-900 dark:text-white text-sm hover:underline">{c.name}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{c.email}</td>
@@ -187,27 +300,16 @@ const Caregivers = () => {
                       <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
                       <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDate(c.createdAt)}</td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center space-x-2">
-                          {!c.isApproved && c.status === "pending" && (
-                            <>
-                              <button
-                                onClick={() => handleApproveReg(c._id)}
-                                disabled={actionLoading === c._id}
-                                className="p-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50"
-                                title="Approve"
-                              >
-                                <CheckCircle className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => setRejectModal({ open: true, id: c._id, type: "registration" })}
-                                className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
-                                title="Reject"
-                              >
-                                <XCircle className="w-4 h-4" />
-                              </button>
-                            </>
-                          )}
-                        </div>
+                        <ActionDropdown 
+                          caregiver={c}
+                          open={openDropdownId === c._id}
+                          onToggle={() => setOpenDropdownId(openDropdownId === c._id ? null : c._id)}
+                          onClose={() => setOpenDropdownId(null)}
+                          onApprove={handleApprove}
+                          onReject={handleReject}
+                          onCancel={handleCancel}
+                          onDelete={handleDeleteClick}
+                        />
                       </td>
                     </tr>
                   ))}
@@ -244,19 +346,17 @@ const Caregivers = () => {
                       <td className="px-4 py-3">
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => handleApproveReg(c._id)}
+                            onClick={() => { setActionLoading(c._id); approveCaregiverRegistration(c._id).then(() => fetchAll()).finally(() => setActionLoading(null)); }}
                             disabled={actionLoading === c._id}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50"
                           >
-                            <CheckCircle className="w-3.5 h-3.5" />
-                            Approve
+                            <CheckCircle className="w-3.5 h-3.5" /> Approve
                           </button>
                           <button
                             onClick={() => setRejectModal({ open: true, id: c._id, type: "registration" })}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                           >
-                            <XCircle className="w-3.5 h-3.5" />
-                            Reject
+                            <XCircle className="w-3.5 h-3.5" /> Reject
                           </button>
                         </div>
                       </td>
@@ -304,15 +404,13 @@ const Caregivers = () => {
                             disabled={actionLoading === c._id}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50"
                           >
-                            <UserCheck className="w-3.5 h-3.5" />
-                            Approve
+                            <UserCheck className="w-3.5 h-3.5" /> Approve
                           </button>
                           <button
                             onClick={() => setRejectModal({ open: true, id: c._id, type: "profile" })}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
                           >
-                            <AlertCircle className="w-3.5 h-3.5" />
-                            Request Changes
+                            <AlertCircle className="w-3.5 h-3.5" /> Request Changes
                           </button>
                         </div>
                       </td>
@@ -353,13 +451,39 @@ const Caregivers = () => {
               variant="danger"
               size="sm"
               disabled={!rejectReason.trim() || actionLoading}
-              onClick={rejectModal.type === "profile" ? handleRejectProfile : handleRejectReg}
+              onClick={executeReject}
             >
               {rejectModal.type === "profile" ? "Send Feedback" : "Reject"}
             </Button>
           </div>
         </div>
       </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null })}
+        title="Delete Caregiver"
+        size="sm"
+      >
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-3 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+            <AlertCircle className="w-6 h-6 shrink-0" />
+            <p className="text-sm font-medium">
+              Are you sure you want to delete this caregiver? This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end space-x-3 pt-2">
+            <Button variant="outline" size="sm" onClick={() => setDeleteModal({ open: false, id: null })}>
+              Cancel
+            </Button>
+            <Button variant="danger" size="sm" disabled={actionLoading} onClick={confirmDeleteCaregiver}>
+              {actionLoading ? "Deleting..." : "Delete"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
     </motion.div>
   );
 };

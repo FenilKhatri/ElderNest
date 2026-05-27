@@ -1,11 +1,43 @@
 import http from "../../../lib/axios";
 
-// Dashboard stats
+// ==========================================
+// DASHBOARD STATS
+// ==========================================
 export const getDashboardStats = () => {
   return http.get("/admin/dashboard/stats");
 };
 
-// Caregiver registration approval
+// ==========================================
+// SETTINGS
+// ==========================================
+export const getSettings = () => {
+  return http.get("/admin/settings");
+};
+
+export const updateSettings = (data) => {
+  return http.patch("/admin/settings", data);
+};
+
+// ==========================================
+// USER MANAGEMENT
+// ==========================================
+export const getAllUsers = (role = null) => {
+  const params = role ? { role } : {};
+  return http.get("/admin/users", { params });
+};
+
+export const getUserById = (id) => {
+  return http.get(`/auth/me`); // Using auth/me since there's no specific user endpoint
+};
+
+export const deleteUser = (id) => {
+  return http.delete(`/admin/users/${id}`);
+};
+
+// ==========================================
+// CAREGIVER MANAGEMENT
+// ==========================================
+// Pending caregiver registrations
 export const getPendingCaregivers = () => {
   return http.get("/admin/caregivers/pending");
 };
@@ -18,7 +50,7 @@ export const rejectCaregiverRegistration = (userId, reason) => {
   return http.patch(`/admin/caregivers/${userId}/reject`, { reason });
 };
 
-// Caregiver profile approval
+// Pending caregiver profiles
 export const getPendingProfiles = () => {
   return http.get("/admin/profiles/pending");
 };
@@ -31,18 +63,120 @@ export const rejectCaregiverProfile = (caregiverId, feedback) => {
   return http.patch(`/admin/profiles/${caregiverId}/reject`, { feedback });
 };
 
-// User management
-export const getAllUsers = (role = null) => {
-  const params = role ? { role } : {};
-  return http.get("/admin/users", { params });
+// Get all caregivers (public endpoint but useful for admin)
+export const getAllCaregivers = (filters = {}) => {
+  return http.get("/caregivers", { params: filters });
 };
 
-// Contact management
+// Get caregiver by ID
+export const getCaregiverById = (id) => {
+  return http.get(`/admin/caregivers/user/${id}`);
+};
+
+// ==========================================
+// SERVICE MANAGEMENT
+// ==========================================
+export const getAllServices = (filters = {}) => {
+  return http.get("/services", { params: filters });
+};
+
+export const getServiceById = (id) => {
+  return http.get(`/services/${id}`);
+};
+
+export const createService = (data) => {
+  return http.post("/services", data);
+};
+
+export const updateService = (id, data) => {
+  return http.patch(`/services/${id}`, data);
+};
+
+export const deleteService = (id) => {
+  return http.delete(`/services/${id}`);
+};
+
+// ==========================================
+// BOOKING MANAGEMENT
+// ==========================================
+export const getAllBookings = (filters = {}) => {
+  return http.get("/bookings/admin/all", { params: filters });
+};
+
+export const getBookingById = (id) => {
+  return http.get(`/bookings/${id}`);
+};
+
+export const updateBookingStatus = (id, status, reason = null) => {
+  const payload = { status };
+  if (reason) {
+    if (status === "rejected") payload.rejectionReason = reason;
+    if (status === "cancelled") payload.cancellationReason = reason;
+  }
+  return http.patch(`/bookings/${id}/status`, payload);
+};
+
+// ==========================================
+// CONTACT/COMPLAINT MANAGEMENT
+// ==========================================
 export const getAllContacts = (status = null) => {
   const params = status ? { status } : {};
   return http.get("/admin/contacts", { params });
 };
 
-export const updateContactStatus = (contactId, data) => {
-  return http.patch(`/admin/contacts/${contactId}/status`, data);
+export const updateContactStatus = (contactId, status, adminNotes = null) => {
+  return http.patch(`/admin/contacts/${contactId}/status`, { status, adminNotes });
+};
+
+// ==========================================
+// NOTIFICATION MANAGEMENT
+// ==========================================
+export const getNotifications = (limit = 50) => {
+  return http.get("/notifications", { params: { limit } });
+};
+
+export const getUnreadCount = () => {
+  return http.get("/notifications/unread-count");
+};
+
+export const markNotificationAsRead = (id) => {
+  return http.patch(`/notifications/${id}/read`);
+};
+
+export const markAllNotificationsAsRead = () => {
+  return http.patch("/notifications/read-all");
+};
+
+export const deleteNotification = (id) => {
+  return http.delete(`/notifications/${id}`);
+};
+
+// ==========================================
+// REVIEW MANAGEMENT
+// ==========================================
+export const getCaregiverReviews = (caregiverId) => {
+  return http.get(`/reviews/caregiver/${caregiverId}`);
+};
+
+// ==========================================
+// BLOG MANAGEMENT
+// ==========================================
+export const getAllBlogs = () => {
+  return http.get("/blogs");
+};
+
+export const getBlogById = (id) => {
+  return http.get(`/blogs/${id}`);
+};
+
+export const createBlog = (data) => {
+  return http.post("/blogs", data);
+};
+
+export const updateBlog = (id, data) => {
+  return http.patch(`/blogs/${id}`, data);
+};
+
+export const deleteBlog = (id) => {
+  return http.delete(`/blogs/${id}`);
 };

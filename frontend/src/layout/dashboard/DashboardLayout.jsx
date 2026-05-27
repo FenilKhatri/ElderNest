@@ -10,8 +10,10 @@ import {
 } from "lucide-react";
 
 import Sidebar from "./Sidebar";
+import AdminSidebar from "./AdminSidebar";
 import { sidebarConfig } from "./sidebar.config";
 import { useAuth } from "../../context/AuthContext";
+import { ROLES } from "../../utils/constants";
 
 const DashboardLayout = ({ theme, toggleTheme }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -22,10 +24,13 @@ const DashboardLayout = ({ theme, toggleTheme }) => {
   const roleConfig = sidebarConfig[user?.role] || {};
   const title = roleConfig.title || "Dashboard";
 
+  // Use AdminSidebar for admin users
+  const SidebarComponent = user?.role === ROLES.ADMIN ? AdminSidebar : Sidebar;
+
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <Sidebar
+      <SidebarComponent
         collapsed={collapsed}
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}
