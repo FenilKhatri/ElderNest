@@ -13,22 +13,53 @@ export const getAllCaregivers = async (filters = {}) => {
         profileApprovalStatus: "approved",
     };
 
-    // Filter by services
-    if (filters.services && filters.services.length > 0) {
-        query.servicesOffered = { $in: filters.services };
+    // Filter by single or multiple services
+    if (filters.services) {
+        const servicesArray = Array.isArray(filters.services) ? filters.services : filters.services.split(',');
+        query.servicesOffered = { $in: servicesArray };
+    }
+    if (filters.service) { // To support ?service=Physiotherapy
+        const service = await Service.findOne({ 
+            $or: [{ slug: filters.service.toLowerCase() }, { _id: filters.service.match(/^[0-9a-fA-F]{24}$/) ? filters.service : null }]
+        });
+        if (service) {
+            query.servicesOffered = service._id;
+        }
     }
 
     // Filter by location
     if (filters.city) {
-        query["location.city"] = filters.city;
+        query["location.city"] = { $regex: new RegExp(filters.city, "i") };
     }
     if (filters.state) {
         query["location.state"] = filters.state;
     }
 
     // Filter by rating
-    if (filters.minRating) {
-        query.rating = { $gte: parseFloat(filters.minRating) };
+    if (filters.rating || filters.minRating) {
+        query.rating = { $gte: parseFloat(filters.rating || filters.minRating) };
+    }
+
+    // Filter by experience
+    if (filters.experience) {
+        // e.g., '5+', '3-5', '1-3'
+        if (filters.experience === '5+') query.experienceYears = { $gte: 5 };
+        else if (filters.experience === '3-5') query.experienceYears = { $gte: 3, $lt: 5 };
+        else if (filters.experience === '1-3') query.experienceYears = { $gte: 1, $lt: 3 };
+    }
+
+    // Search by name (via populated userId, but since we can't easily search populated fields in mongoose find query, 
+    // we first find users matching the search, then filter caregivers by those userIds)
+    if (filters.search) {
+        const matchingUsers = await User.find({ name: { $regex: new RegExp(filters.search, "i") } }).select('_id');
+        const userIds = matchingUsers.map(u => u._id);
+        
+        // Also search in bio/languages for caregiver specific fields
+        query.$or = [
+            { userId: { $in: userIds } },
+            { bio: { $regex: new RegExp(filters.search, "i") } },
+            { languages: { $regex: new RegExp(filters.search, "i") } }
+        ];
     }
 
     const caregivers = await Caregiver.find(query)

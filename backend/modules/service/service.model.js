@@ -7,6 +7,10 @@ const serviceSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
+        slug: {
+            type: String,
+            unique: true,
+        },
         category: {
             type: String,
             required: true,
@@ -37,5 +41,15 @@ const serviceSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+serviceSchema.pre("save", function (next) {
+    if (this.isModified("title") || !this.slug) {
+        this.slug = this.title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)+/g, "");
+    }
+    next();
+});
 
 export default mongoose.model("Service", serviceSchema);

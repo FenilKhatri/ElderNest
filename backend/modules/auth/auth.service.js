@@ -3,6 +3,7 @@ import User from "../user/user.model.js";
 import { ROLES, LOCK_TIME, MAX_FAILED_ATTEMPTS, CAREGIVER_STATUSES } from "../../common/utils/constants.js";
 import { AppError } from "../../common/utils/appError.js";
 import Caregiver from "../caregiver/caregiver.model.js";
+import { createNotification } from "../../common/services/notification.service.js";
 
 // Registration Logic
 export const createUser = async (data) => {
@@ -127,6 +128,18 @@ export const createCaregiver = async (data) => {
     await Caregiver.create({
         userId: user._id,
     });
+
+    // 5. Notify admin
+    const admins = await User.find({ role: ROLES.ADMIN });
+    for (const admin of admins) {
+        await createNotification(
+            admin._id,
+            "admin",
+            "New Caregiver Registration",
+            `${user.name} has registered as a caregiver and is waiting for approval.`,
+            "/admin/caregivers"
+        );
+    }
 
     return user;
 };

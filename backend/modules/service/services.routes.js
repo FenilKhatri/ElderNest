@@ -13,7 +13,7 @@ const router = express.Router();
 
 // Public routes
 router.get("/", serviceController.getAllServices);
-router.get("/:id", serviceController.getServiceById);
+router.get("/:idOrSlug", serviceController.getServiceByIdOrSlug);
 
 // Admin routes
 router.use(protect, authorizeRoles(ROLES.ADMIN));

@@ -7,6 +7,7 @@ import generateToken from "../../common/utils/generateToken.utils.js";
 import { CAREGIVER_STATUSES, ROLES } from "../../common/utils/constants.js";
 import { setAuthCookie, clearAuthCookie } from "../../common/utils/cookie.utils.js";
 import { successResponse, errorResponse } from "../../common/utils/responseHandler.utils.js";
+import { createNotification } from "../../common/services/notification.service.js";
 
 import admin from "../../config/firebaseAdmin.js";
 
@@ -67,7 +68,11 @@ export const googleAuth = asyncHandler(async (req, res) => {
     let user = await User.findOne({ email });
 
     if (user) {
-        // ✅ User exists — authenticate with their actual role, ignore role param
+        // Enforce role consistency
+        if (user.role !== role) {
+            return errorResponse(res, 403, `This account is registered as a ${user.role}`);
+        }
+
         const jwtToken = generateToken(user);
         setAuthCookie(res, jwtToken);
 
@@ -93,6 +98,18 @@ export const googleAuth = asyncHandler(async (req, res) => {
         let caregiver = await Caregiver.findOne({ userId: user._id });
         if (!caregiver) {
             caregiver = await Caregiver.create({ userId: user._id });
+        }
+
+        // Notify admin
+        const admins = await User.find({ role: ROLES.ADMIN });
+        for (const adminUser of admins) {
+            await createNotification(
+                adminUser._id,
+                "admin",
+                "New Caregiver Registration (Google)",
+                `${user.name} has registered as a caregiver and is waiting for approval.`,
+                "/admin/caregivers"
+            );
         }
     }
 

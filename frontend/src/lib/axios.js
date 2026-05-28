@@ -20,9 +20,12 @@ http.interceptors.response.use(
             error?.response?.data?.message ||
             error?.message ||
             "Something went wrong!";
+        const errors = error?.response?.data?.errors;
+        
         return Promise.reject({
             ...error,
             message,
+            validationErrors: errors,
         });
     }
 );

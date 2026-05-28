@@ -11,6 +11,8 @@ import reviewRoutes from "../modules/review/review.routes.js";
 import blogRoutes from "../modules/blog/blog.routes.js";
 import userRoutes from "../modules/user/user.routes.js";
 import uploadRoutes from "../modules/upload/upload.routes.js";
+import settingsRoutes from "../modules/settings/settings.routes.js";
+import newsletterRoutes from "../modules/newsletter/newsletter.routes.js";
 
 const router = express.Router();
 
@@ -25,5 +27,7 @@ router.use("/reviews", reviewRoutes);
 router.use("/blogs", blogRoutes);
 router.use("/users", userRoutes);
 router.use("/upload", uploadRoutes);
+router.use("/settings", settingsRoutes);
+router.use("/newsletter", newsletterRoutes);
 
 export default router;

@@ -19,3 +19,27 @@ export const updateProfile = asyncHandler(async (req, res) => {
 
     return successResponse(res, 200, "Profile updated successfully", { user });
 });
+
+// Set password for OAuth users
+export const setPassword = asyncHandler(async (req, res) => {
+    const { password } = req.body;
+    
+    if (!password || password.length < 6) {
+        return errorResponse(res, 400, "Password must be at least 6 characters long");
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+        return errorResponse(res, 404, "User not found");
+    }
+
+    if (user.password) {
+        return errorResponse(res, 400, "Password is already set. Please use change password functionality instead.");
+    }
+
+    const bcrypt = await import("bcrypt");
+    const hashedPassword = await bcrypt.default.hash(password, 10);
+    user.password = hashedPassword;
+    await user.save();
+    return successResponse(res, 200, "Password set successfully");
+});

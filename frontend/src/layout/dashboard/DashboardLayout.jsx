@@ -64,7 +64,10 @@ const DashboardLayout = ({ theme, toggleTheme }) => {
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
-            <div className="hidden sm:block text-sm font-medium dark:text-slate-100">
+            <div className="hidden sm:flex items-center gap-2 text-sm font-medium dark:text-slate-100">
+              {user?.profileImage ? (
+                <img src={user.profileImage} alt="profile" className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
+              ) : null}
               {user?.name || title}
             </div>
           </div>

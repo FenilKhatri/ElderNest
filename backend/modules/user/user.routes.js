@@ -8,5 +8,6 @@ const router = express.Router();
 router.use(protect);
 
 router.patch("/profile", userController.updateProfile);
+router.patch("/set-password", userController.setPassword);
 
 export default router;

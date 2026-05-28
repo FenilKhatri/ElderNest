@@ -15,10 +15,19 @@ export const getAllServices = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Services fetched", { services });
 });
 
-// Get service by ID
-export const getServiceById = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const service = await Service.findById(id);
+// Get service by ID or Slug
+export const getServiceByIdOrSlug = asyncHandler(async (req, res) => {
+    const { idOrSlug } = req.params;
+    let service;
+
+    if (idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
+        service = await Service.findById(idOrSlug);
+    }
+    
+    if (!service) {
+        // Handle case-insensitive slug lookup
+        service = await Service.findOne({ slug: idOrSlug.toLowerCase() });
+    }
     
     if (!service) {
         return errorResponse(res, 404, "Service not found");

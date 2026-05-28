@@ -310,9 +310,13 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
               className="mb-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                  {user.name?.charAt(0).toUpperCase()}
-                </div>
+                {user.profileImage ? (
+                  <img src={user.profileImage} alt={user.name} className="w-10 h-10 rounded-full object-cover border border-slate-700" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                    {user.name?.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">
                     {user.name}

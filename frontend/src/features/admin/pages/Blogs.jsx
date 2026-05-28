@@ -182,9 +182,9 @@ const Blogs = () => {
                   className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col"
                 >
                   <div className="relative h-48 overflow-hidden bg-slate-100 dark:bg-slate-800">
-                    {blog.thumbnail || blog.bannerImage || blog.image ? (
+                    {blog.image ? (
                       <img 
-                        src={blog.thumbnail || blog.bannerImage || blog.image} 
+                        src={blog.image} 
                         alt={blog.title} 
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                       />
@@ -257,8 +257,8 @@ const Blogs = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
-                            {(blog.thumbnail || blog.bannerImage || blog.image) && (
-                              <img src={blog.thumbnail || blog.bannerImage || blog.image} alt="" className="w-full h-full object-cover" />
+                            {blog.image && (
+                              <img src={blog.image} alt="" className="w-full h-full object-cover" />
                             )}
                           </div>
                           <div>

@@ -35,7 +35,7 @@ const PublicRoutes = () => (
     <Route path="/caregivers" element={<Caregivers />} />
     <Route path="/caregivers/:id" element={<CaregiverDetails />} />
     <Route path="/services" element={<Services />} />
-    <Route path="/services/:id" element={<ServiceDetails />} />
+    <Route path="/services/:idOrSlug" element={<ServiceDetails />} />
     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     <Route path="/terms-of-service" element={<TermsOfService />} />
 

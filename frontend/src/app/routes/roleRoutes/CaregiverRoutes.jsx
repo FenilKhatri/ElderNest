@@ -19,6 +19,7 @@ const CaregiverRequests   = lazy(() => import("../../../features/caregiver/pages
 const CaregiverServices   = lazy(() => import("../../../features/caregiver/pages/Services"));
 const CaregiverPayments   = lazy(() => import("../../../features/caregiver/pages/Payments"));
 const CaregiverReviews    = lazy(() => import("../../../features/caregiver/pages/Reviews"));
+const CaregiverNotifications = lazy(() => import("../../../features/caregiver/pages/Notifications"));
 
 const CaregiverRoutes = ({ theme, toggleTheme }) => (
   <>
@@ -39,6 +40,7 @@ const CaregiverRoutes = ({ theme, toggleTheme }) => (
           <Route path="/caregiver/services"         element={<CaregiverServices />} />
           <Route path="/caregiver/payments"         element={<CaregiverPayments />} />
           <Route path="/caregiver/reviews"          element={<CaregiverReviews />} />
+          <Route path="/caregiver/notifications"    element={<CaregiverNotifications />} />
         </Route>
       </Route>
     </Route>

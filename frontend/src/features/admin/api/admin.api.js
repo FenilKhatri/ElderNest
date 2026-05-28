@@ -11,11 +11,11 @@ export const getDashboardStats = () => {
 // SETTINGS
 // ==========================================
 export const getSettings = () => {
-  return http.get("/admin/settings");
+  return http.get("/settings");
 };
 
 export const updateSettings = (data) => {
-  return http.patch("/admin/settings", data);
+  return http.patch("/settings", data);
 };
 
 // ==========================================

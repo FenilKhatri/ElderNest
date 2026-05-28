@@ -19,8 +19,9 @@ export const authRoutes = [
 
 export const navLinks = [
     { path: "/", name: "Home" },
-    { path: "/about", name: "About Us" },
-    { path: "/contact", name: "Contact Us" },
-    { path: "/blogs", name: "Blogs" },
+    { path: "/about", name: "About" },
     { path: "/services", name: "Services" },
+    { path: "/caregivers", name: "Caregivers" },
+    { path: "/blogs", name: "Blogs" },
+    { path: "/contact", name: "Contact" },
 ];

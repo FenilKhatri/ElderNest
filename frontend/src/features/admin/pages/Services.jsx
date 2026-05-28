@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye, Camera, X } from "lucide-react";
+import http from "../../../lib/axios";
 import { 
   getAllServices, 
   createService, 
@@ -29,9 +30,11 @@ const Services = () => {
   const [formData, setFormData] = useState({
     title: "",
     category: "",
-    description: ""
+    description: "",
+    image: ""
   });
   const [formLoading, setFormLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const categories = [
     { value: "personal-care", label: "Personal Care" },
@@ -78,6 +81,29 @@ const Services = () => {
     }
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const data = new FormData();
+    data.append("image", file);
+
+    try {
+      const res = await http.post("/upload", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      if (res.url) {
+        setFormData({ ...formData, image: res.url });
+        toast.success("Image uploaded successfully!");
+      }
+    } catch (error) {
+      toast.error("Failed to upload image");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     
@@ -91,7 +117,7 @@ const Services = () => {
       await createService(formData);
       toast.success("Service created successfully");
       setCreateModal(false);
-      setFormData({ title: "", category: "", description: "" });
+      setFormData({ title: "", category: "", description: "", image: "" });
       fetchServices();
     } catch (error) {
       toast.error(error?.message || "Failed to create service");
@@ -113,7 +139,7 @@ const Services = () => {
       await updateService(editModal.service._id, formData);
       toast.success("Service updated successfully");
       setEditModal({ open: false, service: null });
-      setFormData({ title: "", category: "", description: "" });
+      setFormData({ title: "", category: "", description: "", image: "" });
       fetchServices();
     } catch (error) {
       toast.error(error?.message || "Failed to update service");
@@ -140,7 +166,8 @@ const Services = () => {
     setFormData({
       title: service.title,
       category: service.category,
-      description: service.description
+      description: service.description,
+      image: service.image || ""
     });
     setEditModal({ open: true, service });
   };
@@ -233,9 +260,18 @@ const Services = () => {
                 className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-shadow"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                    {service.title}
-                  </h3>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                      {service.image ? (
+                        <img src={service.image} alt={service.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs text-slate-400">No Img</span>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                      {service.title}
+                    </h3>
+                  </div>
                   <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
                     {getCategoryLabel(service.category)}
                   </span>
@@ -286,7 +322,7 @@ const Services = () => {
         isOpen={createModal}
         onClose={() => {
           setCreateModal(false);
-          setFormData({ title: "", category: "", description: "" });
+          setFormData({ title: "", category: "", description: "", image: "" });
         }}
         title="Create New Service"
         size="md"
@@ -325,6 +361,32 @@ const Services = () => {
           
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Service Image
+            </label>
+            <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors h-32">
+              {formData.image ? (
+                <>
+                  <img src={formData.image} alt="Preview" className="w-full h-full object-contain rounded-md" />
+                  <button 
+                    type="button"
+                    onClick={() => setFormData({ ...formData, image: "" })}
+                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 z-10"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </>
+              ) : (
+                <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
+                  <Camera className="w-8 h-8 text-slate-400 mb-2" />
+                  <span className="text-sm text-slate-500">{uploadingImage ? "Uploading..." : "Click to upload image"}</span>
+                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+                </label>
+              )}
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               Description *
             </label>
             <textarea
@@ -343,7 +405,7 @@ const Services = () => {
               variant="outline"
               onClick={() => {
                 setCreateModal(false);
-                setFormData({ title: "", category: "", description: "" });
+                setFormData({ title: "", category: "", description: "", image: "" });
               }}
               disabled={formLoading}
             >
@@ -361,7 +423,7 @@ const Services = () => {
         isOpen={editModal.open}
         onClose={() => {
           setEditModal({ open: false, service: null });
-          setFormData({ title: "", category: "", description: "" });
+          setFormData({ title: "", category: "", description: "", image: "" });
         }}
         title="Edit Service"
         size="md"
@@ -398,6 +460,32 @@ const Services = () => {
           
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Service Image
+            </label>
+            <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors h-32">
+              {formData.image ? (
+                <>
+                  <img src={formData.image} alt="Preview" className="w-full h-full object-contain rounded-md" />
+                  <button 
+                    type="button"
+                    onClick={() => setFormData({ ...formData, image: "" })}
+                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 z-10"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </>
+              ) : (
+                <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
+                  <Camera className="w-8 h-8 text-slate-400 mb-2" />
+                  <span className="text-sm text-slate-500">{uploadingImage ? "Uploading..." : "Click to upload image"}</span>
+                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+                </label>
+              )}
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               Description *
             </label>
             <textarea
@@ -415,7 +503,7 @@ const Services = () => {
               variant="outline"
               onClick={() => {
                 setEditModal({ open: false, service: null });
-                setFormData({ title: "", category: "", description: "" });
+                setFormData({ title: "", category: "", description: "", image: "" });
               }}
               disabled={formLoading}
             >

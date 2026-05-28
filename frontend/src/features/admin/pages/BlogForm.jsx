@@ -17,8 +17,7 @@ const INITIAL_STATE = {
   slug: "",
   shortDescription: "",
   content: "",
-  thumbnail: "",
-  bannerImage: "",
+  image: "",
   category: "General",
   tags: [],
   author: "",
@@ -55,8 +54,7 @@ const BlogForm = () => {
   const [tagInput, setTagInput] = useState("");
   const [keywordInput, setKeywordInput] = useState("");
 
-  const [uploadingThumb, setUploadingThumb] = useState(false);
-  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     if (isEdit) {
@@ -138,7 +136,7 @@ const BlogForm = () => {
     const data = new FormData();
     data.append("image", file);
 
-    const setLoader = type === "thumbnail" ? setUploadingThumb : setUploadingBanner;
+    const setLoader = setUploadingImage;
     setLoader(true);
 
     try {
@@ -327,13 +325,13 @@ const BlogForm = () => {
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Thumbnail Image</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Featured Image</label>
                 <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center text-center relative overflow-hidden bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                  {formData.thumbnail ? (
+                  {formData.image ? (
                     <>
-                      <img src={formData.thumbnail} alt="Thumbnail" className="w-full h-32 object-cover rounded-md" />
+                      <img src={formData.image} alt="Featured" className="w-full h-32 object-cover rounded-md" />
                       <button 
-                        onClick={() => setFormData(prev => ({...prev, thumbnail: ""}))}
+                        onClick={() => setFormData(prev => ({...prev, image: ""}))}
                         className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
                       >
                         <X className="w-4 h-4" />
@@ -342,31 +340,8 @@ const BlogForm = () => {
                   ) : (
                     <label className="cursor-pointer w-full h-32 flex flex-col items-center justify-center">
                       <UploadCloud className="w-8 h-8 text-slate-400 mb-2" />
-                      <span className="text-sm text-slate-500">{uploadingThumb ? "Uploading..." : "Click to upload"}</span>
-                      <input type="file" className="hidden" accept="image/*" onChange={(e) => uploadImage(e.target.files[0], "thumbnail")} />
-                    </label>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Banner Image</label>
-                <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center text-center relative overflow-hidden bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                  {formData.bannerImage ? (
-                    <>
-                      <img src={formData.bannerImage} alt="Banner" className="w-full h-32 object-cover rounded-md" />
-                      <button 
-                        onClick={() => setFormData(prev => ({...prev, bannerImage: ""}))}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </>
-                  ) : (
-                    <label className="cursor-pointer w-full h-32 flex flex-col items-center justify-center">
-                      <UploadCloud className="w-8 h-8 text-slate-400 mb-2" />
-                      <span className="text-sm text-slate-500">{uploadingBanner ? "Uploading..." : "Click to upload banner"}</span>
-                      <input type="file" className="hidden" accept="image/*" onChange={(e) => uploadImage(e.target.files[0], "bannerImage")} />
+                      <span className="text-sm text-slate-500">{uploadingImage ? "Uploading..." : "Click to upload"}</span>
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => uploadImage(e.target.files[0], "image")} />
                     </label>
                   )}
                 </div>
