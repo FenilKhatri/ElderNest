@@ -8,6 +8,16 @@ export const fadeUp = {
     },
 };
 
+// Slide Up
+export const slideUp = {
+    hidden: { opacity: 0, y: 60 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 1, ease: "easeOut" },
+    },
+};
+
 // Slide from Left
 export const slideLeft = {
     hidden: { opacity: 0, x: -60 },

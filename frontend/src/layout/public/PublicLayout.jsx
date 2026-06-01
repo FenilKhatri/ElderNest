@@ -5,10 +5,10 @@ import MaintenanceGate from "./MaintenanceGate";
 
 const PublicLayout = ({ theme, toggleTheme }) => {
   return (
-    <div className="flex flex-col min-h-screen overflow-x-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
       <MaintenanceGate>
         <Navbar theme={theme} toggleTheme={toggleTheme} />
-        <main className="flex-1 w-full min-w-0 overflow-x-hidden">
+        <main className="flex-1 w-full min-w-0">
           <Outlet />
         </main>
         <Footer />

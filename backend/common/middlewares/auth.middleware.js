@@ -36,7 +36,5 @@ export const protect = asyncHandler(async (req, res, next) => {
     status: user.status,
   };
 
-  console.log("USER AUTH:", req.user);
-
   next();
 });

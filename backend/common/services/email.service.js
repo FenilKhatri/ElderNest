@@ -210,6 +210,62 @@ const emailTemplates = {
             </div>
         `,
     }),
+
+    // Booking Payment Confirmation
+    bookingPaymentConfirmation: (userName, bookingId, caregiverName, serviceName, amount, transactionId, date, time) => ({
+        subject: `Booking Confirmed - ElderNest #${bookingId}`,
+        html: `
+            <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc;">
+                <div style="background: linear-gradient(135deg, #1e3a8a, #2563eb); padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px;">ElderNest</h1>
+                    <p style="color: #93c5fd; margin: 8px 0 0;">Compassionate Care, Always</p>
+                </div>
+                
+                <div style="padding: 30px; background: #ffffff;">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <div style="display: inline-block; background: #dcfce7; color: #166534; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 14px;">
+                            ✓ Payment Successful
+                        </div>
+                    </div>
+                    
+                    <p style="color: #334155; font-size: 16px;">Dear ${userName},</p>
+                    <p style="color: #64748b; line-height: 1.6;">
+                        Thank you for your payment! Your booking has been confirmed and the caregiver has been notified. 
+                        Here's a summary of your booking:
+                    </p>
+                    
+                    <div style="background: #f1f5f9; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                        <h3 style="color: #1e3a8a; margin: 0 0 16px; font-size: 16px;">📋 Booking Summary</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr><td style="padding: 6px 0; color: #64748b; font-size: 14px;">Booking ID</td><td style="padding: 6px 0; color: #0f172a; font-weight: 600; text-align: right; font-size: 14px;">${bookingId}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #64748b; font-size: 14px;">Service</td><td style="padding: 6px 0; color: #0f172a; font-weight: 600; text-align: right; font-size: 14px;">${serviceName}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #64748b; font-size: 14px;">Caregiver</td><td style="padding: 6px 0; color: #0f172a; font-weight: 600; text-align: right; font-size: 14px;">${caregiverName}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #64748b; font-size: 14px;">Date</td><td style="padding: 6px 0; color: #0f172a; font-weight: 600; text-align: right; font-size: 14px;">${date}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #64748b; font-size: 14px;">Time</td><td style="padding: 6px 0; color: #0f172a; font-weight: 600; text-align: right; font-size: 14px;">${time}</td></tr>
+                        </table>
+                    </div>
+                    
+                    <div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 16px; border-radius: 0 8px 8px 0; margin: 20px 0;">
+                        <p style="margin: 0; color: #1e40af; font-size: 14px;">
+                            <strong>💰 Amount Paid:</strong> ₹${amount?.toLocaleString?.("en-IN") || amount}<br/>
+                            <strong>🔖 Transaction ID:</strong> ${transactionId}
+                        </p>
+                    </div>
+                    
+                    <p style="color: #64748b; font-size: 14px; line-height: 1.6;">
+                        The caregiver will review your booking shortly. You will receive a notification once it is accepted.
+                    </p>
+                </div>
+                
+                <div style="padding: 20px 30px; background: #f1f5f9; text-align: center; border-radius: 0 0 12px 12px;">
+                    <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                        Need help? Contact us at support@eldernest.com<br/>
+                        © ${new Date().getFullYear()} ElderNest. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        `,
+    }),
 };
 
 // Send Email Function

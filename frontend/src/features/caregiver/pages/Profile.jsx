@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { MapPin, Star, User, Clock, CheckCircle, Edit, Shield, Heart } from "lucide-react";
-import { getMyProfile } from "../api/caregiver.api";
+import { MapPin, Star, User, Clock, CheckCircle, Edit, Shield, Heart, Camera } from "lucide-react";
+import { getMyProfile, updateProfile } from "../api/caregiver.api";
+import http from "../../../lib/axios";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
 import { formatCurrency } from "../../../utils/helpers";
 import Button from "../../../components/ui/Button";
@@ -14,21 +15,51 @@ const Profile = () => {
   const { user } = useAuth();
   const [caregiver, setCaregiver] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const res = await getMyProfile();
+      setCaregiver(res.data?.caregiver);
+    } catch (error) {
+      toast.error("Failed to load your profile");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const res = await getMyProfile();
-        setCaregiver(res.data?.caregiver);
-      } catch (error) {
-        toast.error("Failed to load your profile");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProfile();
   }, []);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    const data = new FormData();
+    data.append("image", file);
+    data.append("folder", "photos");
+
+    try {
+      const res = await http.post("/upload", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const url = res?.url || res?.data?.url;
+      if (url) {
+        await updateProfile({ profileImage: url });
+        toast.success("Profile picture updated successfully!");
+        fetchProfile();
+      } else {
+        toast.error("Upload succeeded but no image URL was returned");
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error?.message || "Failed to upload image");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -68,12 +99,20 @@ const Profile = () => {
         {/* Left Column - Profile Summary */}
         <motion.div variants={fadeUp} className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm text-center">
-            <div className="w-32 h-32 mx-auto rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4 overflow-hidden shadow-inner">
-              {caregiver.profilePicture ? (
-                <img src={caregiver.profilePicture} alt={caregiver.userId?.name} className="w-full h-full object-cover" />
-              ) : (
-                <User className="w-16 h-16 text-blue-600 dark:text-blue-400" />
-              )}
+            <div className="relative w-32 h-32 mx-auto mb-4">
+              <div className="w-full h-full rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center overflow-hidden shadow-inner border-4 border-white dark:border-slate-700">
+                {uploading ? (
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                ) : caregiver.profileImage || caregiver.userId?.profileImage ? (
+                  <img src={caregiver.profileImage || caregiver.userId?.profileImage} alt={caregiver.userId?.name} className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-16 h-16 text-blue-600 dark:text-blue-400" />
+                )}
+              </div>
+              <label className="absolute bottom-0 right-0 p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors cursor-pointer ring-2 ring-white dark:ring-slate-800">
+                <Camera className="w-4 h-4" />
+                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+              </label>
             </div>
             <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
               {caregiver.userId?.name}

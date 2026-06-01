@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { Clock, History as HistoryIcon, Download } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Clock, History as HistoryIcon, Download, FileText, CreditCard, Receipt, CalendarDays, User } from "lucide-react";
 import { getUserBookings } from "../../booking/api/booking.api";
-import { formatDate } from "../../../utils/helpers";
+import { formatDate, formatCurrency } from "../../../utils/helpers";
 import { generateBookingReceipt } from "../../../utils/pdfGenerator";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Button from "../../../components/ui/Button";
 import UserPageLayout from "../../../layout/dashboard/UserPageLayout";
+import { stagger, fadeUp } from "../../../animations/motionVariants";
 
 const History = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     fetchBookings();
@@ -20,7 +23,6 @@ const History = () => {
     try {
       setLoading(true);
       const res = await getUserBookings();
-      // Filter for past bookings (completed, cancelled, rejected)
       const pastBookings = (res.data?.bookings || []).filter(
         b => ["completed", "cancelled", "rejected"].includes(b.status)
       ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -33,75 +35,173 @@ const History = () => {
     }
   };
 
+  const filteredBookings = filter === "all" 
+    ? bookings 
+    : bookings.filter(b => b.status === filter);
+
+  const filters = [
+    { key: "all", label: "All" },
+    { key: "completed", label: "Completed" },
+    { key: "cancelled", label: "Cancelled" },
+    { key: "rejected", label: "Rejected" },
+  ];
+
+  const handleDownloadReceipt = (booking) => {
+    if (booking.paymentReceiptUrl) {
+      window.open(`http://localhost:8000${booking.paymentReceiptUrl}`, "_blank");
+    } else {
+      generateBookingReceipt(booking);
+    }
+  };
+
+  const handleDownloadBookingPdf = (booking) => {
+    if (booking.bookingPdfUrl) {
+      window.open(`http://localhost:8000${booking.bookingPdfUrl}`, "_blank");
+    } else {
+      toast.info("Booking details PDF is not available for this booking.");
+    }
+  };
+
   return (
-    <UserPageLayout title="Service history" description="Completed and cancelled bookings">
+    <UserPageLayout title="Service History" description="Your completed and past bookings">
+      {/* Filters */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 hide-scrollbar">
+        {filters.map(f => (
+          <button
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+              filter === f.key
+                ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse h-32 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+            <div key={i} className="animate-pulse rounded-2xl overflow-hidden">
+              <div className="h-40 bg-slate-100 dark:bg-slate-800 rounded-2xl" />
+            </div>
           ))}
         </div>
-      ) : bookings.length === 0 ? (
-        <div className="text-center py-12">
-          <HistoryIcon className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No history yet</h3>
-          <p className="text-slate-500 dark:text-slate-400">Your completed and cancelled bookings will appear here.</p>
+      ) : filteredBookings.length === 0 ? (
+        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <HistoryIcon className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No history yet</h3>
+          <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            Your completed and cancelled bookings will appear here.
+          </p>
         </div>
       ) : (
-    <div className="space-y-4">
+        <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
+          <AnimatePresence>
+            {filteredBookings.map((booking) => (
+              <motion.div 
+                key={booking._id} 
+                variants={fadeUp}
+                layout
+                className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-blue-600/5 transition-all duration-300"
+              >
+                <div className="p-6">
+                  {/* Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                        booking.status === "completed" 
+                          ? "bg-emerald-100 dark:bg-emerald-900/30" 
+                          : booking.status === "cancelled"
+                          ? "bg-amber-100 dark:bg-amber-900/30"
+                          : "bg-red-100 dark:bg-red-900/30"
+                      }`}>
+                        {booking.status === "completed" ? (
+                          <CreditCard className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                        ) : (
+                          <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white capitalize">
+                          {booking.careType} Care
+                        </h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-mono">
+                          {booking.bookingId}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {booking.paymentStatus === "paid" && (
+                        <span className="px-3 py-1 text-xs font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full">
+                          💳 Paid
+                        </span>
+                      )}
+                      <StatusBadge status={booking.status} />
+                    </div>
+                  </div>
 
-      <div className="space-y-4">
-        {bookings.map((booking) => (
-          <div key={booking._id} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-shadow">
-            <div className="p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                    {booking.careType} Care
-                  </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    Booking ID: <span className="font-mono">{booking.bookingId}</span>
-                  </p>
-                </div>
-                <StatusBadge status={booking.status} />
-              </div>
+                  {/* Info Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 py-4 border-y border-slate-100 dark:border-slate-800">
+                    <div className="flex items-start gap-2">
+                      <User className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold mb-0.5">Patient</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{booking.patientName}, {booking.patientAge}y</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CalendarDays className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold mb-0.5">Schedule</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{formatDate(booking.bookingDate)}</p>
+                        <p className="text-xs text-slate-500">{booking.timeSlot?.startTime} - {booking.timeSlot?.endTime}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <FileText className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold mb-0.5">Service</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{booking.serviceId?.title || "Care Service"}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Receipt className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold mb-0.5">Amount</p>
+                        <p className="text-sm font-bold text-slate-900 dark:text-white">{formatCurrency(booking.totalAmount)}</p>
+                      </div>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4 border-y border-slate-100 dark:border-slate-800">
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold mb-1">Patient Details</p>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">{booking.patientName}, {booking.patientAge}y</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold mb-1">Schedule</p>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">{formatDate(booking.bookingDate)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold mb-1">Caregiver</p>
-                  {booking.caregiverId ? (
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">Assigned</p>
-                  ) : (
-                    <p className="text-sm text-slate-500">None</p>
+                  {/* Actions */}
+                  {booking.status === "completed" && (
+                    <div className="pt-4 flex flex-wrap gap-3 justify-end">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleDownloadReceipt(booking)}
+                        className="flex items-center gap-2 text-sm"
+                      >
+                        <Download className="w-4 h-4" /> Payment Receipt
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleDownloadBookingPdf(booking)}
+                        className="flex items-center gap-2 text-sm"
+                      >
+                        <FileText className="w-4 h-4" /> Booking Details
+                      </Button>
+                    </div>
                   )}
                 </div>
-              </div>
-              
-              {booking.status === "completed" && (
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => generateBookingReceipt(booking)}
-                    className="flex items-center gap-2"
-                  >
-                    <Download className="w-4 h-4" /> Download Receipt
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
     </UserPageLayout>
   );

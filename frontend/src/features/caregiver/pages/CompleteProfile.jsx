@@ -15,7 +15,7 @@ import { GENDER_OPTIONS, AVAILABLE_TIMINGS, LANGUAGES } from "../../../utils/con
 import Button from "../../../components/ui/Button";
 import Select from "../../../components/ui/Select";
 import Textarea from "../../../components/ui/Textarea";
-import Checkbox from "../../../components/ui/Checkbox";
+import Checkbox from "../../../components/ui/Checkbox"; // Unused now
 
 const steps = [
   { id: 1, title: "Personal Information", fields: ["fullName", "email", "contactNumber", "alternateContact", "gender", "age"] },
@@ -486,18 +486,21 @@ const CompleteProfile = () => {
                     {LANGUAGES.map((lang) => {
                       const isChecked = field.value.includes(lang);
                       return (
-                        <Checkbox
-                          key={lang}
-                          label={lang}
-                          checked={isChecked}
-                          onChange={() => {
-                            if (isChecked) {
-                              field.onChange(field.value.filter(l => l !== lang));
-                            } else {
-                              field.onChange([...field.value, lang]);
-                            }
-                          }}
-                        />
+                        <label key={lang} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                field.onChange([...field.value, lang]);
+                              } else {
+                                field.onChange(field.value.filter(l => l !== lang));
+                              }
+                            }}
+                            className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{lang}</span>
+                        </label>
                       );
                     })}
                   </div>
@@ -523,6 +526,7 @@ const CompleteProfile = () => {
                     options={indianStates.map((s) => ({ value: s, label: s }))}
                     error={errors.location?.state?.message}
                     required
+                    searchable
                     {...field}
                   />
                 )}
@@ -536,6 +540,7 @@ const CompleteProfile = () => {
                     options={cities}
                     error={errors.location?.city?.message}
                     required
+                    searchable
                     disabled={!watchState}
                     placeholder={watchState ? "Select city" : "Select state first"}
                     {...field}

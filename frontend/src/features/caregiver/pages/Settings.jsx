@@ -4,7 +4,7 @@ import { Settings as SettingsIcon, Bell, Lock } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
-import Checkbox from "../../../components/ui/Checkbox";
+import Checkbox from "../../../components/ui/Checkbox"; // Unused now
 import SetPassword from "../../user/components/SetPassword";
 
 const Settings = () => {
@@ -51,21 +51,33 @@ const Settings = () => {
           <Bell className="w-5 h-5" /> Notification preferences
         </h2>
         <div className="space-y-3">
-          <Checkbox
-            label="Email notifications"
-            checked={prefs.emailNotifications}
-            onChange={(e) => setPrefs({ ...prefs, emailNotifications: e.target.checked })}
-          />
-          <Checkbox
-            label="Booking alerts"
-            checked={prefs.bookingAlerts}
-            onChange={(e) => setPrefs({ ...prefs, bookingAlerts: e.target.checked })}
-          />
-          <Checkbox
-            label="Marketing emails"
-            checked={prefs.marketingEmails}
-            onChange={(e) => setPrefs({ ...prefs, marketingEmails: e.target.checked })}
-          />
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={prefs.emailNotifications}
+              onChange={(e) => setPrefs({ ...prefs, emailNotifications: e.target.checked })}
+              className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Email notifications</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={prefs.bookingAlerts}
+              onChange={(e) => setPrefs({ ...prefs, bookingAlerts: e.target.checked })}
+              className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Booking alerts</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={prefs.marketingEmails}
+              onChange={(e) => setPrefs({ ...prefs, marketingEmails: e.target.checked })}
+              className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Marketing emails</span>
+          </label>
         </div>
         <Button onClick={handleSavePrefs} className="mt-4">
           Save preferences

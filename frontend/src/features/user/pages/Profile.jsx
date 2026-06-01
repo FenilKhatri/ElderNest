@@ -15,6 +15,7 @@ const Profile = () => {
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    email: "",
     phone: "",
     profileImage: ""
   });
@@ -23,6 +24,7 @@ const Profile = () => {
     if (user) {
       setFormData({
         name: user.name || "",
+        email: user.email || "",
         phone: user.phone || "",
         profileImage: user.profileImage || ""
       });
@@ -101,15 +103,8 @@ const Profile = () => {
             </div>
             
             <div className="flex-1 w-full text-center sm:text-left">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Profile Image URL</label>
-              <input
-                type="text"
-                name="profileImage"
-                value={formData.profileImage}
-                onChange={handleChange}
-                placeholder="https://example.com/image.jpg"
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-              />
+              <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1">Profile Picture</h3>
+              <p className="text-sm text-slate-500">Upload a new picture. Changes will be saved automatically.</p>
             </div>
           </div>
 
@@ -135,12 +130,14 @@ const Profile = () => {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
                   type="email"
-                  value={user?.email || ""}
-                  disabled
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
                 />
               </div>
-              <p className="text-xs text-slate-500 mt-1">Email cannot be changed.</p>
+              <p className="text-xs text-slate-500 mt-1">Make sure you use a valid email address.</p>
             </div>
 
             <div className="space-y-1">

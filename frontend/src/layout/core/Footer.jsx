@@ -7,13 +7,19 @@ const Footer = () => {
     company: [
       { name: "About Us", path: "/about" },
       { name: "Contact Us", path: "/contact" },
+      { name: "Careers", path: "/careers" },
+      { name: "Blog", path: "/blog" },
     ],
     services: [
       { name: "Elder Care", path: "/services" },
-      { name: "Find Caregivers", path: "/caregivers" },
+      { name: "Medical Care", path: "/services" },
+      { name: "Physiotherapy", path: "/services" },
+      { name: "Nursing Care", path: "/services" },
+      { name: "Companion Care", path: "/services" },
     ],
-    professionals: [
-      { name: "Join as Caregiver", path: "/auth" },
+    support: [
+      { name: "Privacy Policy", path: "/privacy-policy" },
+      { name: "Terms & Conditions", path: "/terms-of-service" },
     ],
   };
 
@@ -63,7 +69,7 @@ const Footer = () => {
 
         {/* Links */}
         <div className="col-span-3">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             <FooterSection
               title="Company"
               links={footerLinks?.company}
@@ -77,8 +83,8 @@ const Footer = () => {
             />
 
             <FooterSection
-              title="For Professionals"
-              links={footerLinks?.professionals}
+              title="Support"
+              links={footerLinks?.support}
               linkClass={footerLinksDesgin}
             />
           </div>

@@ -69,7 +69,7 @@ const Profile = () => {
         toast.error("Upload succeeded but no image URL was returned");
       }
     } catch (error) {
-      toast.error("Failed to upload image");
+      toast.error(error?.response?.data?.message || error?.message || "Failed to upload image");
     } finally {
       setUploading(false);
     }
@@ -77,6 +77,10 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (uploading) {
+        toast.warning("Please wait for image upload to complete");
+        return;
+    }
     setSaving(true);
     try {
       await http.patch("/users/profile", {
@@ -187,7 +191,7 @@ const Profile = () => {
           </div>
 
           <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
-            <Button type="submit" disabled={saving} className="flex items-center gap-2">
+            <Button type="submit" disabled={saving || uploading} className={`flex items-center gap-2 ${uploading ? 'cursor-wait' : ''}`}>
               <Save className="w-4 h-4" />
               {saving ? "Saving..." : "Save Changes"}
             </Button>

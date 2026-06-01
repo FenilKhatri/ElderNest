@@ -191,11 +191,29 @@ const bookingSchema = new mongoose.Schema(
         // Payment
         paymentStatus: {
             type: String,
-            enum: ["pending", "paid", "refunded", "failed"],
+            enum: ["pending", "paid", "refunded", "failed", "Pending", "Completed", "Failed", "Refunded"],
             default: "pending",
         },
         paymentId: {
             type: String,
+        },
+        transactionId: {
+            type: String,
+        },
+        razorpayOrderId: {
+            type: String,
+        },
+        razorpayPaymentId: {
+            type: String,
+        },
+        paymentReceiptUrl: {
+            type: String,
+        },
+        bookingPdfUrl: {
+            type: String,
+        },
+        paymentDate: {
+            type: Date,
         },
         
         // Booking ID for receipt
@@ -211,12 +229,11 @@ const bookingSchema = new mongoose.Schema(
 );
 
 // Generate unique booking ID before saving
-bookingSchema.pre("save", async function (next) {
+bookingSchema.pre("save", async function () {
     if (!this.bookingId) {
         const count = await mongoose.model("Booking").countDocuments();
         this.bookingId = `BK${Date.now()}${String(count + 1).padStart(4, "0")}`;
     }
-    next();
 });
 
 // Index for efficient queries

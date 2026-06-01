@@ -22,6 +22,7 @@ const Navbar = ({ theme, toggleTheme }) => {
     { name: "Caregivers", path: "/caregivers" },
     { name: "Services", path: "/services" },
     { name: "About", path: "/about" },
+    { name: "Blogs", path: "/blogs" },
     { name: "Contact", path: "/contact" }
   ];
 

@@ -78,13 +78,11 @@ const reviewSchema = new mongoose.Schema(
 );
 
 // Ensure at least one target is provided
-reviewSchema.pre("validate", function (next) {
+reviewSchema.pre("validate", function () {
     if (!this.caregiverId && !this.serviceId) {
-        next(new Error("Review must be associated with a caregiver or a service."));
+        throw new Error("Review must be associated with a caregiver or a service.");
     } else if (this.caregiverId && this.serviceId) {
-        next(new Error("Review cannot be associated with both caregiver and service."));
-    } else {
-        next();
+        throw new Error("Review cannot be associated with both caregiver and service.");
     }
 });
 

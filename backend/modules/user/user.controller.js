@@ -4,11 +4,19 @@ import User from "./user.model.js";
 
 // Update profile
 export const updateProfile = asyncHandler(async (req, res) => {
-    const { name, phone, profileImage } = req.body;
+    const { name, phone, profileImage, email } = req.body;
     
     const user = await User.findById(req.user.id);
     if (!user) {
         return errorResponse(res, 404, "User not found");
+    }
+
+    if (email && email.toLowerCase() !== user.email.toLowerCase()) {
+        const existingEmail = await User.findOne({ email: email.toLowerCase() });
+        if (existingEmail && existingEmail._id.toString() !== user._id.toString()) {
+            return errorResponse(res, 400, "Email is already in use by another account");
+        }
+        user.email = email.toLowerCase();
     }
 
     if (name) user.name = name;

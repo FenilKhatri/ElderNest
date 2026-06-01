@@ -4,12 +4,8 @@ import Blog from "./blog.model.js";
 
 // Create a blog
 export const createBlog = asyncHandler(async (req, res) => {
-    const { title, content, image, tags } = req.body;
     const blog = await Blog.create({
-        title,
-        content,
-        image,
-        tags,
+        ...req.body,
         author: req.user.id,
     });
     return successResponse(res, 201, "Blog created successfully", { blog });
@@ -17,7 +13,13 @@ export const createBlog = asyncHandler(async (req, res) => {
 
 // Get all blogs
 export const getAllBlogs = asyncHandler(async (req, res) => {
-    const blogs = await Blog.find({ isActive: true }).populate("author", "name").sort({ createdAt: -1 });
+    // Only return published blogs to the public. If admin, they might need all, 
+    // but the route doesn't differentiate. Usually admin has a separate route or passes a query.
+    const query = { isActive: true };
+    if (req.query.all !== "true") {
+        query.status = "published";
+    }
+    const blogs = await Blog.find(query).populate("author", "name").sort({ createdAt: -1 });
     return successResponse(res, 200, "Blogs fetched successfully", { blogs });
 });
 

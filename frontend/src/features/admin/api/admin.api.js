@@ -171,7 +171,7 @@ export const getCaregiverReviews = (caregiverId) => {
 // BLOG MANAGEMENT
 // ==========================================
 export const getAllBlogs = () => {
-  return http.get("/blogs");
+  return http.get("/blogs?all=true");
 };
 
 export const getBlogById = (id) => {

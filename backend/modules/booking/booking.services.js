@@ -178,6 +178,18 @@ export const createBooking = async (userId, bookingData) => {
         { bookingId: booking._id }
     );
 
+    // Notify admins
+    const admins = await User.find({ role: "admin" });
+    for (const admin of admins) {
+        await createNotification(
+            admin._id,
+            "booking_created",
+            "New Booking Alert",
+            `A new booking request was created for caregiver ${caregiver.userId.name}.`,
+            "/admin/bookings"
+        );
+    }
+
     // Send emails
     const user = await User.findById(userId);
     await sendEmail(
@@ -257,9 +269,9 @@ export const updateBookingStatus = async (bookingId, userId, userRole, status, r
     // Authorization check
     if (userRole === "admin") {
         // Admin can override any status
-    } else if (userRole === "caregiver" && booking.caregiverId.userId._id.toString() !== userId) {
+    } else if (userRole === "caregiver" && booking.caregiverId.userId._id.toString() !== userId.toString()) {
         throw new Error("Unauthorized");
-    } else if (userRole === "user" && booking.userId._id.toString() !== userId) {
+    } else if (userRole === "user" && booking.userId._id.toString() !== userId.toString()) {
         throw new Error("Unauthorized");
     }
 

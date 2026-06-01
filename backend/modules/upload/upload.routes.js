@@ -40,7 +40,7 @@ const getUploadMiddleware = () => {
         cloudinary,
         params: async (req, file) => ({
             folder: resolveFolder(req, file),
-            resource_type: "auto",
+            resource_type: file.mimetype === "application/pdf" ? "raw" : "auto",
             allowed_formats: ["jpg", "jpeg", "png", "webp", "avif", "pdf"],
         }),
     });

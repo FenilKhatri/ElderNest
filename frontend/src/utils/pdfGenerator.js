@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import { formatDate, formatCurrency } from "./helpers";
 
 export const generateBookingReceipt = (booking) => {
@@ -63,7 +63,7 @@ export const generateBookingReceipt = (booking) => {
   const tax = amount * 0.18;
   const total = amount + tax;
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: 135,
     head: [['Description', 'Amount']],
     body: [

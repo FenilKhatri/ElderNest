@@ -264,6 +264,16 @@ export const updateProfile = async (userId, profileData) => {
         "servicesOffered",
     ];
 
+    if (profileData.location) {
+        const mergedLocation = { ...caregiver.location?.toObject?.() || caregiver.location, ...profileData.location };
+        if (mergedLocation.state && mergedLocation.city && mergedLocation.pincode) {
+            const locationValidation = validateLocation(mergedLocation.state, mergedLocation.city, mergedLocation.pincode);
+            if (!locationValidation.isValid) {
+                throw new AppError(locationValidation.errors.join(", "), 400);
+            }
+        }
+    }
+
     for (const key of allowed) {
         if (profileData[key] !== undefined) {
             caregiver[key] = profileData[key];
@@ -338,7 +348,16 @@ export const submitVerification = async (userId, payload) => {
     if (contactNumber) caregiver.contactNumber = contactNumber;
     if (bio) caregiver.bio = bio;
     if (experienceYears != null) caregiver.experienceYears = Number(experienceYears);
-    if (location) caregiver.location = { ...caregiver.location?.toObject?.() || caregiver.location, ...location };
+    if (location) {
+        const mergedLocation = { ...caregiver.location?.toObject?.() || caregiver.location, ...location };
+        if (mergedLocation.state && mergedLocation.city && mergedLocation.pincode) {
+            const locationValidation = validateLocation(mergedLocation.state, mergedLocation.city, mergedLocation.pincode);
+            if (!locationValidation.isValid) {
+                throw new AppError(locationValidation.errors.join(", "), 400);
+            }
+        }
+        caregiver.location = mergedLocation;
+    }
     if (languages?.length) caregiver.languages = languages;
 
     caregiver.servicesOffered = servicesOffered;

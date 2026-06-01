@@ -26,7 +26,7 @@ export const createReview = asyncHandler(async (req, res) => {
         if (!booking) {
             return errorResponse(res, 404, "Booking not found");
         }
-        if (booking.userId.toString() !== req.user.id) {
+        if (booking.userId.toString() !== req.user.id.toString()) {
             return errorResponse(res, 403, "Unauthorized");
         }
         if (booking.status !== "completed") {
@@ -105,7 +105,7 @@ export const updateReview = asyncHandler(async (req, res) => {
     const review = await Review.findById(id);
     if (!review) return errorResponse(res, 404, "Review not found");
 
-    if (review.userId.toString() !== req.user.id) {
+    if (review.userId.toString() !== req.user.id.toString()) {
         return errorResponse(res, 403, "Unauthorized");
     }
 
@@ -136,7 +136,7 @@ export const deleteReview = asyncHandler(async (req, res) => {
     if (!review) return errorResponse(res, 404, "Review not found");
 
     // Only owner or admin can delete
-    const isOwner = review.userId.toString() === req.user.id;
+    const isOwner = review.userId.toString() === req.user.id.toString();
     const isAdmin = req.user.role === "admin";
 
     if (!isOwner && !isAdmin) {

@@ -9,24 +9,35 @@ import {
     getCaregiverByIdValidator,
 } from "./caregiver.validators.js";
 import { requirePublishedCaregiver } from "../../common/middlewares/caregiverOnboarding.middleware.js";
+import { validationResult } from "express-validator";
+import { errorResponse } from "../../common/utils/responseHandler.utils.js";
 
 const router = express.Router();
 
-// Public routes
+// Middleware to check validation results
+const validateRequest = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return errorResponse(res, 400, "Validation failed", errors.array());
+    }
+    next();
+};
+
+// Public routes (without parameters)
 router.get("/", caregiverController.getCaregivers);
-router.get("/:id", getCaregiverByIdValidator, caregiverController.getCaregiver);
 
-// Protected caregiver routes
-router.use(protect, authorizeRoles(ROLES.CAREGIVER));
+// Protected static routes (must come BEFORE parameter routes like /:id)
+const protectCaregiver = [protect, authorizeRoles(ROLES.CAREGIVER)];
 
-router.get("/onboarding/status", caregiverController.getOnboardingStatus);
-router.get("/profile/me", caregiverController.getMyProfile);
-router.patch("/profile", caregiverController.updateProfile);
-router.post("/profile/complete", completeProfileValidator, caregiverController.completeProfile);
-router.post("/verification/submit", caregiverController.submitVerification);
-router.patch("/availability", requirePublishedCaregiver, updateAvailabilityValidator, caregiverController.updateAvailability);
-router.get("/dashboard", requirePublishedCaregiver, caregiverController.caregiverDashboard);
+router.get("/onboarding/status", protectCaregiver, caregiverController.getOnboardingStatus);
+router.get("/profile/me", protectCaregiver, caregiverController.getMyProfile);
+router.patch("/profile", protectCaregiver, caregiverController.updateProfile);
+router.post("/profile/complete", protectCaregiver, completeProfileValidator, validateRequest, caregiverController.completeProfile);
+router.post("/verification/submit", protectCaregiver, caregiverController.submitVerification);
+router.patch("/availability", protectCaregiver, requirePublishedCaregiver, updateAvailabilityValidator, validateRequest, caregiverController.updateAvailability);
+router.get("/dashboard", protectCaregiver, requirePublishedCaregiver, caregiverController.caregiverDashboard);
 
-// ... rest of routes
+// Public route with parameter (must be LAST to avoid swallowing static routes)
+router.get("/:id", getCaregiverByIdValidator, validateRequest, caregiverController.getCaregiver);
 
 export default router;

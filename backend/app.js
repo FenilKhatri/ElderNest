@@ -1,10 +1,15 @@
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import dns from "dns";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import routes from "./routes/index.js";
 import { apiLimiter } from "./common/middlewares/limiter.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 dns.setServers(['8.8.8.8', '8.8.4.4']);
@@ -39,6 +44,9 @@ app.use((req, res, next) => {
 
 app.use(helmet());
 app.use(apiLimiter);
+
+// Serve uploaded files (receipts, booking PDFs)
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api", routes);
 

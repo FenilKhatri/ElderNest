@@ -14,7 +14,8 @@ export const asyncHandler = (fn) => (req, res, next) => {
                 return acc;
             }, {});
         } else if (!isOperational && process.env.NODE_ENV === 'production') {
-            message = "Something went wrong. Please try again.";
+            // Allow error messages to pass through for standard Error throws in services
+            message = err.message || "Something went wrong. Please try again.";
         }
 
         return res.status(err?.statusCode || (err.name === 'ValidationError' ? 400 : 500)).json({

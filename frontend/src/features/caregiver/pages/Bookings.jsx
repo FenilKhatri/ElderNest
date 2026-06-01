@@ -66,10 +66,12 @@ const Bookings = () => {
             className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           >
             <option value="all">All Status</option>
+            <option value="pending">Pending Requests</option>
             <option value="accepted">Accepted (Upcoming)</option>
             <option value="in-progress">In Progress</option>
             <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
+            <option value="rejected">Rejected</option>
           </select>
         </div>
       </div>
@@ -90,7 +92,7 @@ const Bookings = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredBookings.filter(b => b.status !== "pending" && b.status !== "rejected").map((booking) => (
+          {filteredBookings.map((booking) => (
             <div key={booking._id} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-shadow">
               <div className="p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-800">
@@ -124,6 +126,17 @@ const Bookings = () => {
                   </div>
                 </div>
 
+                {booking.status === "pending" && (
+                  <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                    <Button variant="outline" onClick={() => handleStatusUpdate(booking._id, "rejected")}>
+                      Reject
+                    </Button>
+                    <Button onClick={() => handleStatusUpdate(booking._id, "accepted")}>
+                      Accept Request
+                    </Button>
+                  </div>
+                )}
+                
                 {booking.status === "accepted" && (
                   <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
                     <Button onClick={() => handleStatusUpdate(booking._id, "in-progress")}>

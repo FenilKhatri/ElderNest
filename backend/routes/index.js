@@ -16,6 +16,7 @@ import newsletterRoutes from "../modules/newsletter/newsletter.routes.js";
 import patientRoutes from "../modules/patient/patient.routes.js";
 import careNoteRoutes from "../modules/careNote/careNote.routes.js";
 import complaintRoutes from "../modules/complaint/complaint.routes.js";
+import paymentRoutes from "../modules/payment/payment.routes.js";
 import { maintenanceMiddleware } from "../common/middlewares/maintenance.middleware.js";
 
 const router = express.Router();
@@ -38,5 +39,6 @@ router.use("/newsletter", newsletterRoutes);
 router.use("/patients", patientRoutes);
 router.use("/care-notes", careNoteRoutes);
 router.use("/complaints", complaintRoutes);
+router.use("/payments", paymentRoutes);
 
 export default router;

@@ -7,7 +7,7 @@ import { createService, updateService, getServiceById, getAllCaregivers } from "
 import { SERVICE_CATEGORIES, SERVICE_MODES, emptyServiceForm } from "../constants/serviceConstants";
 import Button from "../../../components/ui/Button";
 import Select from "../../../components/ui/Select";
-import Checkbox from "../../../components/ui/Checkbox";
+import Checkbox from "../../../components/ui/Checkbox"; // Unused now
 
 const ServiceFormPage = () => {
   const { id } = useParams();
@@ -232,11 +232,17 @@ const ServiceFormPage = () => {
                 const checked = form.caregivers.some((id) => String(id) === String(cg._id));
                 return (
                   <div key={cg._id} className={`p-3 rounded-lg border ${checked ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-700"}`}>
-                    <Checkbox
-                      label={cg.fullName || cg.userId?.name || "Caregiver"}
-                      checked={checked}
-                      onChange={() => toggleCaregiver(cg._id)}
-                    />
+                    <label className="flex items-center space-x-2 w-full cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleCaregiver(cg._id)}
+                        className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 bg-white dark:bg-slate-800"
+                      />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {cg.fullName || cg.userId?.name || "Caregiver"}
+                      </span>
+                    </label>
                   </div>
                 );
               })}
@@ -245,8 +251,14 @@ const ServiceFormPage = () => {
         </Field>
 
         <div className="flex flex-wrap gap-6">
-          <Checkbox label="Featured service" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} />
-          <Checkbox label="Active (published)" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
+          <label className="flex items-center space-x-2">
+            <input type="checkbox" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 bg-white dark:bg-slate-800" />
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Featured service</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 bg-white dark:bg-slate-800" />
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Active (published)</span>
+          </label>
         </div>
 
         <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">

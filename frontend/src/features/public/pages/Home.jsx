@@ -6,7 +6,7 @@ import Process from "../../../components/ui/Process";
 
 const Home = () => {
   return (
-    <div className="overflow-x-hidden">
+    <div>
       <HeroSection />
       <WhyChooseUs />
       <CareStats />
