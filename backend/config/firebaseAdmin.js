@@ -14,8 +14,11 @@ if (!projectId || !clientEmail || !privateKey) {
                 projectId,
                 clientEmail,
                 privateKey: privateKey.replace(/\\n/g, "\n"),
-        }),
-    });
+            }),
+        });
+    } catch (error) {
+        console.error("❌ Failed to initialize Firebase Admin:", error.message);
+    }
 }
 
 export default admin;
