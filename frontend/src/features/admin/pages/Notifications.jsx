@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { Bell, Check, CheckCheck, Trash2, ExternalLink } from "lucide-react";
@@ -12,6 +13,14 @@ import {
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { formatDateTime } from "../../../utils/helpers";
 import Button from "../../../components/ui/Button";
+
+const normalizeAdminLink = (link) => {
+  if (!link || typeof link !== "string") return null;
+  const trimmed = link.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith("http")) return trimmed;
+  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+};
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -168,14 +177,33 @@ const Notifications = () => {
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        {notification.link && (
-                          <a
-                            href={notification.link}
-                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                            title="View details"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
+                        {normalizeAdminLink(notification.link) && (
+                          (() => {
+                            const to = normalizeAdminLink(notification.link);
+                            const isExternal = to.startsWith("http");
+                            return isExternal ? (
+                              <a
+                                href={to}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                title="View details"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            ) : (
+                              <Link
+                                to={to}
+                                onClick={() => {
+                                  if (!notification.isRead) handleMarkAsRead(notification._id);
+                                }}
+                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                title="View details"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </Link>
+                            );
+                          })()
                         )}
                         {!notification.isRead && (
                           <button

@@ -116,7 +116,7 @@ const CaregiverDashboard = () => {
       </motion.div>
 
       {/* Profile Completion Alert */}
-      {!user?.profileCompleted && (
+      {!user?.profileCompleted && user?.isApproved && (
         <motion.div
           variants={fadeUp}
           initial="hidden"

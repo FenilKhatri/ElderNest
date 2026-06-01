@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import Logo from "../../assets/logo.avif";
 import { useAuth } from "../../context/AuthContext";
-import { navLinks } from "../../features/public/data/routes/public.routes";
 import Button from "../../components/ui/Button";
 import UserDropdown from "../../components/ui/UserDropdown";
 import AuthSkeleton from "../../components/feedback/skeleton/AuthSkeleton";
@@ -17,6 +16,14 @@ const Navbar = ({ theme, toggleTheme }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const navLinks = [
+    { name: "Home", path: "/" },
+    { name: "Caregivers", path: "/caregivers" },
+    { name: "Services", path: "/services" },
+    { name: "About", path: "/about" },
+    { name: "Contact", path: "/contact" }
+  ];
 
   const activeLinks = ({ isActive }) =>
     `p-2 font-semibold transition duration-300 ${
@@ -47,7 +54,7 @@ const Navbar = ({ theme, toggleTheme }) => {
     return (
       <div className="flex items-center gap-3">
         {user?.role === "admin" && (
-          <NavLink to="/admin/profile" title="Go to Admin Panel">
+          <NavLink to="/admin/dashboard" title="Go to Admin Panel">
             <Button variant="secondary">Admin Panel</Button>
           </NavLink>
         )}
@@ -95,7 +102,7 @@ const Navbar = ({ theme, toggleTheme }) => {
     return (
       <div className="flex flex-col gap-3">
         {user?.role === "admin" && (
-          <NavLink to="/admin/profile">
+          <NavLink to="/admin/dashboard">
             <Button variant="secondary">Admin Panel</Button>
           </NavLink>
         )}
@@ -120,7 +127,7 @@ const Navbar = ({ theme, toggleTheme }) => {
   return (
     <>
       <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-md sticky top-0 z-50">
-        <nav className="max-w-7xl mx-auto flex items-center justify-between p-3">
+        <nav className="w-full max-w-site-wide mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
           {/* LOGO */}
           <img src={Logo} alt="Logo" className="w-16" />
 

@@ -42,8 +42,12 @@ const PublicRoutes = () => (
     {/* AUTH */}
     <Route path="/auth" element={<AuthPage role={ROLES.USER} />} />
     <Route
-      path="/caregiver-auth"
-      element={<AuthPage role={ROLES.CAREGIVER} />}
+      path="/caregiver/login"
+      element={<AuthPage role={ROLES.CAREGIVER} initialMode="login" />}
+    />
+    <Route
+      path="/caregiver/register"
+      element={<AuthPage role={ROLES.CAREGIVER} initialMode="register" />}
     />
   </>
 );

@@ -15,7 +15,7 @@ const RejectedAccount = () => {
   };
 
   const handleContactSupport = () => {
-    window.location.href = "mailto:support@eldernest.com?subject=Account Rejection Appeal";
+    window.location.href = "mailto:fenilkatri931@gmail.com?subject=Account Rejection Appeal";
   };
 
   return (
@@ -101,10 +101,10 @@ const RejectedAccount = () => {
             <p className="text-sm text-slate-500 dark:text-slate-400">
               We're here to help. Reach out to us at{" "}
               <a
-                href="mailto:support@eldernest.com"
+                href="mailto:fenilkatri931@gmail.com"
                 className="text-blue-600 dark:text-blue-400 hover:underline"
               >
-                support@eldernest.com
+                fenilkatri931@gmail.com
               </a>
             </p>
           </motion.div>

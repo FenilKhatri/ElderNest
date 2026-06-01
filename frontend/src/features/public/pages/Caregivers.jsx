@@ -5,8 +5,11 @@ import { Search, MapPin, Star, User, Filter, CheckCircle2 } from "lucide-react";
 import { getAllCaregivers } from "../../caregiver/api/caregiver.api";
 import { getAllServices } from "../../service/api/service.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
+import { useAuth } from "../../../context/AuthContext";
+import { handleBookCaregiver } from "../../../utils/booking";
 
 const Caregivers = () => {
+  const { user } = useAuth();
   const [caregivers, setCaregivers] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [services, setServices] = useState([]);
@@ -107,7 +110,7 @@ const Caregivers = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-site-wide mx-auto">
         
         {/* Header Section */}
         <div className="mb-10">
@@ -351,12 +354,13 @@ const Caregivers = () => {
                         >
                           View Profile
                         </Link>
-                        <Link
-                          to={`/user/book-caregiver/${caregiver._id}`}
+                        <button
+                          type="button"
+                          onClick={() => handleBookCaregiver({ user, caregiverId: caregiver._id, navigate })}
                           className="flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm shadow-blue-600/20"
                         >
                           Book Now
-                        </Link>
+                        </button>
                       </div>
                     </motion.div>
                   ))}

@@ -5,7 +5,7 @@ import PageNotFoundImg from "../../../assets/images/other/pagenotfound.avif";
 const PageNotFound = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-100 to-slate-200 dark:from-slate-950 dark:to-slate-900 text-slate-900 dark:text-white px-4">
-      <div className="max-w-6xl w-full flex flex-col-reverse md:flex-row items-center justify-between gap-12">
+      <div className="max-w-site w-full flex flex-col-reverse md:flex-row items-center justify-between gap-12">
         {/* LEFT CONTENT */}
         <div className="text-center md:text-left mx-auto max-w-lg">
           {/* 404 Badge */}

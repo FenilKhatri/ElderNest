@@ -1,22 +1,42 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
-import { serviceItems } from "../../public/data/aboutData";
+import { getAllServices } from "../../service/api/service.api";
 import TitleText from "../../../components/ui/TitleText";
 import TitleAndDescription from "../../../components/ui/TitleAndDescription";
+import { HeartPulse } from "lucide-react";
 
 const Services = ({ Title, Description, SubDescription }) => {
-  return (
-    <>
-      <section className="max-w-7xl mx-auto px-5 py-10 md:py-16">
-        <div className="max-w-2xl mx-auto flex flex-col space-y-6 text-center">
-          <TitleText children={Title} className="text-left md:text-center" />
-          <TitleAndDescription
-            Description={Description}
-            SubDescription={SubDescription}
-            className="text-left md:text-center mx-auto"
-          />
-        </div>
+  const [serviceItems, setServiceItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    getAllServices({ isActive: true })
+      .then((res) => setServiceItems(res?.data?.services || []))
+      .catch(() => setServiceItems([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <section className="max-w-site-wide mx-auto px-5 py-10 md:py-16">
+      <div className="w-full max-w-4xl mx-auto flex flex-col space-y-6 text-center">
+        <TitleText children={Title} className="text-left md:text-center" />
+        <TitleAndDescription
+          Description={Description}
+          SubDescription={SubDescription}
+          className="text-left md:text-center mx-auto"
+        />
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pt-10">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-20 rounded-2xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
+          ))}
+        </div>
+      ) : serviceItems.length === 0 ? (
+        <p className="text-center text-slate-500 pt-10">No active services in the database.</p>
+      ) : (
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -24,28 +44,23 @@ const Services = ({ Title, Description, SubDescription }) => {
           viewport={{ once: true, amount: 0.15 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pt-10"
         >
-          {serviceItems.map((service, index) => {
-            const Icon = service.icon;
-            return (
-              <motion.div
-                key={index}
-                variants={fadeUp}
-                className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <p className="font-semibold text-slate-900 dark:text-slate-100">
-                    {service.name}
-                  </p>
+          {serviceItems.map((service) => (
+            <motion.div
+              key={service._id}
+              variants={fadeUp}
+              className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur p-5 shadow-sm"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <HeartPulse className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-              </motion.div>
-            );
-          })}
+                <p className="font-semibold text-slate-900 dark:text-slate-100">{service.title}</p>
+              </div>
+            </motion.div>
+          ))}
         </motion.div>
-      </section>
-    </>
+      )}
+    </section>
   );
 };
 

@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Search, ChevronDown, X } from "lucide-react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { completeProfile } from "../api/caregiver.api";
+import { completeProfile, getMyProfile, updateProfile } from "../api/caregiver.api";
 import { getAllServices } from "../../service/api/service.api";
+import { useAuth } from "../../../context/AuthContext";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
 import { indianStates, getCitiesByState } from "../data/locations";
 import { GENDER_OPTIONS, AVAILABLE_TIMINGS, LANGUAGES } from "../../../utils/constants";
@@ -49,11 +50,106 @@ const schema = z.object({
   }).optional(),
 });
 
+const ServiceDropdown = ({ field, services }) => {
+  const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedServices = services.filter(s => field.value.includes(s._id));
+  const filteredServices = services.filter(s => s.title.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div className="relative">
+      <div 
+        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 flex items-center justify-between cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-2">
+          {selectedServices.length === 0 ? (
+            <span className="text-slate-400 text-sm">Select services...</span>
+          ) : (
+            selectedServices.map(s => (
+              <span key={s._id} className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-1 rounded text-xs flex items-center gap-1">
+                {s.title}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    field.onChange(field.value.filter(id => id !== s._id));
+                  }}
+                  className="hover:text-blue-900 dark:hover:text-blue-200"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))
+          )}
+        </div>
+        <ChevronDown className="w-4 h-4 text-slate-400" />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+          <div className="p-2 border-b border-slate-100 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-slate-100"
+                placeholder="Search services..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="p-1">
+            {filteredServices.length === 0 ? (
+              <div className="p-3 text-sm text-center text-slate-500">No services found</div>
+            ) : (
+              filteredServices.map(service => {
+                const isSelected = field.value.includes(service._id);
+                return (
+                  <div
+                    key={service._id}
+                    onClick={() => {
+                      if (isSelected) {
+                        field.onChange(field.value.filter(id => id !== service._id));
+                      } else {
+                        if (field.value.length >= 3) {
+                          toast.error("You can select maximum 3 services");
+                          return;
+                        }
+                        field.onChange([...field.value, service._id]);
+                      }
+                      setSearch("");
+                    }}
+                    className={`px-3 py-2 rounded-md cursor-pointer text-sm flex items-center justify-between ${
+                      isSelected 
+                        ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-medium" 
+                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    <span>{service.title}</span>
+                    {isSelected && <CheckCircle className="w-4 h-4" />}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const CompleteProfile = () => {
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
   const [cities, setCities] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
   const navigate = useNavigate();
 
   const {
@@ -62,6 +158,7 @@ const CompleteProfile = () => {
     control,
     watch,
     setValue,
+    reset,
     trigger,
     setError,
     formState: { errors },
@@ -88,10 +185,58 @@ const CompleteProfile = () => {
   const watchState = watch("location.state");
 
   useEffect(() => {
+    setServicesLoading(true);
     getAllServices({ isActive: true })
       .then((res) => setServices(res?.data?.services || []))
-      .catch(() => {});
+      .catch(() => toast.error("Could not load services. Please refresh the page."))
+      .finally(() => setServicesLoading(false));
   }, []);
+
+  useEffect(() => {
+    getMyProfile()
+      .then((res) => {
+        const cg = res?.data?.caregiver;
+        if (!cg) return;
+        const hasData = cg.profileCompleted || cg.fullName || cg.bio;
+        if (!hasData) return;
+
+        setIsEditMode(true);
+        const serviceIds = (cg.servicesOffered || []).map((s) =>
+          typeof s === "object" ? s._id : s
+        );
+
+        reset({
+          fullName: cg.fullName || user?.name || "",
+          email: cg.email || user?.email || "",
+          contactNumber: cg.contactNumber || user?.phone || "",
+          alternateContact: cg.alternateContact || "",
+          gender: cg.gender || "",
+          age: cg.age ?? "",
+          experienceYears: cg.experienceYears ?? "",
+          bio: cg.bio || "",
+          servicesOffered: serviceIds,
+          languages: cg.languages || [],
+          location: {
+            state: cg.location?.state || "",
+            city: cg.location?.city || "",
+            pincode: cg.location?.pincode || "",
+            fullAddress: cg.location?.fullAddress || "",
+          },
+          availableTiming: cg.availableTiming || "",
+          pricing: {
+            hourlyRate: cg.pricing?.hourlyRate ?? "",
+            dailyRate: cg.pricing?.dailyRate ?? "",
+            monthlyRate: cg.pricing?.monthlyRate ?? "",
+          },
+        });
+
+        if (cg.location?.state) {
+          setCities(getCitiesByState(cg.location.state).map((c) => ({ value: c, label: c })));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setProfileLoading(false));
+  }, [reset, user]);
 
   useEffect(() => {
     if (watchState) {
@@ -127,10 +272,21 @@ const CompleteProfile = () => {
         },
       };
       
-      await completeProfile(payload);
-      toast.success("Profile completed! Waiting for admin approval.");
-      navigate("/caregiver/dashboard");
+      if (isEditMode) {
+        await updateProfile(payload);
+        toast.success("Profile updated successfully.");
+      } else {
+        await completeProfile(payload);
+        toast.success("Profile completed! Waiting for admin approval.");
+      }
+      navigate("/caregiver/profile");
     } catch (error) {
+      const apiMessage = error?.message || error?.response?.data?.message;
+      if (apiMessage && apiMessage !== "Something went wrong!") {
+        toast.error(apiMessage);
+        setLoading(false);
+        return;
+      }
       if (error.validationErrors && typeof error.validationErrors === 'object') {
         const backendErrors = {};
         if (Array.isArray(error.validationErrors)) {
@@ -291,55 +447,26 @@ const CompleteProfile = () => {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                 Services Offered (Select up to 3) <span className="text-red-500">*</span>
               </label>
-              {services.length === 0 ? (
+              {servicesLoading ? (
                 <p className="text-sm text-slate-500 dark:text-slate-400">Loading services...</p>
+              ) : services.length === 0 ? (
+                <p className="text-sm text-amber-600 dark:text-amber-400">
+                  No active services found. Ask an admin to add services before completing your profile.
+                </p>
               ) : (
                 <Controller
                   name="servicesOffered"
                   control={control}
-                  render={({ field }) => (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {services.map((service) => {
-                        const isChecked = field.value.includes(service._id);
-                        return (
-                          <div
-                            key={service._id}
-                            onClick={() => {
-                              if (isChecked) {
-                                field.onChange(field.value.filter(id => id !== service._id));
-                              } else {
-                                if (field.value.length >= 3) {
-                                  toast.error("You can select maximum 3 services");
-                                  return;
-                                }
-                                field.onChange([...field.value, service._id]);
-                              }
-                            }}
-                            className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                              isChecked
-                                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                                : "border-slate-200 dark:border-slate-700 hover:border-slate-300"
-                            }`}
-                          >
-                            <div className="flex items-start space-x-3">
-                              <Checkbox
-                                checked={isChecked}
-                                onChange={() => {}} // Handled by parent div
-                              />
-                              <div>
-                                <h4 className="font-medium text-slate-900 dark:text-white text-sm">
-                                  {service.name}
-                                </h4>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                  {service.description}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                  render={({ field }) => {
+                    // We need local state for the dropdown inside render. 
+                    // To avoid defining state inside render (which violates rules of hooks),
+                    // we can use a separate component or just manage it simply.
+                    // Actually, React Hook Form's Controller render prop is called every time,
+                    // so we shouldn't use useState inside it directly.
+                    // We will extract this to a small inline component if needed,
+                    // but wait, we can just use the outer component's state or create a small wrapper.
+                    return <ServiceDropdown field={field} services={services} />;
+                  }}
                 />
               )}
               {errors.servicesOffered && (
@@ -495,10 +622,27 @@ const CompleteProfile = () => {
     }
   };
 
+  if (!user?.isApproved) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
+        <div className="max-w-lg w-full bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-8 text-center space-y-4">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Account pending approval</h1>
+          <p className="text-slate-600 dark:text-slate-400">
+            An admin must approve your caregiver registration before you can complete your profile.
+          </p>
+          <Button type="button" onClick={() => navigate("/caregiver/pending-approval")}>
+            View status
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8">
-      <div className="max-w-3xl mx-auto px-4">
+      <div className="w-full max-w-5xl mx-auto px-4 sm:px-6">
         <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-8">
+          <div className="group flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400 cursor-pointer" onClick={() => navigate(-1)}><ArrowLeft className="w-4 h-4 duration-300" /> Back to previous page</div>
           {/* Header */}
           <motion.div variants={fadeUp} className="text-center">
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">

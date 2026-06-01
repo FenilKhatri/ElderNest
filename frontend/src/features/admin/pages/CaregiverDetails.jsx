@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { getCaregiverById } from "../api/admin.api";
+import { getCaregiverByUserId, getCaregiverByCaregiverId } from "../api/admin.api";
 
 const CaregiverDetails = () => {
   const { id } = useParams();
@@ -30,8 +30,13 @@ const CaregiverDetails = () => {
   const fetchCaregiverDetails = async () => {
     try {
       setLoading(true);
-      const response = await getCaregiverById(id);
-      setCaregiver(response.data.caregiver);
+      let response;
+      try {
+        response = await getCaregiverByCaregiverId(id);
+      } catch {
+        response = await getCaregiverByUserId(id);
+      }
+      setCaregiver(response?.data?.caregiver);
     } catch (error) {
       toast.error("Failed to fetch caregiver details");
       navigate("/admin/caregivers");

@@ -6,6 +6,7 @@ import { formatDate } from "../../../utils/helpers";
 import { generateBookingReceipt } from "../../../utils/pdfGenerator";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Button from "../../../components/ui/Button";
+import UserPageLayout from "../../../layout/dashboard/UserPageLayout";
 
 const History = () => {
   const [bookings, setBookings] = useState([]);
@@ -32,34 +33,22 @@ const History = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 animate-pulse h-32" />
-        ))}
-      </div>
-    );
-  }
-
-  if (bookings.length === 0) {
-    return (
-      <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-        <HistoryIcon className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No history yet</h3>
-        <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-          Your completed and cancelled bookings will appear here.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center">
-        <HistoryIcon className="w-6 h-6 mr-2 text-blue-500" />
-        Booking History
-      </h2>
+    <UserPageLayout title="Service history" description="Completed and cancelled bookings">
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="animate-pulse h-32 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+          ))}
+        </div>
+      ) : bookings.length === 0 ? (
+        <div className="text-center py-12">
+          <HistoryIcon className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No history yet</h3>
+          <p className="text-slate-500 dark:text-slate-400">Your completed and cancelled bookings will appear here.</p>
+        </div>
+      ) : (
+    <div className="space-y-4">
 
       <div className="space-y-4">
         {bookings.map((booking) => (
@@ -113,6 +102,8 @@ const History = () => {
         ))}
       </div>
     </div>
+      )}
+    </UserPageLayout>
   );
 };
 

@@ -1,49 +1,25 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { Plus, Search, Edit, Trash2, Eye, Camera, X } from "lucide-react";
-import http from "../../../lib/axios";
-import { 
-  getAllServices, 
-  createService, 
-  updateService, 
-  deleteService 
-} from "../api/admin.api";
+import { Plus, Edit, Trash2, Eye } from "lucide-react";
+import SearchFilterBar from "../../../components/filters/SearchFilterBar";
+import { getAllServices, deleteService } from "../api/admin.api";
+import { SERVICE_CATEGORIES } from "../constants/serviceConstants";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 
 const Services = () => {
+  const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  
-  // Modals
-  const [createModal, setCreateModal] = useState(false);
-  const [editModal, setEditModal] = useState({ open: false, service: null });
+  const [draftFilter, setDraftFilter] = useState("all");
   const [deleteModal, setDeleteModal] = useState({ open: false, service: null });
-  const [viewModal, setViewModal] = useState({ open: false, service: null });
-  
-  // Form state
-  const [formData, setFormData] = useState({
-    title: "",
-    category: "",
-    description: "",
-    image: ""
-  });
   const [formLoading, setFormLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-
-  const categories = [
-    { value: "personal-care", label: "Personal Care" },
-    { value: "medical-care", label: "Medical Care" },
-    { value: "companionship", label: "Companionship" },
-    { value: "household-help", label: "Household Help" },
-    { value: "specialized-care", label: "Specialized Care" },
-    { value: "emergency-care", label: "Emergency Care" },
-  ];
 
   useEffect(() => {
     fetchServices();
@@ -55,6 +31,12 @@ const Services = () => {
     if (categoryFilter !== "all") {
       result = result.filter(s => s.category === categoryFilter);
     }
+
+    if (draftFilter === "draft") {
+      result = result.filter((s) => s.isDraft);
+    } else if (draftFilter === "published") {
+      result = result.filter((s) => !s.isDraft);
+    }
     
     if (search) {
       const q = search.toLowerCase();
@@ -65,7 +47,7 @@ const Services = () => {
     }
     
     setFiltered(result);
-  }, [search, categoryFilter, services]);
+  }, [search, categoryFilter, draftFilter, services]);
 
   const fetchServices = async () => {
     try {
@@ -78,73 +60,6 @@ const Services = () => {
       toast.error(error?.message || "Failed to load services");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setUploadingImage(true);
-    const data = new FormData();
-    data.append("image", file);
-
-    try {
-      const res = await http.post("/upload", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      if (res.url) {
-        setFormData({ ...formData, image: res.url });
-        toast.success("Image uploaded successfully!");
-      }
-    } catch (error) {
-      toast.error("Failed to upload image");
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    
-    if (!formData.title || !formData.category || !formData.description) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-
-    try {
-      setFormLoading(true);
-      await createService(formData);
-      toast.success("Service created successfully");
-      setCreateModal(false);
-      setFormData({ title: "", category: "", description: "", image: "" });
-      fetchServices();
-    } catch (error) {
-      toast.error(error?.message || "Failed to create service");
-    } finally {
-      setFormLoading(false);
-    }
-  };
-
-  const handleEdit = async (e) => {
-    e.preventDefault();
-    
-    if (!formData.title || !formData.category || !formData.description) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-
-    try {
-      setFormLoading(true);
-      await updateService(editModal.service._id, formData);
-      toast.success("Service updated successfully");
-      setEditModal({ open: false, service: null });
-      setFormData({ title: "", category: "", description: "", image: "" });
-      fetchServices();
-    } catch (error) {
-      toast.error(error?.message || "Failed to update service");
-    } finally {
-      setFormLoading(false);
     }
   };
 
@@ -162,18 +77,8 @@ const Services = () => {
     }
   };
 
-  const openEditModal = (service) => {
-    setFormData({
-      title: service.title,
-      category: service.category,
-      description: service.description,
-      image: service.image || ""
-    });
-    setEditModal({ open: true, service });
-  };
-
   const getCategoryLabel = (value) => {
-    return categories.find(c => c.value === value)?.label || value;
+    return SERVICE_CATEGORIES.find((c) => c.value === value)?.label || value;
   };
 
   return (
@@ -196,37 +101,46 @@ const Services = () => {
             Manage platform services and categories
           </p>
         </div>
-        <Button onClick={() => setCreateModal(true)}>
+        <Button onClick={() => navigate("/admin/services/new")}>
           <Plus size={18} />
           Add Service
         </Button>
       </motion.div>
 
-      {/* Filters */}
-      <motion.div
-        variants={fadeUp}
-        className="flex flex-col md:flex-row gap-4"
-      >
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search services..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          />
-        </div>
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-        >
-          <option value="all">All Categories</option>
-          {categories.map(cat => (
-            <option key={cat.value} value={cat.value}>{cat.label}</option>
-          ))}
-        </select>
+      <motion.div variants={fadeUp}>
+        <SearchFilterBar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search services..."
+          filters={[
+            {
+              key: "category",
+              label: "Category",
+              value: categoryFilter,
+              onChange: setCategoryFilter,
+              options: [
+                { value: "all", label: "All categories" },
+                ...SERVICE_CATEGORIES.map((c) => ({ value: c.value, label: c.label })),
+              ],
+            },
+            {
+              key: "draft",
+              label: "Status",
+              value: draftFilter,
+              onChange: setDraftFilter,
+              options: [
+                { value: "all", label: "All" },
+                { value: "published", label: "Published" },
+                { value: "draft", label: "Drafts" },
+              ],
+            },
+          ]}
+          onClear={() => {
+            setSearch("");
+            setCategoryFilter("all");
+            setDraftFilter("all");
+          }}
+        />
       </motion.div>
 
       {/* Services Grid */}
@@ -272,23 +186,32 @@ const Services = () => {
                       {service.title}
                     </h3>
                   </div>
-                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
-                    {getCategoryLabel(service.category)}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    {service.isDraft && (
+                      <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                        Draft
+                      </span>
+                    )}
+                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                      {getCategoryLabel(service.category)}
+                    </span>
+                  </div>
                 </div>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-3">
                   {service.description}
                 </p>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setViewModal({ open: true, service })}
+                    type="button"
+                    onClick={() => navigate(`/admin/services/${service._id}`)}
                     className="flex-1 px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors text-sm font-medium flex items-center justify-center gap-2"
                   >
                     <Eye size={16} />
                     View
                   </button>
                   <button
-                    onClick={() => openEditModal(service)}
+                    type="button"
+                    onClick={() => navigate(`/admin/services/${service._id}/edit`)}
                     className="flex-1 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors text-sm font-medium flex items-center justify-center gap-2"
                   >
                     <Edit size={16} />
@@ -316,234 +239,6 @@ const Services = () => {
           Showing {filtered.length} of {services.length} services
         </motion.p>
       )}
-
-      {/* Create Modal */}
-      <Modal
-        isOpen={createModal}
-        onClose={() => {
-          setCreateModal(false);
-          setFormData({ title: "", category: "", description: "", image: "" });
-        }}
-        title="Create New Service"
-        size="md"
-      >
-        <form onSubmit={handleCreate} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Service Title *
-            </label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter service title"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Category *
-            </label>
-            <select
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            >
-              <option value="">Select category</option>
-              {categories.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Service Image
-            </label>
-            <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors h-32">
-              {formData.image ? (
-                <>
-                  <img src={formData.image} alt="Preview" className="w-full h-full object-contain rounded-md" />
-                  <button 
-                    type="button"
-                    onClick={() => setFormData({ ...formData, image: "" })}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 z-10"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </>
-              ) : (
-                <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
-                  <Camera className="w-8 h-8 text-slate-400 mb-2" />
-                  <span className="text-sm text-slate-500">{uploadingImage ? "Uploading..." : "Click to upload image"}</span>
-                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
-                </label>
-              )}
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Description *
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={4}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              placeholder="Enter service description"
-              required
-            />
-          </div>
-          
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setCreateModal(false);
-                setFormData({ title: "", category: "", description: "", image: "" });
-              }}
-              disabled={formLoading}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={formLoading}>
-              {formLoading ? "Creating..." : "Create Service"}
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Edit Modal */}
-      <Modal
-        isOpen={editModal.open}
-        onClose={() => {
-          setEditModal({ open: false, service: null });
-          setFormData({ title: "", category: "", description: "", image: "" });
-        }}
-        title="Edit Service"
-        size="md"
-      >
-        <form onSubmit={handleEdit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Service Title *
-            </label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Category *
-            </label>
-            <select
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            >
-              {categories.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Service Image
-            </label>
-            <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors h-32">
-              {formData.image ? (
-                <>
-                  <img src={formData.image} alt="Preview" className="w-full h-full object-contain rounded-md" />
-                  <button 
-                    type="button"
-                    onClick={() => setFormData({ ...formData, image: "" })}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 z-10"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </>
-              ) : (
-                <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
-                  <Camera className="w-8 h-8 text-slate-400 mb-2" />
-                  <span className="text-sm text-slate-500">{uploadingImage ? "Uploading..." : "Click to upload image"}</span>
-                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
-                </label>
-              )}
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Description *
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={4}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              required
-            />
-          </div>
-          
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setEditModal({ open: false, service: null });
-                setFormData({ title: "", category: "", description: "", image: "" });
-              }}
-              disabled={formLoading}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={formLoading}>
-              {formLoading ? "Updating..." : "Update Service"}
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* View Modal */}
-      <Modal
-        isOpen={viewModal.open}
-        onClose={() => setViewModal({ open: false, service: null })}
-        title="Service Details"
-        size="md"
-      >
-        {viewModal.service && (
-          <div className="p-6 space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                {viewModal.service.title}
-              </h3>
-              <span className="inline-block px-3 py-1 text-sm font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
-                {getCategoryLabel(viewModal.service.category)}
-              </span>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Description
-              </h4>
-              <p className="text-slate-600 dark:text-slate-400">
-                {viewModal.service.description}
-              </p>
-            </div>
-          </div>
-        )}
-      </Modal>
 
       {/* Delete Modal */}
       <Modal

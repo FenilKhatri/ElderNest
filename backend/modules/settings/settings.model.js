@@ -20,7 +20,7 @@ const settingsSchema = new mongoose.Schema(
     },
     contactEmail: {
       type: String,
-      default: "support@eldernest.com",
+      default: "fenilkatri931@gmail.com",
     },
     contactPhone: {
       type: String,

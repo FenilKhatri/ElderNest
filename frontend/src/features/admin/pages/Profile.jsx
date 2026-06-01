@@ -5,8 +5,11 @@ import { User, Mail, Phone, Camera, Save } from "lucide-react";
 import http from "../../../lib/axios";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import Button from "../../../components/ui/Button";
+import { resolveAssetUrl } from "../../../utils/blogImage";
+import { useAuth } from "../../../context/AuthContext";
 
 const Profile = () => {
+  const { fetchUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -21,7 +24,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         const res = await http.get("/auth/me");
-        const user = res.data?.user;
+        const user = res?.data?.user;
         if (user) {
           setFormData({
             name: user.name || "",
@@ -29,6 +32,8 @@ const Profile = () => {
             phone: user.phone || "",
             profileImage: user.profileImage || "",
           });
+        } else {
+          toast.error("Could not load profile data");
         }
       } catch (error) {
         toast.error("Failed to load profile");
@@ -50,14 +55,18 @@ const Profile = () => {
     setUploading(true);
     const data = new FormData();
     data.append("image", file);
+    data.append("folder", "photos");
 
     try {
       const res = await http.post("/upload", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      if (res.url) {
-        setFormData({ ...formData, profileImage: res.url });
+      const url = res?.url || res?.data?.url;
+      if (url) {
+        setFormData((prev) => ({ ...prev, profileImage: url }));
         toast.success("Image uploaded successfully!");
+      } else {
+        toast.error("Upload succeeded but no image URL was returned");
       }
     } catch (error) {
       toast.error("Failed to upload image");
@@ -75,6 +84,7 @@ const Profile = () => {
         phone: formData.phone,
         profileImage: formData.profileImage,
       });
+      if (fetchUser) await fetchUser();
       toast.success("Profile updated successfully!");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to update profile");
@@ -88,7 +98,7 @@ const Profile = () => {
   }
 
   return (
-    <motion.div variants={stagger} initial="hidden" animate="show" className="max-w-3xl mx-auto space-y-6">
+    <motion.div variants={stagger} initial="hidden" animate="show" className="w-full max-w-5xl mx-auto space-y-6">
       <motion.div variants={fadeUp}>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Admin Profile</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your account details and preferences</p>
@@ -103,7 +113,11 @@ const Profile = () => {
                 {uploading ? (
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                 ) : formData.profileImage ? (
-                  <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  <img
+                    src={resolveAssetUrl(formData.profileImage)}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <User className="w-10 h-10 text-slate-400" />
                 )}

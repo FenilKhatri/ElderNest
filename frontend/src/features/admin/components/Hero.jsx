@@ -12,7 +12,7 @@ const Hero = ({ Slogan, Title, Description }) => {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.2 }}
-      className="max-w-7xl mx-auto px-5 py-10 md:py-16"
+      className="max-w-site-wide mx-auto px-5 py-10 md:py-16"
     >
       <div className="flex flex-col md:flex-row items-center justify-between gap-10">
         <motion.div
@@ -35,7 +35,7 @@ const Hero = ({ Slogan, Title, Description }) => {
           </p>
 
           <div className="w-full flex flex-col sm:flex-row items-center justify-start gap-3">
-            <NavLink to="/caregivers-login" className="w-full sm:w-fit">
+            <NavLink to="/caregiver" className="w-full sm:w-fit">
               <Button size="lg" className="w-full shadow-lg shadow-blue-500/20">
                 Book Care Service
               </Button>

@@ -83,7 +83,7 @@ export const generateBookingReceipt = (booking) => {
   doc.setFontSize(9);
   doc.setTextColor(150);
   doc.text("Thank you for choosing ElderNest for your loved ones' care.", 14, pageHeight - 20);
-  doc.text("For any queries, contact support@eldernest.com", 14, pageHeight - 15);
+  doc.text("For any queries, contact fenilkatri931@gmail.com", 14, pageHeight - 15);
 
   // Save
   doc.save(`ElderNest_Receipt_${booking.bookingId || 'booking'}.pdf`);

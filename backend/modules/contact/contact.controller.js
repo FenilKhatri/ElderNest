@@ -26,7 +26,7 @@ export const createContact = asyncHandler(async (req, res) => {
             "general",
             "New Contact Inquiry",
             `New message from ${name}: ${subject}`,
-            "/admin/contacts"
+            "/admin/complaints/pending"
         );
 
         // Send email to admin

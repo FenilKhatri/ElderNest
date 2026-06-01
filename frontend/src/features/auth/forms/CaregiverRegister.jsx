@@ -10,8 +10,10 @@ import { caregiverRegisterFields } from "./data/inputFields";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { handleAuthSubmit } from "../../../utils/auth/handleAuthSubmit";
 import { handleChange } from "../../../utils/auth/handleChange";
+import { useAuth } from "../../../context/AuthContext";
 
 const CaregiverRegister = () => {
+  const { fetchUser } = useAuth();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -30,6 +32,7 @@ const CaregiverRegister = () => {
       form,
       navigate,
       setLoading,
+      fetchUser,
       successMessage: "Registered successfully!",
 
       validate: () => {

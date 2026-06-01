@@ -6,10 +6,11 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getRedirectByRole } from "../../utils/auth/roleRedirect";
+import { clearSessionOnRoleMismatch } from "../../utils/auth/clearSessionOnRoleMismatch";
 
-const GoogleAuthButton = ({ role = "user" }) => {
+const GoogleAuthButton = ({ role = "user", allowedRoles = null }) => {
   const [loading, setLoading] = useState(false);
-  const { setUser } = useAuth();
+  const { setUser, fetchUser } = useAuth();
   const navigate = useNavigate();
 
   const handleGoogleLogin = async () => {
@@ -39,8 +40,19 @@ const GoogleAuthButton = ({ role = "user" }) => {
         return;
       }
 
-      // 6. Update context and navigate
-      setUser(loggedInUser);
+      const rolesAllowed = allowedRoles || [role];
+      if (!rolesAllowed.includes(loggedInUser.role)) {
+        await clearSessionOnRoleMismatch();
+        toast.error("Invalid email or password.");
+        return;
+      }
+
+      // 6. Refresh auth state and navigate
+      if (fetchUser) {
+        await fetchUser();
+      } else {
+        setUser(loggedInUser);
+      }
       toast.success(res?.message || "Login successful");
       navigate(getRedirectByRole(loggedInUser?.role));
     } catch (error) {

@@ -13,7 +13,9 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       const res = await getMe();
-      const loggedUser = res?.data?.user || res?.data?.caregiver || null;
+      // The backend successResponse wraps the payload in a 'data' key,
+      // and Axios interceptor returns res.data, so we get { success, message, data }
+      const loggedUser = res?.data?.user || null;
       setUser(loggedUser);
     } catch (error) {
       if (error?.response?.status !== 401) {

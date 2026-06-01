@@ -13,12 +13,17 @@ const PublicLayout = lazy(() => import("../../layout/public/PublicLayout"));
 const PageNotFound = lazy(
   () => import("../../features/public/pages/PageNotFound"),
 );
+const AdminLoginPage = lazy(
+  () => import("../../features/auth/pages/AdminLoginPage"),
+);
 
 // AppRoutes.jsx
 const AppRoutes = ({ theme, toggleTheme }) => {
   return (
     <Suspense fallback={<GlobalLoader />}>
       <Routes>
+
+        <Route path="/admin/login" element={<AdminLoginPage />} />
 
         <Route
           element={<PublicLayout theme={theme} toggleTheme={toggleTheme} />}
@@ -29,7 +34,6 @@ const AppRoutes = ({ theme, toggleTheme }) => {
           {/* User */}
           {UserRoutes()}
           
-          <Route path="*" element={<PageNotFound />} />
         </Route>
 
         {/* Admin */}
@@ -38,6 +42,7 @@ const AppRoutes = ({ theme, toggleTheme }) => {
         {/* Caregiver */}
         {CaregiverRoutes({ theme, toggleTheme })}
 
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Suspense>
   );

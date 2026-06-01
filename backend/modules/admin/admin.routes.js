@@ -13,6 +13,7 @@ router.use(protect, authorizeRoles(ROLES.ADMIN));
 router.get("/dashboard/stats", adminController.getDashboardStats);
 
 // Caregiver details by user ID
+router.get("/caregivers/by-id/:caregiverId", adminController.getCaregiverByIdAdmin);
 router.get("/caregivers/user/:userId", adminController.getCaregiverByUserIdAdmin);
 
 // Caregiver registration approval
@@ -25,6 +26,9 @@ router.get("/profiles/pending", adminController.getPendingProfiles);
 router.patch("/profiles/:caregiverId/approve", adminController.approveCaregiverProfile);
 router.patch("/profiles/:caregiverId/reject", adminController.rejectCaregiverProfile);
 
+router.get("/caregivers/:caregiverId/verification", adminController.getCaregiverVerificationDetail);
+router.patch("/caregivers/:caregiverId/verification", adminController.reviewCaregiverVerification);
+
 // User management
 router.get("/users", adminController.getAllUsers);
 router.delete("/users/:userId", adminController.deleteUser);
@@ -36,5 +40,14 @@ router.patch("/contacts/:contactId/status", adminController.updateContactStatus)
 // Settings
 router.get("/settings", adminController.getSettings);
 router.patch("/settings", adminController.updateSettings);
+
+// Analytics & patients
+router.get("/analytics", adminController.getAnalytics);
+router.get("/patients", adminController.getAllPatients);
+router.patch("/patients/:id", adminController.updatePatient);
+router.delete("/patients/:id", adminController.deletePatient);
+
+// Caregiver suspend
+router.patch("/caregivers/:userId/suspend", adminController.suspendCaregiver);
 
 export default router;

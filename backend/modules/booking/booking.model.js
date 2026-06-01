@@ -20,6 +20,10 @@ const bookingSchema = new mongoose.Schema(
             ref: "Service",
             required: true,
         },
+        patientId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Patient",
+        },
 
         // Patient Information
         patientName: {
@@ -145,6 +149,11 @@ const bookingSchema = new mongoose.Schema(
         duration: {
             type: Number, // in hours
             required: true,
+        },
+        durationType: {
+            type: String,
+            enum: ["hourly", "daily", "long-term"],
+            default: "hourly",
         },
 
         // Status Management

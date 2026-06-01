@@ -1,9 +1,18 @@
 import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
-import { userRoutes } from "../../features/public/data/routes/user.routes";
+import { User, Calendar, History, Users, MessageSquare, Bell } from "lucide-react";
 
 const UserDropdown = ({ open, setOpen }) => {
   const ref = useRef();
+  
+  const userRoutes = [
+    { to: "/user/profile", label: "Profile", icon: User },
+    { to: "/user/bookings", label: "My Bookings", icon: Calendar },
+    { to: "/user/history", label: "History", icon: History },
+    { to: "/user/patients", label: "Patients", icon: Users },
+    { to: "/user/complaints", label: "Complaints", icon: MessageSquare },
+    { to: "/user/notifications", label: "Notifications", icon: Bell },
+  ];
 
   useEffect(() => {
     const handleClick = (e) => {

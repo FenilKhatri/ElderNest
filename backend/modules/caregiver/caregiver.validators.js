@@ -22,7 +22,7 @@ export const completeProfileValidator = [
         .withMessage("Invalid Indian mobile number"),
     
     body("alternateContact")
-        .optional()
+        .optional({ values: "falsy" })
         .matches(/^[6-9]\d{9}$/)
         .withMessage("Invalid alternate contact number"),
     
@@ -35,12 +35,14 @@ export const completeProfileValidator = [
     body("age")
         .notEmpty()
         .withMessage("Age is required")
+        .toInt()
         .isInt({ min: 18, max: 80 })
         .withMessage("Age must be between 18-80"),
     
     body("experienceYears")
         .notEmpty()
         .withMessage("Experience is required")
+        .toInt()
         .isInt({ min: 0, max: 60 })
         .withMessage("Experience must be between 0-60 years"),
     

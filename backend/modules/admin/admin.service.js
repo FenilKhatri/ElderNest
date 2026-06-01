@@ -2,8 +2,12 @@ import User from "../user/user.model.js";
 import Caregiver from "../caregiver/caregiver.model.js";
 import Booking from "../booking/booking.model.js";
 import Contact from "../contact/contact.model.js";
+import Service from "../service/service.model.js";
+import Patient from "../patient/patient.model.js";
+import Complaint from "../complaint/complaint.model.js";
 import { createNotification } from "../../common/services/notification.service.js";
 import { sendEmail } from "../../common/services/email.service.js";
+import { ONBOARDING_STAGES } from "../../common/utils/caregiverOnboarding.js";
 
 // Get pending caregiver registrations
 export const getPendingCaregivers = async () => {
@@ -31,13 +35,18 @@ export const approveCaregiverRegistration = async (userId) => {
     user.status = "approved";
     await user.save();
 
-    // Create notification
+    const caregiver = await Caregiver.findOne({ userId: user._id });
+    if (caregiver) {
+        caregiver.onboardingStage = ONBOARDING_STAGES.ACCOUNT_APPROVED;
+        await caregiver.save();
+    }
+
     await createNotification(
         userId,
         "caregiver_approved",
         "Account Approved!",
-        "Your caregiver account has been approved. You can now complete your profile.",
-        "/caregiver/profile/complete"
+        "Your account has been approved. Please complete document verification.",
+        "/caregiver/verification"
     );
 
     // Send email
@@ -58,15 +67,21 @@ export const rejectCaregiverRegistration = async (userId, reason) => {
     }
 
     user.status = "rejected";
+    user.isApproved = false;
     await user.save();
 
-    // Create notification
+    const caregiver = await Caregiver.findOne({ userId: user._id });
+    if (caregiver) {
+        caregiver.onboardingStage = ONBOARDING_STAGES.REJECTED;
+        await caregiver.save();
+    }
+
     await createNotification(
         userId,
         "caregiver_rejected",
-        "Registration Update",
-        "Your caregiver registration could not be approved at this time.",
-        null
+        "Registration Rejected",
+        reason || "Your caregiver registration was not approved.",
+        "/caregiver/rejected"
     );
 
     // Send email
@@ -75,14 +90,84 @@ export const rejectCaregiverRegistration = async (userId, reason) => {
     return user;
 };
 
-// Get pending caregiver profiles
+// Get pending caregiver profiles / verifications
 export const getPendingProfiles = async () => {
     const caregivers = await Caregiver.find({
-        profileCompleted: true,
-        profileApprovalStatus: "pending",
-    }).populate("userId", "name email");
+        onboardingStage: ONBOARDING_STAGES.VERIFICATION_PENDING,
+    })
+        .populate("userId", "name email phone")
+        .populate("servicesOffered", "title");
 
     return caregivers;
+};
+
+export const getCaregiverVerificationDetail = async (caregiverId) => {
+    const caregiver = await Caregiver.findById(caregiverId)
+        .populate("userId", "name email phone profileImage")
+        .populate("servicesOffered", "title description price slug");
+
+    if (!caregiver) {
+        throw new Error("Caregiver not found");
+    }
+
+    return caregiver;
+};
+
+export const reviewCaregiverVerification = async (caregiverId, action, feedback = "") => {
+    const caregiver = await Caregiver.findById(caregiverId).populate("userId");
+    if (!caregiver) {
+        throw new Error("Caregiver not found");
+    }
+
+    const userId = caregiver.userId._id;
+
+    if (action === "approve") {
+        caregiver.onboardingStage = ONBOARDING_STAGES.ACTIVE;
+        caregiver.profileApprovalStatus = "approved";
+        caregiver.isPublished = true;
+        caregiver.adminFeedback = "";
+        await caregiver.save();
+
+        await createNotification(
+            userId,
+            "caregiver_approved",
+            "Verification Approved",
+            "Your verification was approved. You are now a verified caregiver.",
+            "/caregiver/dashboard"
+        );
+    } else if (action === "reject") {
+        caregiver.onboardingStage = ONBOARDING_STAGES.REJECTED;
+        caregiver.profileApprovalStatus = "rejected";
+        caregiver.isPublished = false;
+        caregiver.adminFeedback = feedback;
+        await caregiver.save();
+
+        await createNotification(
+            userId,
+            "caregiver_rejected",
+            "Verification Rejected",
+            feedback || "Your verification was rejected.",
+            "/caregiver/rejected"
+        );
+    } else if (action === "changes") {
+        caregiver.onboardingStage = ONBOARDING_STAGES.VERIFICATION_CHANGES;
+        caregiver.profileApprovalStatus = "changes-required";
+        caregiver.isPublished = false;
+        caregiver.adminFeedback = feedback;
+        await caregiver.save();
+
+        await createNotification(
+            userId,
+            "profile_update_required",
+            "Additional Information Required",
+            feedback || "Please update your verification documents and resubmit.",
+            "/caregiver/verification"
+        );
+    } else {
+        throw new Error("Invalid review action");
+    }
+
+    return caregiver;
 };
 
 // Approve caregiver profile
@@ -209,6 +294,85 @@ export const updateContactStatus = async (contactId, status, adminId, adminNotes
 
     await contact.save();
     return contact;
+};
+
+// Suspend caregiver
+export const suspendCaregiver = async (userId, suspend = true) => {
+    const user = await User.findById(userId);
+    if (!user || user.role !== "caregiver") {
+        throw new Error("Caregiver not found");
+    }
+
+    const caregiver = await Caregiver.findOne({ userId });
+    if (!caregiver) {
+        throw new Error("Caregiver profile not found");
+    }
+
+    caregiver.isActive = !suspend;
+    if (suspend) {
+        user.status = "rejected";
+    } else {
+        user.status = "approved";
+        user.isApproved = true;
+    }
+    await caregiver.save();
+    await user.save();
+
+    await createNotification(
+        userId,
+        "general",
+        suspend ? "Account Suspended" : "Account Reactivated",
+        suspend
+            ? "Your caregiver account has been suspended. Contact support for details."
+            : "Your caregiver account has been reactivated.",
+        "/caregiver/dashboard"
+    );
+
+    return { user, caregiver };
+};
+
+// Analytics
+export const getAnalytics = async () => {
+    const totalUsers = await User.countDocuments({ role: "user" });
+    const totalPatients = await Patient.countDocuments({ isActive: true });
+    const totalCaregivers = await User.countDocuments({ role: "caregiver", isApproved: true });
+    const totalServices = await Service.countDocuments({ isActive: true });
+    const totalBookings = await Booking.countDocuments();
+    const completedBookings = await Booking.find({ status: "completed" }).select("totalAmount bookingDate");
+    const revenue = completedBookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+    sixMonthsAgo.setDate(1);
+
+    const monthlyBookings = await Booking.aggregate([
+        { $match: { createdAt: { $gte: sixMonthsAgo } } },
+        {
+            $group: {
+                _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                count: { $sum: 1 },
+                revenue: { $sum: "$totalAmount" },
+            },
+        },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
+    ]);
+
+    const pendingComplaints = await Complaint.countDocuments({ status: "pending" });
+
+    return {
+        totalUsers,
+        totalPatients,
+        totalCaregivers,
+        totalServices,
+        totalBookings,
+        revenue,
+        pendingComplaints,
+        monthlyTrends: monthlyBookings.map((m) => ({
+            month: `${m._id.year}-${String(m._id.month).padStart(2, "0")}`,
+            bookings: m.count,
+            revenue: m.revenue,
+        })),
+    };
 };
 
 // Delete user or caregiver

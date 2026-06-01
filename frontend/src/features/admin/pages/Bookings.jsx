@@ -1,17 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { Search, Eye, Filter } from "lucide-react";
+import { Eye, Filter } from "lucide-react";
 import { getAllBookings, updateBookingStatus } from "../api/admin.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { formatDate } from "../../../utils/helpers";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 import StatusBadge from "../../../components/ui/StatusBadge";
+import SearchFilterBar from "../../../components/filters/SearchFilterBar";
+import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout";
+import EntityCard from "../../../components/cards/EntityCard";
+import Select from "../../../components/ui/Select";
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
-  const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -36,24 +39,22 @@ const Bookings = () => {
     fetchBookings();
   }, []);
 
-  useEffect(() => {
+  const filteredBookings = useMemo(() => {
     let result = bookings;
-    
     if (statusFilter !== "all") {
-      result = result.filter(b => b.status === statusFilter);
+      result = result.filter((b) => b.status === statusFilter);
     }
-    
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter(b => 
-        b.patientName?.toLowerCase().includes(q) ||
-        b.bookingId?.toLowerCase().includes(q) ||
-        b.contactNumber?.includes(q) ||
-        b.email?.toLowerCase().includes(q)
+      result = result.filter(
+        (b) =>
+          b.patientName?.toLowerCase().includes(q) ||
+          b.bookingId?.toLowerCase().includes(q) ||
+          b.contactNumber?.includes(q) ||
+          b.email?.toLowerCase().includes(q)
       );
     }
-    
-    setFiltered(result);
+    return result;
   }, [search, statusFilter, bookings]);
 
   const fetchBookings = async () => {
@@ -62,7 +63,6 @@ const Bookings = () => {
       const res = await getAllBookings();
       const data = res?.data?.bookings || [];
       setBookings(data);
-      setFiltered(data);
     } catch (error) {
       toast.error(error?.message || "Failed to load bookings");
     } finally {
@@ -123,156 +123,84 @@ const Bookings = () => {
         </div>
       </motion.div>
 
-      {/* Filters */}
-      <motion.div
-        variants={fadeUp}
-        className="flex flex-col md:flex-row gap-4"
-      >
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search by patient name, booking ID, phone, or email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          />
-        </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-        >
-          <option value="all">All Status</option>
-          {statuses.map(status => (
-            <option key={status.value} value={status.value}>{status.label}</option>
-          ))}
-        </select>
+      <motion.div variants={fadeUp}>
+        <SearchFilterBar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search by patient, booking ID, phone, or email..."
+          filters={[
+            {
+              key: "status",
+              label: "Status",
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: [{ value: "all", label: "All statuses" }, ...statuses],
+            },
+          ]}
+          onClear={() => {
+            setSearch("");
+            setStatusFilter("all");
+          }}
+        />
       </motion.div>
 
-      {/* Bookings Table */}
-      <motion.div
-        variants={fadeUp}
-        className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm"
-      >
+      <motion.div variants={fadeUp}>
         {loading ? (
-          <div className="p-8 space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="animate-pulse flex items-center space-x-4">
-                <div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
-                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
-                </div>
-              </div>
-            ))}
+          <GridSkeleton count={6} />
+        ) : filteredBookings.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center text-slate-500 dark:text-slate-400">
+            {search || statusFilter !== "all" ? "No bookings match your filters" : "No bookings found"}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Booking ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Patient
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-6 py-12 text-center text-slate-500 dark:text-slate-400"
+          <GridLayout>
+            {filteredBookings.map((booking) => (
+              <EntityCard
+                key={booking._id}
+                footer={
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setViewModal({ open: true, booking })}
+                      className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600"
+                      title="View"
                     >
-                      {search || statusFilter !== "all"
-                        ? "No bookings match your filters"
-                        : "No bookings found"}
-                    </td>
-                  </tr>
-                ) : (
-                  filtered.map((booking) => (
-                    <tr
-                      key={booking._id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openStatusModal(booking)}
+                      className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600"
+                      title="Update status"
                     >
-                      <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
-                        {booking.bookingId}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div>
-                          <p className="text-sm font-medium text-slate-900 dark:text-white">
-                            {booking.patientName}
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Age: {booking.patientAge} | {booking.careType}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm">
-                          <p className="text-slate-900 dark:text-white">
-                            {booking.contactNumber}
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {booking.email}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                        {formatDate(booking.bookingDate)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <StatusBadge status={booking.status} />
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => setViewModal({ open: true, booking })}
-                            className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
-                            title="View Details"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => openStatusModal(booking)}
-                            className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
-                            title="Update Status"
-                          >
-                            <Filter className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                      <Filter className="w-4 h-4" />
+                    </button>
+                  </div>
+                }
+              >
+                <p className="text-xs font-mono text-slate-500 mb-2">{booking.bookingId}</p>
+                <p className="font-semibold text-slate-900 dark:text-white">{booking.patientName}</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  Age {booking.patientAge} · {booking.careType}
+                </p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">{booking.contactNumber}</p>
+                <p className="text-xs text-slate-500 truncate">{booking.email}</p>
+                <p className="text-xs text-slate-400 mt-2">{formatDate(booking.bookingDate)}</p>
+                <div className="mt-3">
+                  <StatusBadge status={booking.status} />
+                </div>
+              </EntityCard>
+            ))}
+          </GridLayout>
         )}
       </motion.div>
 
       {/* Summary */}
-      {!loading && filtered.length > 0 && (
+      {!loading && filteredBookings.length > 0 && (
         <motion.p
           variants={fadeUp}
           className="text-sm text-slate-500 dark:text-slate-400"
         >
-          Showing {filtered.length} of {bookings.length} bookings
+          Showing {filteredBookings.length} of {bookings.length} bookings
         </motion.p>
       )}
 
@@ -401,15 +329,13 @@ const Bookings = () => {
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               New Status
             </label>
-            <select
+            <Select
+              label=""
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {statuses.map(status => (
-                <option key={status.value} value={status.value}>{status.label}</option>
-              ))}
-            </select>
+              options={statuses}
+              placeholder="Select status"
+            />
           </div>
 
           {(newStatus === "rejected" || newStatus === "cancelled") && (

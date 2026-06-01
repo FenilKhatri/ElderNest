@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
 import { getRedirectByRole } from "./roleRedirect";
 import { ROLES } from "../constants";
+import { clearSessionOnRoleMismatch } from "./clearSessionOnRoleMismatch";
 
 export const handleAuthSubmit = async ({
     apiCall,
@@ -25,24 +26,18 @@ export const handleAuthSubmit = async ({
 
         const res = await apiCall(form);
 
-        const responseData = res?.data || res;
-        const message = res?.message || responseData?.message;
-        const user =
-            responseData?.data?.user ||
-            responseData?.data?.caregiver ||
-            responseData?.user ||
-            responseData?.caregiver;
+        // res is the unwrapped JSON body: { success, message, data }
+        const dataObj = res?.data || res;
+        const user = dataObj?.user || dataObj?.caregiver || res?.user || res?.caregiver;
+        const message = res?.message || dataObj?.message;
 
         // Block wrong-role logins (e.g. caregiver trying user form)
         if (allowedRole && user?.role) {
             const allowedRoles = Array.isArray(allowedRole) ? allowedRole : [allowedRole];
             
             if (!allowedRoles.includes(user.role)) {
-                toast.error(
-                    user.role === ROLES.CAREGIVER
-                        ? "Caregivers must use the caregiver login page."
-                        : "Please use the correct login page for your account."
-                );
+                await clearSessionOnRoleMismatch();
+                toast.error("Invalid email or password.");
                 setLoading(false);
                 return;
             }

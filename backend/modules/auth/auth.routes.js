@@ -3,6 +3,7 @@ import express from "express";
 import {
     register,
     login,
+    adminLogin,
     googleAuth,
     logout,
     getMe,
@@ -21,6 +22,7 @@ const router = express.Router();
 // Public Routes
 router.post("/register", validateRegister, register);
 router.post("/login", authLimiter, validateLogin, login);
+router.post("/admin-login", authLimiter, validateLogin, adminLogin);
 router.post("/caregiver-register", validateRegister, registerCaregiver);
 router.post("/caregiver-login", authLimiter, validateLogin, loginCaregiver);
 router.post("/google", googleAuth);

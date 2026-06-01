@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Check, Trash2, Calendar, Shield, Info, Clock } from "lucide-react";
 import { useNotifications } from "../../../context/NotificationContext";
@@ -8,6 +9,7 @@ import { fadeUp, stagger } from "../../../animations/motionVariants";
 import Button from "../../../components/ui/Button";
 
 const Notifications = () => {
+  const navigate = useNavigate();
   const { notifications, loading, refreshNotifications, unreadCount } = useNotifications();
 
   // Poll notifications when the component is mounted
@@ -26,6 +28,12 @@ const Notifications = () => {
     } catch (error) {
       console.error("Failed to mark as read", error);
     }
+  };
+
+  const handleOpen = async (notif) => {
+    if (!notif.link) return;
+    if (!notif.isRead) await handleMarkAsRead(notif._id);
+    navigate(notif.link);
   };
 
   const handleDelete = async (id) => {
@@ -51,7 +59,7 @@ const Notifications = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-12">
+    <div className="space-y-6 w-full max-w-6xl mx-auto pb-12">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -90,9 +98,13 @@ const Notifications = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className={`p-5 transition-colors flex gap-4 ${
+                  role={notif.link ? "button" : undefined}
+                  tabIndex={notif.link ? 0 : undefined}
+                  onClick={() => notif.link && handleOpen(notif)}
+                  onKeyDown={(e) => notif.link && e.key === "Enter" && handleOpen(notif)}
+                  className={`p-5 transition-colors flex gap-4 w-full text-left ${
                     notif.isRead ? "bg-white dark:bg-slate-900" : "bg-blue-50/50 dark:bg-blue-900/10"
-                  }`}
+                  } ${notif.link ? "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50" : ""}`}
                 >
                   <div className="mt-1 shrink-0">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -125,14 +137,16 @@ const Notifications = () => {
                     <div className="flex items-center gap-3 mt-4">
                       {!notif.isRead && (
                         <button
-                          onClick={() => handleMarkAsRead(notif._id)}
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); handleMarkAsRead(notif._id); }}
                           className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1"
                         >
                           <Check className="w-3.5 h-3.5" /> Mark as Read
                         </button>
                       )}
                       <button
-                        onClick={() => handleDelete(notif._id)}
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); handleDelete(notif._id); }}
                         className="text-xs font-medium text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 flex items-center gap-1"
                       >
                         <Trash2 className="w-3.5 h-3.5" /> Delete

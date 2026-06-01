@@ -36,7 +36,7 @@ const HeroSection = () => {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}
-        className="relative z-10 mx-auto max-w-7xl px-5 py-12 md:py-16 xl:py-20 w-full"
+        className="relative z-10 mx-auto max-w-site-wide px-5 py-12 md:py-16 xl:py-20 w-full"
       >
         <motion.div
           variants={slideLeft}
@@ -75,7 +75,7 @@ const HeroSection = () => {
           />
 
           <div className="flex w-full flex-col items-center justify-start gap-3 sm:flex-row">
-            <NavLink to="/caregivers-login" className="w-full sm:w-fit">
+            <NavLink to="/caregivers" className="w-full sm:w-fit">
               <Button
                 size="lg"
                 className="flex w-full items-center justify-center gap-3 shadow-lg shadow-blue-500/20"

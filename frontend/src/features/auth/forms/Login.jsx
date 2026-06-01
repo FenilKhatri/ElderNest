@@ -21,9 +21,9 @@ const Login = ({ role = ROLES.USER }) => {
   // Determine allowed roles based on the role prop
   const getAllowedRoles = () => {
     if (role === ROLES.ADMIN) {
-      return [ROLES.ADMIN, ROLES.USER]; // Admin page allows both admin and user login
+      return [ROLES.ADMIN];
     }
-    return [ROLES.USER, ROLES.ADMIN]; // User page allows both user and admin login
+    return [ROLES.USER];
   };
 
   const handleSubmit = async (e) => {
@@ -71,7 +71,7 @@ const Login = ({ role = ROLES.USER }) => {
       </motion.div>
 
       <motion.div variants={fadeUp}>
-        <GoogleAuthButton role={role} />
+        <GoogleAuthButton role={role} allowedRoles={getAllowedRoles()} />
       </motion.div>
     </motion.form>
   );

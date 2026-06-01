@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import SearchFilterBar from "../../../components/filters/SearchFilterBar";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { 
   CheckCircle, XCircle, Eye, UserCheck, AlertCircle, 
-  ChevronDown, Activity, Clock, Trash2
+  ChevronDown, Activity, Clock, Trash2, LayoutGrid, List
 } from "lucide-react";
 import {
   getPendingCaregivers,
@@ -14,7 +15,6 @@ import {
   getPendingProfiles,
   approveCaregiverProfile,
   rejectCaregiverProfile,
-  getCaregiverById,
   deleteUser
 } from "../api/admin.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
@@ -107,6 +107,9 @@ const Caregivers = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [layout, setLayout] = useState("table");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   
   // Modals
   const [rejectModal, setRejectModal] = useState({ open: false, id: null, type: null });
@@ -134,34 +137,45 @@ const Caregivers = () => {
   useEffect(() => { fetchAll(); }, []);
 
   const handleApprove = async (c) => {
-    if (!c.isApproved && c.status === "pending") {
-      try {
-        setActionLoading(c._id);
-        await approveCaregiverRegistration(c._id);
-        toast.success("Caregiver approved!");
-        fetchAll();
-      } catch (err) {
-        toast.error(err.message || "Failed to approve");
-      } finally {
-        setActionLoading(null);
-      }
-    } else {
-      toast.info("Caregiver is already processed.");
+    if (c.status !== "pending" || c.isApproved) {
+      toast.info(c.status === "rejected" ? "This caregiver was rejected." : "This caregiver is already approved.");
+      return;
+    }
+    try {
+      setActionLoading(c._id);
+      await approveCaregiverRegistration(c._id);
+      toast.success("Caregiver approved!");
+      fetchAll();
+    } catch (err) {
+      toast.error(err.message || "Failed to approve");
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleReject = (c) => {
-    if (!c.isApproved && c.status === "pending") {
-      setRejectModal({ open: true, id: c._id, type: "registration" });
-    } else {
-      toast.info("Only pending caregivers can be rejected.");
+    if (c.status !== "pending" || c.isApproved) {
+      toast.info("Only pending registrations can be rejected.");
+      return;
     }
+    setRejectModal({ open: true, id: c._id, type: "registration" });
   };
 
-  const handleCancel = (c) => {
-    toast.success("Pending request cancelled.");
-    // Normally would call an API, we just refresh for now
-    fetchAll();
+  const handleCancel = async (c) => {
+    if (c.status !== "pending") {
+      toast.info("Only pending registrations can be cancelled.");
+      return;
+    }
+    try {
+      setActionLoading(c._id);
+      await rejectCaregiverRegistration(c._id, "Cancelled by admin");
+      toast.success("Registration cancelled.");
+      fetchAll();
+    } catch (err) {
+      toast.error(err.message || "Failed to cancel");
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const handleDeleteClick = (c) => {
@@ -216,10 +230,41 @@ const Caregivers = () => {
     }
   };
 
+  const matchSearch = (c) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      c.name?.toLowerCase().includes(q) ||
+      c.email?.toLowerCase().includes(q) ||
+      c.phone?.includes(q)
+    );
+  };
+
+  const matchStatus = (c) => statusFilter === "all" || c.status === statusFilter;
+
+  const filteredAll = useMemo(
+    () => caregivers.filter((c) => matchSearch(c) && matchStatus(c)),
+    [caregivers, search, statusFilter]
+  );
+  const filteredPending = useMemo(
+    () => pendingRegistrations.filter((c) => matchSearch(c)),
+    [pendingRegistrations, search]
+  );
+  const filteredProfiles = useMemo(() => {
+    return pendingProfiles.filter((c) => {
+      const u = c.userId;
+      const name = typeof u === "object" ? u?.name : c.name;
+      const email = typeof u === "object" ? u?.email : c.email;
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      return name?.toLowerCase().includes(q) || email?.toLowerCase().includes(q);
+    });
+  }, [pendingProfiles, search]);
+
   const tabs = [
-    { id: "all",      label: "All Caregivers",       count: caregivers.length },
-    { id: "pending",  label: "Pending Registration", count: pendingRegistrations.length },
-    { id: "profiles", label: "Pending Profiles",     count: pendingProfiles.length },
+    { id: "all",      label: "All Caregivers",       count: filteredAll.length },
+    { id: "pending",  label: "Pending Registration", count: filteredPending.length },
+    { id: "profiles", label: "Pending Profiles",     count: filteredProfiles.length },
   ];
 
   return (
@@ -232,28 +277,74 @@ const Caregivers = () => {
         </div>
       </motion.div>
 
-      {/* Tabs */}
-      <motion.div variants={fadeUp} className="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-fit">
-        {tabs.map((t) => (
+      <motion.div variants={fadeUp}>
+        <SearchFilterBar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search caregivers by name, email, or phone..."
+          filters={[
+            {
+              key: "status",
+              label: "Status",
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: [
+                { value: "all", label: "All statuses" },
+                { value: "pending", label: "Pending" },
+                { value: "approved", label: "Approved" },
+                { value: "rejected", label: "Rejected" },
+              ],
+            },
+          ]}
+          onClear={() => {
+            setSearch("");
+            setStatusFilter("all");
+          }}
+        />
+      </motion.div>
+
+      {/* Tabs and Layout Toggle */}
+      <motion.div variants={fadeUp} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-fit">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
+                tab === t.id
+                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              {t.label}
+              {t.count > 0 && (
+                <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                  tab === t.id ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                }`}>
+                  {t.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Layout Toggle */}
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-fit">
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
-              tab === t.id
-                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            }`}
+            onClick={() => setLayout("table")}
+            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+            title="Table View"
           >
-            {t.label}
-            {t.count > 0 && (
-              <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
-                tab === t.id ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
-              }`}>
-                {t.count}
-              </span>
-            )}
+            <List className="w-4 h-4" />
           </button>
-        ))}
+          <button
+            onClick={() => setLayout("grid")}
+            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+            title="Grid View"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+        </div>
       </motion.div>
 
       {/* Table */}
@@ -274,6 +365,7 @@ const Caregivers = () => {
           <div className="overflow-x-auto min-h-[400px]">
             {/* All Caregivers Tab */}
             {tab === "all" && (
+              layout === "table" ? (
               <table className="w-full">
                 <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                   <tr>
@@ -283,9 +375,9 @@ const Caregivers = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                  {caregivers.length === 0 ? (
+                  {filteredAll.length === 0 ? (
                     <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">No caregivers found</td></tr>
-                  ) : caregivers.map((c) => (
+                  ) : filteredAll.map((c) => (
                     <tr key={c._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-4 py-3 cursor-pointer" onClick={() => handleView(c)}>
                         <div className="flex items-center space-x-3">
@@ -315,10 +407,55 @@ const Caregivers = () => {
                   ))}
                 </tbody>
               </table>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+                  {filteredAll.length === 0 ? (
+                    <div className="col-span-full py-8 text-center text-slate-500 dark:text-slate-400">No caregivers found</div>
+                  ) : filteredAll.map((c) => (
+                    <div key={c._id} className="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4 relative">
+                      <div className="absolute top-4 right-4">
+                        <ActionDropdown 
+                          caregiver={c}
+                          open={openDropdownId === c._id}
+                          onToggle={() => setOpenDropdownId(openDropdownId === c._id ? null : c._id)}
+                          onClose={() => setOpenDropdownId(null)}
+                          onApprove={handleApprove}
+                          onReject={handleReject}
+                          onCancel={handleCancel}
+                          onDelete={handleDeleteClick}
+                        />
+                      </div>
+                      <div className="flex items-center space-x-4 cursor-pointer" onClick={() => navigate(`/admin/caregivers/${c._id}`)}>
+                        <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-lg">
+                          {c.name?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-slate-900 dark:text-white hover:underline">{c.name}</h3>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">{c.email}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+                        <div>
+                          <span className="block text-xs text-slate-400">Phone</span>
+                          {c.phone || "—"}
+                        </div>
+                        <div>
+                          <span className="block text-xs text-slate-400">Joined</span>
+                          {formatDate(c.createdAt)}
+                        </div>
+                      </div>
+                      <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700">
+                        <StatusBadge status={c.status} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
             )}
 
             {/* Pending Registrations Tab */}
             {tab === "pending" && (
+              layout === "table" ? (
               <table className="w-full">
                 <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                   <tr>
@@ -328,9 +465,9 @@ const Caregivers = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                  {pendingRegistrations.length === 0 ? (
+                  {filteredPending.length === 0 ? (
                     <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">No pending registrations</td></tr>
-                  ) : pendingRegistrations.map((c) => (
+                  ) : filteredPending.map((c) => (
                     <tr key={c._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center space-x-3">
@@ -346,15 +483,15 @@ const Caregivers = () => {
                       <td className="px-4 py-3">
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => { setActionLoading(c._id); approveCaregiverRegistration(c._id).then(() => fetchAll()).finally(() => setActionLoading(null)); }}
+                            onClick={() => { setActionLoading(c._id); approveCaregiverRegistration(c._id).then(() => { toast.success("Caregiver approved!"); fetchAll(); }).finally(() => setActionLoading(null)); }}
                             disabled={actionLoading === c._id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50 cursor-pointer"
                           >
                             <CheckCircle className="w-3.5 h-3.5" /> Approve
                           </button>
                           <button
                             onClick={() => setRejectModal({ open: true, id: c._id, type: "registration" })}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors cursor-pointer"
                           >
                             <XCircle className="w-3.5 h-3.5" /> Reject
                           </button>
@@ -364,10 +501,55 @@ const Caregivers = () => {
                   ))}
                 </tbody>
               </table>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+                  {filteredPending.length === 0 ? (
+                    <div className="col-span-full py-8 text-center text-slate-500 dark:text-slate-400">No pending registrations</div>
+                  ) : filteredPending.map((c) => (
+                    <div key={c._id} className="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 font-bold text-lg">
+                          {c.name?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-slate-900 dark:text-white">{c.name}</h3>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">{c.email}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+                        <div>
+                          <span className="block text-xs text-slate-400">Phone</span>
+                          {c.phone || "—"}
+                        </div>
+                        <div>
+                          <span className="block text-xs text-slate-400">Registered</span>
+                          {formatDate(c.createdAt)}
+                        </div>
+                      </div>
+                      <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center space-x-3">
+                        <button
+                          onClick={() => { setActionLoading(c._id); approveCaregiverRegistration(c._id).then(() => { toast.success("Caregiver approved!"); fetchAll(); }).finally(() => setActionLoading(null)); }}
+                          disabled={actionLoading === c._id}
+                          className="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50"
+                        >
+                          <CheckCircle className="w-3.5 h-3.5" /> Approve
+                        </button>
+                        <button
+                          onClick={() => setRejectModal({ open: true, id: c._id, type: "registration" })}
+                          className="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                        >
+                          <XCircle className="w-3.5 h-3.5" /> Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
             )}
 
             {/* Pending Profiles Tab */}
             {tab === "profiles" && (
+              layout === "table" ? (
               <table className="w-full">
                 <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                   <tr>
@@ -377,9 +559,9 @@ const Caregivers = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                  {pendingProfiles.length === 0 ? (
+                  {filteredProfiles.length === 0 ? (
                     <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">No pending profiles</td></tr>
-                  ) : pendingProfiles.map((c) => (
+                  ) : filteredProfiles.map((c) => (
                     <tr key={c._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center space-x-3">
@@ -398,7 +580,13 @@ const Caregivers = () => {
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDate(c.updatedAt)}</td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center space-x-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            onClick={() => navigate(`/admin/caregivers/${c._id}/verification`)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-900/40"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> View
+                          </button>
                           <button
                             onClick={() => handleApproveProfile(c._id)}
                             disabled={actionLoading === c._id}
@@ -418,6 +606,60 @@ const Caregivers = () => {
                   ))}
                 </tbody>
               </table>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+                  {filteredProfiles.length === 0 ? (
+                    <div className="col-span-full py-8 text-center text-slate-500 dark:text-slate-400">No pending profiles</div>
+                  ) : filteredProfiles.map((c) => (
+                    <div key={c._id} className="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
+                      <div className="flex items-center space-x-4 cursor-pointer" onClick={() => navigate(`/admin/caregivers/${c.userId?._id}`)}>
+                        <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold text-lg">
+                          {c.userId?.name?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-slate-900 dark:text-white hover:underline">{c.userId?.name}</h3>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">{c.userId?.email}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+                        <div>
+                          <span className="block text-xs text-slate-400">Location</span>
+                          {c.location?.city ? `${c.location.city}, ${c.location.state}` : "—"}
+                        </div>
+                        <div>
+                          <span className="block text-xs text-slate-400">Services</span>
+                          {c.servicesOffered?.length || 0} services
+                        </div>
+                        <div className="col-span-2">
+                          <span className="block text-xs text-slate-400">Submitted</span>
+                          {formatDate(c.updatedAt)}
+                        </div>
+                      </div>
+                      <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex flex-wrap items-center gap-2">
+                        <button
+                          onClick={() => navigate(`/admin/caregivers/${c._id}/verification`)}
+                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-xs font-medium"
+                        >
+                          <Eye className="w-3.5 h-3.5" /> View
+                        </button>
+                        <button
+                          onClick={() => handleApproveProfile(c._id)}
+                          disabled={actionLoading === c._id}
+                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium disabled:opacity-50"
+                        >
+                          <UserCheck className="w-3.5 h-3.5" /> Approve
+                        </button>
+                        <button
+                          onClick={() => setRejectModal({ open: true, id: c._id, type: "profile" })}
+                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium"
+                        >
+                          <AlertCircle className="w-3.5 h-3.5" /> Changes
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
             )}
           </div>
         )}

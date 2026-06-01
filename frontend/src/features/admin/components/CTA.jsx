@@ -9,7 +9,7 @@ const CTA = ({ Title, Description, SubDescription }) => {
   return (
     <>
       <section className="bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-5 py-16">
+        <div className="max-w-site-wide mx-auto px-5 py-16">
           <motion.div
             variants={stagger}
             initial="hidden"
@@ -19,7 +19,7 @@ const CTA = ({ Title, Description, SubDescription }) => {
           >
             <motion.div
               variants={fadeUp}
-              className="max-w-2xl mx-auto flex flex-col space-y-6 text-center"
+              className="w-full max-w-4xl mx-auto flex flex-col space-y-6 text-center"
             >
               <TitleText children={Title} />
               <TitleAndDescription
@@ -33,7 +33,7 @@ const CTA = ({ Title, Description, SubDescription }) => {
               variants={fadeUp}
               className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <NavLink to="/caregivers-login" className="w-full sm:w-fit">
+              <NavLink to="/caregivers" className="w-full sm:w-fit">
                 <Button className="w-full sm:w-auto px-7 py-4 shadow-lg shadow-blue-500/20">
                   Book a Caregiver
                 </Button>

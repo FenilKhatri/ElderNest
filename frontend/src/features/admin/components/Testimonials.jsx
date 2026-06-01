@@ -8,8 +8,8 @@ import TitleAndDescription from "../../../components/ui/TitleAndDescription";
 const Testimonials = ({ Title, Description, SubDescription }) => {
   return (
     <>
-      <section className="max-w-7xl mx-auto px-5 py-10 md:py-16">
-        <div className="max-w-2xl mx-auto flex flex-col space-y-6 text-center">
+      <section className="max-w-site-wide mx-auto px-5 py-10 md:py-16">
+        <div className="w-full max-w-4xl mx-auto flex flex-col space-y-6 text-center">
           <TitleText children={Title} className="text-left md:text-center" />
           <TitleAndDescription
             Description={Description}

@@ -5,13 +5,13 @@ import { processSteps } from "../../features/public/data/aboutData";
 
 const Process = () => {
   return (
-    <section className="max-w-7xl mx-auto p-5 md:py-16">
+    <section className="max-w-site-wide mx-auto p-5 md:py-16">
       <motion.div
         variants={fadeUp}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}
-        className="max-w-2xl mx-auto flex flex-col space-y-6"
+        className="w-full max-w-4xl mx-auto flex flex-col space-y-6"
       >
         <TitleAndDescription
           Description="Seamless Care Process"

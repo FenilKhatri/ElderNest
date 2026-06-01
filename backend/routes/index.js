@@ -13,8 +13,14 @@ import userRoutes from "../modules/user/user.routes.js";
 import uploadRoutes from "../modules/upload/upload.routes.js";
 import settingsRoutes from "../modules/settings/settings.routes.js";
 import newsletterRoutes from "../modules/newsletter/newsletter.routes.js";
+import patientRoutes from "../modules/patient/patient.routes.js";
+import careNoteRoutes from "../modules/careNote/careNote.routes.js";
+import complaintRoutes from "../modules/complaint/complaint.routes.js";
+import { maintenanceMiddleware } from "../common/middlewares/maintenance.middleware.js";
 
 const router = express.Router();
+
+router.use(maintenanceMiddleware);
 
 router.use("/auth", authRoutes);
 router.use("/caregivers", caregiverRoutes);
@@ -29,5 +35,8 @@ router.use("/users", userRoutes);
 router.use("/upload", uploadRoutes);
 router.use("/settings", settingsRoutes);
 router.use("/newsletter", newsletterRoutes);
+router.use("/patients", patientRoutes);
+router.use("/care-notes", careNoteRoutes);
+router.use("/complaints", complaintRoutes);
 
 export default router;

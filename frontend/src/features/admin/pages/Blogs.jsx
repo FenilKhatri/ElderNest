@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { 
-  Edit, Trash2, Plus, Search, Filter, 
+  Edit, Trash2, Plus, Filter, 
   Grid, List, Eye, Clock, Calendar, CheckCircle
 } from "lucide-react";
+import SearchFilterBar from "../../../components/filters/SearchFilterBar";
 import { getAllBlogs, deleteBlog } from "../api/admin.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import Button from "../../../components/ui/Button";
@@ -79,7 +80,7 @@ const Blogs = () => {
   };
 
   return (
-    <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6 max-w-7xl mx-auto pb-12">
+    <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6 max-w-site-wide mx-auto pb-12">
       {/* Header */}
       <motion.div variants={fadeUp} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -91,49 +92,47 @@ const Blogs = () => {
         </Button>
       </motion.div>
 
-      {/* Filters & Tools */}
-      <motion.div variants={fadeUp} className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-        <div className="flex flex-1 flex-col md:flex-row gap-4 w-full md:w-auto">
-          {/* Search */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search posts..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All Status</option>
-            <option value="published">Published</option>
-            <option value="draft">Drafts</option>
-          </select>
+      <motion.div variants={fadeUp} className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+        <SearchFilterBar
+          className="flex-1 w-full"
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search posts..."
+          filters={[
+            {
+              key: "status",
+              label: "Status",
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: [
+                { value: "all", label: "All status" },
+                { value: "published", label: "Published" },
+                { value: "draft", label: "Drafts" },
+              ],
+            },
+            {
+              key: "category",
+              label: "Category",
+              value: categoryFilter,
+              onChange: setCategoryFilter,
+              options: [
+                { value: "all", label: "All categories" },
+                { value: "General", label: "General" },
+                { value: "Eldercare", label: "Eldercare" },
+                { value: "Health", label: "Health" },
+                { value: "Tips", label: "Tips & Advice" },
+                { value: "News", label: "News" },
+              ],
+            },
+          ]}
+          onClear={() => {
+            setSearch("");
+            setStatusFilter("all");
+            setCategoryFilter("all");
+          }}
+        />
 
-          {/* Category Filter */}
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All Categories</option>
-            <option value="General">General</option>
-            <option value="Eldercare">Eldercare</option>
-            <option value="Health">Health</option>
-            <option value="Tips">Tips & Advice</option>
-            <option value="News">News</option>
-          </select>
-        </div>
-
-        {/* View Toggle */}
-        <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+        <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg shrink-0">
           <button 
             onClick={() => setViewMode("grid")}
             className={`p-2 rounded-md transition-colors ${viewMode === "grid" ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}

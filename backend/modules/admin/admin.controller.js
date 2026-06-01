@@ -1,8 +1,23 @@
 import { asyncHandler } from "../../common/middlewares/async.helper.js";
 import { successResponse, errorResponse } from "../../common/utils/responseHandler.utils.js";
 import * as adminService from "./admin.service.js";
+import Caregiver from "../caregiver/caregiver.model.js";
 import { getCaregiverByUserId } from "../caregiver/caregiver.services.js";
+import { sanitizeCaregiver } from "../../common/utils/sanitizeUser.js";
+import * as patientService from "../patient/patient.service.js";
 import Setting from "./setting.model.js";
+
+export const getCaregiverByIdAdmin = asyncHandler(async (req, res) => {
+    const caregiver = await Caregiver.findById(req.params.caregiverId)
+        .populate("userId", "name email phone profileImage status isApproved")
+        .populate("servicesOffered", "title description price slug");
+
+    if (!caregiver) {
+        return errorResponse(res, 404, "Caregiver not found");
+    }
+
+    return successResponse(res, 200, "Caregiver fetched", { caregiver: sanitizeCaregiver(caregiver) });
+});
 
 export const getCaregiverByUserIdAdmin = asyncHandler(async (req, res) => {
     try {
@@ -48,10 +63,10 @@ export const getPendingProfiles = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Pending profiles fetched", { caregivers });
 });
 
-// Approve caregiver profile
+// Approve caregiver profile / verification
 export const approveCaregiverProfile = asyncHandler(async (req, res) => {
     const { caregiverId } = req.params;
-    const caregiver = await adminService.approveCaregiverProfile(caregiverId);
+    const caregiver = await adminService.reviewCaregiverVerification(caregiverId, "approve");
     return successResponse(res, 200, "Profile approved successfully", { caregiver });
 });
 
@@ -59,8 +74,20 @@ export const approveCaregiverProfile = asyncHandler(async (req, res) => {
 export const rejectCaregiverProfile = asyncHandler(async (req, res) => {
     const { caregiverId } = req.params;
     const { feedback } = req.body;
-    const caregiver = await adminService.rejectCaregiverProfile(caregiverId, feedback);
+    const caregiver = await adminService.reviewCaregiverVerification(caregiverId, "changes", feedback);
     return successResponse(res, 200, "Profile changes requested", { caregiver });
+});
+
+export const getCaregiverVerificationDetail = asyncHandler(async (req, res) => {
+    const caregiver = await adminService.getCaregiverVerificationDetail(req.params.caregiverId);
+    return successResponse(res, 200, "Verification details fetched", { caregiver });
+});
+
+export const reviewCaregiverVerification = asyncHandler(async (req, res) => {
+    const { caregiverId } = req.params;
+    const { action, feedback } = req.body;
+    const caregiver = await adminService.reviewCaregiverVerification(caregiverId, action, feedback);
+    return successResponse(res, 200, "Verification reviewed", { caregiver });
 });
 
 // Get all users
@@ -94,6 +121,32 @@ export const updateContactStatus = asyncHandler(async (req, res) => {
         adminNotes
     );
     return successResponse(res, 200, "Contact status updated", { contact });
+});
+
+export const getAnalytics = asyncHandler(async (req, res) => {
+    const analytics = await adminService.getAnalytics();
+    return successResponse(res, 200, "Analytics fetched", { analytics });
+});
+
+export const getAllPatients = asyncHandler(async (req, res) => {
+    const patients = await patientService.getAllPatientsAdmin();
+    return successResponse(res, 200, "Patients fetched", { patients });
+});
+
+export const updatePatient = asyncHandler(async (req, res) => {
+    const patient = await patientService.updatePatient(req.params.id, null, req.body);
+    return successResponse(res, 200, "Patient updated", { patient });
+});
+
+export const deletePatient = asyncHandler(async (req, res) => {
+    await patientService.deletePatient(req.params.id, null);
+    return successResponse(res, 200, "Patient removed");
+});
+
+export const suspendCaregiver = asyncHandler(async (req, res) => {
+    const { suspend = true } = req.body;
+    const result = await adminService.suspendCaregiver(req.params.userId, suspend !== false);
+    return successResponse(res, 200, suspend !== false ? "Caregiver suspended" : "Caregiver reactivated", result);
 });
 
 // Delete user or caregiver

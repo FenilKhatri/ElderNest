@@ -11,10 +11,8 @@ import {
 
 const router = express.Router();
 
-// Protected routes
 router.use(protect);
 
-// User routes
 router.post(
     "/create",
     authorizeRoles(ROLES.USER),
@@ -28,14 +26,18 @@ router.get(
     bookingController.getUserBookings
 );
 
-// Caregiver routes
+router.get(
+    "/admin/all",
+    authorizeRoles(ROLES.ADMIN),
+    bookingController.getAllBookings
+);
+
 router.get(
     "/caregiver/:caregiverId",
     authorizeRoles(ROLES.CAREGIVER, ROLES.ADMIN),
     bookingController.getCaregiverBookings
 );
 
-// Shared routes (user, caregiver, admin)
 router.get(
     "/:id",
     getBookingByIdValidator,
@@ -46,13 +48,6 @@ router.patch(
     "/:id/status",
     updateBookingStatusValidator,
     bookingController.updateBookingStatus
-);
-
-// Admin routes
-router.get(
-    "/admin/all",
-    authorizeRoles(ROLES.ADMIN),
-    bookingController.getAllBookings
 );
 
 export default router;

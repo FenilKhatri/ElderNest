@@ -9,7 +9,7 @@ const Vision = ({ Title, Description, SubDescription }) => {
 
   return (
     <>
-      <section className="max-w-7xl mx-auto px-5 py-16">
+      <section className="max-w-site-wide mx-auto px-5 py-16">
         <motion.div
           variants={stagger}
           initial="hidden"

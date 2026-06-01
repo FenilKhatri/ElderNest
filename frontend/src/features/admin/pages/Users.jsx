@@ -1,22 +1,27 @@
-/*  */import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { Search, Eye, User as UserIcon, Trash2, AlertTriangle } from "lucide-react";
+import { Eye, User as UserIcon, Trash2, AlertTriangle } from "lucide-react";
 import { getAllUsers, deleteUser } from "../api/admin.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { formatDate } from "../../../utils/helpers";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
+import SearchFilterBar from "../../../components/filters/SearchFilterBar";
+import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout";
+import ListLayout, { ListSkeleton } from "../../../components/layout/ListLayout";
+import EntityCard from "../../../components/cards/EntityCard";
 
 const Users = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
-  const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [providerFilter, setProviderFilter] = useState("all");
   const [deleteModal, setDeleteModal] = useState({ open: false, userId: null });
   const [actionLoading, setActionLoading] = useState(false);
+  const [layout, setLayout] = useState("grid");
 
   const fetchUsers = async () => {
     try {
@@ -24,7 +29,6 @@ const Users = () => {
       const res = await getAllUsers("user");
       const data = res?.data?.users || [];
       setUsers(data);
-      setFiltered(data);
     } catch (error) {
       toast.error(error?.message || "Failed to load users");
     } finally {
@@ -36,17 +40,19 @@ const Users = () => {
     fetchUsers();
   }, []);
 
-  useEffect(() => {
+  const filteredUsers = useMemo(() => {
     const q = search.toLowerCase();
-    setFiltered(
-      users.filter(
-        (u) =>
-          u.name?.toLowerCase().includes(q) ||
-          u.email?.toLowerCase().includes(q) ||
-          u.phone?.includes(q)
-      )
-    );
-  }, [search, users]);
+    return users.filter((u) => {
+      const matchesSearch =
+        !q ||
+        u.name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.phone?.includes(q);
+      const matchesProvider =
+        providerFilter === "all" || u.authProvider === providerFilter;
+      return matchesSearch && matchesProvider;
+    });
+  }, [search, providerFilter, users]);
 
   const handleViewUser = (userId) => {
     navigate(`/admin/users/${userId}`);
@@ -91,139 +97,171 @@ const Users = () => {
             View and manage all registered users
           </p>
         </div>
-        <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search users..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          />
+        
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg self-start">
+          <button
+            onClick={() => setLayout("grid")}
+            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+            title="Grid View"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+          </button>
+          <button
+            onClick={() => setLayout("list")}
+            className={`p-2 rounded-md transition-all ${layout === "list" ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+            title="List View"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+          </button>
         </div>
       </motion.div>
 
-      {/* Users Table */}
-      <motion.div
-        variants={fadeUp}
-        className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm"
-      >
+      <motion.div variants={fadeUp}>
+        <SearchFilterBar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search by name, email, or phone..."
+          filters={[
+            {
+              key: "provider",
+              label: "Sign-in method",
+              value: providerFilter,
+              onChange: setProviderFilter,
+              options: [
+                { value: "all", label: "All methods" },
+                { value: "local", label: "Email" },
+                { value: "google", label: "Google" },
+              ],
+            },
+          ]}
+          onClear={() => {
+            setSearch("");
+            setProviderFilter("all");
+          }}
+        />
+      </motion.div>
+
+      <motion.div variants={fadeUp}>
         {loading ? (
-          <div className="p-8 space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="animate-pulse flex items-center space-x-4">
-                <div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
-                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
-                </div>
-              </div>
-            ))}
+          layout === "grid" ? <GridSkeleton count={6} /> : <ListSkeleton count={4} />
+        ) : filteredUsers.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center">
+            <UserIcon className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+            <p className="text-slate-500 dark:text-slate-400">
+              {search || providerFilter !== "all" ? "No users match your filters" : "No users found"}
+            </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Phone
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Joined
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-6 py-12 text-center"
+          layout === "grid" ? (
+            <GridLayout>
+              {filteredUsers.map((user) => (
+              <EntityCard
+                key={user._id}
+                onClick={() => handleViewUser(user._id)}
+                footer={
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewUser(user._id);
+                      }}
+                      className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100"
+                      title="View"
                     >
-                      <UserIcon className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-                      <p className="text-slate-500 dark:text-slate-400">
-                        {search ? "No users match your search" : "No users found"}
-                      </p>
-                    </td>
-                  </tr>
-                ) : (
-                  filtered.map((user) => (
-                    <tr
-                      key={user._id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
-                      onClick={() => handleViewUser(user._id)}
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(user._id);
+                      }}
+                      className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100"
+                      title="Delete"
                     >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
-                            {user.name?.charAt(0).toUpperCase() || "U"}
-                          </div>
-                          <div>
-                            <p className="font-medium text-slate-900 dark:text-white">
-                              {user.name}
-                            </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
-                              {user.authProvider === "google" ? "Google" : "Email"}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                        {user.email}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                        {user.phone || "—"}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                        {formatDate(user.createdAt)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewUser(user._id);
-                          }}
-                          className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
-                          title="View Details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteClick(user._id);
-                          }}
-                          className="ml-2 p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
-                          title="Delete User"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                }
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                    {user.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-900 dark:text-white truncate">{user.name}</p>
+                    <p className="text-xs text-slate-500 capitalize">{user.authProvider === "google" ? "Google" : "Email"}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400 truncate">{user.email}</p>
+                <p className="text-sm text-slate-500 mt-1">{user.phone || "No phone"}</p>
+                <p className="text-xs text-slate-400 mt-2">Joined {formatDate(user.createdAt)}</p>
+              </EntityCard>
+            ))}
+            </GridLayout>
+          ) : (
+            <ListLayout>
+              {filteredUsers.map((user) => (
+                <EntityCard
+                  key={user._id}
+                  onClick={() => handleViewUser(user._id)}
+                  className="flex-row items-center !min-h-0"
+                >
+                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                        {user.name?.charAt(0).toUpperCase() || "U"}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-slate-900 dark:text-white truncate">{user.name}</p>
+                        <p className="text-xs text-slate-500 capitalize">{user.email} • {user.authProvider === "google" ? "Google" : "Email"}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:items-end gap-1">
+                      <p className="text-sm text-slate-600 dark:text-slate-400">{user.phone || "No phone"}</p>
+                      <p className="text-xs text-slate-400">Joined {formatDate(user.createdAt)}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 sm:mt-0 sm:ml-6 flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewUser(user._id);
+                      }}
+                      className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100"
+                      title="View"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(user._id);
+                      }}
+                      className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </EntityCard>
+              ))}
+            </ListLayout>
+          )
         )}
       </motion.div>
 
       {/* Summary */}
-      {!loading && filtered.length > 0 && (
+      {!loading && filteredUsers.length > 0 && (
         <motion.p
           variants={fadeUp}
           className="text-sm text-slate-500 dark:text-slate-400"
         >
-          Showing {filtered.length} of {users.length} users
+          Showing {filteredUsers.length} of {users.length} users
         </motion.p>
       )}
 

@@ -1,16 +1,29 @@
 import Logo from "../../assets/logo.avif";
 import { Link, NavLink } from "react-router-dom";
 import FooterSection from "../../features/public/sections/footer/FooterSection";
-import { footerLinks } from "../../features/public/data/routes/footer.links";
 
 const Footer = () => {
+  const footerLinks = {
+    company: [
+      { name: "About Us", path: "/about" },
+      { name: "Contact Us", path: "/contact" },
+    ],
+    services: [
+      { name: "Elder Care", path: "/services" },
+      { name: "Find Caregivers", path: "/caregivers" },
+    ],
+    professionals: [
+      { name: "Join as Caregiver", path: "/auth" },
+    ],
+  };
+
   const footerLinksDesgin =
     "relative text-slate-500 dark:text-slate-300 font-medium after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-[#FF3366] after:transition-all after:duration-300 hover:after:w-full hover:text-[#FF3366]";
 
   return (
     <footer className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 transition-colors duration-300">
       {/* Top Section */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 px-5 py-12">
+      <div className="w-full max-w-site-wide mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 px-4 sm:px-6 lg:px-8 py-12">
         {/* About */}
         <div className="col-span-2 flex flex-col gap-4">
           <div className="flex items-center gap-3">
@@ -73,8 +86,8 @@ const Footer = () => {
       </div>
 
       {/* Bottom Section */}
-      <div className="w-full max-w-7xl mx-auto border-t border-slate-300 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500 dark:text-slate-300 py-6 px-5 transition-colors duration-300">
-        <p className="text-sm">
+      <div className="w-full max-w-site-wide mx-auto border-t border-slate-300 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500 dark:text-slate-300 py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+          <p className="text-sm">
           &copy; {new Date().getFullYear()} ElderNest. All rights reserved.
         </p>
 

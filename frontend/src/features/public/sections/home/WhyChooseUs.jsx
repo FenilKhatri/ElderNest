@@ -10,7 +10,7 @@ import {
 const WhyChooseUs = () => {
   return (
     <section className="py-14 px-4 bg-slate-50 dark:bg-slate-900">
-      <div className="max-w-6xl mx-auto text-center">
+      <div className="max-w-site mx-auto text-center">
         {/* Heading */}
         <motion.div
           variants={fadeUp}

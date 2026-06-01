@@ -2,6 +2,7 @@ import Booking from "./booking.model.js";
 import Caregiver from "../caregiver/caregiver.model.js";
 import Service from "../service/service.model.js";
 import User from "../user/user.model.js";
+import Patient from "../patient/patient.model.js";
 import { validateLocation } from "../../common/validators/location.validator.js";
 import { createNotification } from "../../common/services/notification.service.js";
 import { sendEmail } from "../../common/services/email.service.js";
@@ -46,7 +47,8 @@ export const calculateBookingDetails = async (serviceId, startTime, endTime) => 
     const endMinutes = end[0] * 60 + end[1];
     const duration = (endMinutes - startMinutes) / 60;
 
-    const totalAmount = service.basePrice * duration;
+    const hourlyRate = service.price || 0;
+    const totalAmount = hourlyRate * duration;
 
     return { duration, totalAmount, service };
 };
@@ -68,7 +70,8 @@ export const createBooking = async (userId, bookingData) => {
         throw new Error("Caregiver not found");
     }
 
-    if (!caregiver.userId.isApproved || caregiver.profileApprovalStatus !== "approved") {
+    const { isCaregiverBookable } = await import("../../common/utils/caregiverOnboarding.js");
+    if (!isCaregiverBookable(caregiver)) {
         throw new Error("Caregiver is not available for booking");
     }
 
@@ -94,6 +97,38 @@ export const createBooking = async (userId, bookingData) => {
         throw new Error("Selected time slot is not available");
     }
 
+    // Verify caregiver is assigned to service
+    const service = await Service.findById(serviceId);
+    if (!service) {
+        throw new Error("Service not found");
+    }
+    const offersService = caregiver.servicesOffered?.some(
+        (s) => s.toString() === serviceId.toString()
+    );
+    const assignedOnService = service.caregivers?.some(
+        (c) => c.toString() === caregiverId.toString()
+    );
+    if (!offersService && !assignedOnService) {
+        throw new Error("This caregiver is not assigned to the selected service");
+    }
+
+    // Load patient profile if provided
+    let patientFields = {};
+    if (otherData.patientId) {
+        const patient = await Patient.findOne({ _id: otherData.patientId, userId });
+        if (!patient) {
+            throw new Error("Patient profile not found");
+        }
+        patientFields = {
+            patientId: patient._id,
+            patientName: patient.name,
+            patientAge: patient.age,
+            emergencyContact: patient.emergencyContact?.name
+                ? patient.emergencyContact
+                : otherData.emergencyContact,
+        };
+    }
+
     // Calculate booking details
     const { duration, totalAmount } = await calculateBookingDetails(
         serviceId,
@@ -112,13 +147,16 @@ export const createBooking = async (userId, bookingData) => {
         duration,
         totalAmount,
         ...otherData,
+        ...patientFields,
     });
+
+    await Service.findByIdAndUpdate(serviceId, { $inc: { totalBookings: 1 } });
 
     // Populate booking details
     await booking.populate([
         { path: "userId", select: "name email phone" },
         { path: "caregiverId", populate: { path: "userId", select: "name email" } },
-        { path: "serviceId", select: "name description" },
+        { path: "serviceId", select: "title description price" },
     ]);
 
     // Send notifications
@@ -182,7 +220,7 @@ export const getUserBookings = async (userId, status = null) => {
             path: "caregiverId",
             populate: { path: "userId", select: "name email profileImage" },
         })
-        .populate("serviceId", "name description")
+        .populate("serviceId", "title description price")
         .sort({ createdAt: -1 });
 
     return bookings;
@@ -197,7 +235,7 @@ export const getCaregiverBookings = async (caregiverId, status = null) => {
 
     const bookings = await Booking.find(query)
         .populate("userId", "name email phone profileImage")
-        .populate("serviceId", "name description")
+        .populate("serviceId", "title description price")
         .sort({ createdAt: -1 });
 
     return bookings;
@@ -217,10 +255,11 @@ export const updateBookingStatus = async (bookingId, userId, userRole, status, r
     }
 
     // Authorization check
-    if (userRole === "caregiver" && booking.caregiverId.userId._id.toString() !== userId) {
+    if (userRole === "admin") {
+        // Admin can override any status
+    } else if (userRole === "caregiver" && booking.caregiverId.userId._id.toString() !== userId) {
         throw new Error("Unauthorized");
-    }
-    if (userRole === "user" && booking.userId._id.toString() !== userId) {
+    } else if (userRole === "user" && booking.userId._id.toString() !== userId) {
         throw new Error("Unauthorized");
     }
 
@@ -237,15 +276,29 @@ export const updateBookingStatus = async (bookingId, userId, userRole, status, r
         booking.cancelledAt = new Date();
     }
 
+    if (status === "in-progress") {
+        booking.completedAt = undefined;
+    }
+
     if (status === "completed") {
         booking.completedAt = new Date();
-        // Update caregiver total bookings
         await Caregiver.findByIdAndUpdate(booking.caregiverId._id, {
             $inc: { totalBookings: 1 },
         });
     }
 
     await booking.save();
+
+    if (status === "in-progress") {
+        await createNotification(
+            booking.userId._id,
+            "booking_started",
+            "Service Started",
+            `Your care service with ${booking.caregiverId.userId.name} has started.`,
+            "/user/bookings",
+            { bookingId: booking._id }
+        );
+    }
 
     // Send notifications
     if (status === "accepted") {
@@ -309,7 +362,7 @@ export const getBookingById = async (bookingId) => {
             path: "caregiverId",
             populate: { path: "userId", select: "name email phone profileImage" },
         })
-        .populate("serviceId", "name description basePrice");
+        .populate("serviceId", "title description price");
 
     if (!booking) {
         throw new Error("Booking not found");
@@ -339,7 +392,7 @@ export const getAllBookings = async (filters = {}) => {
             path: "caregiverId",
             populate: { path: "userId", select: "name email" },
         })
-        .populate("serviceId", "name")
+        .populate("serviceId", "title price")
         .sort({ createdAt: -1 });
 
     return bookings;

@@ -33,6 +33,16 @@ export const createBookingValidator = [
         .isLength({ min: 2, max: 200 })
         .withMessage("Disease description must be between 2-200 characters"),
     
+    body("patientId")
+        .optional()
+        .isMongoId()
+        .withMessage("Invalid patient ID"),
+
+    body("durationType")
+        .optional()
+        .isIn(["hourly", "daily", "long-term"])
+        .withMessage("Invalid duration type"),
+
     body("careType")
         .notEmpty()
         .withMessage("Care type is required")

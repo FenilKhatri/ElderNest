@@ -3,8 +3,6 @@ import dns from "dns";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
-import path from "path";
-
 import routes from "./routes/index.js";
 import { apiLimiter } from "./common/middlewares/limiter.js";
 
@@ -14,12 +12,10 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 app.use(express.json());
 app.use(cookieParser());
 
-// Expose uploads directory
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-
 // CORS
 const allowedOrigin = [
     "http://localhost:5173",
+    "http://localhost:5174",
     "https://elder-nest-care.vercel.app",
 ];
 

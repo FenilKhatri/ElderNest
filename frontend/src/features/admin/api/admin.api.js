@@ -68,16 +68,21 @@ export const getAllCaregivers = (filters = {}) => {
   return http.get("/caregivers", { params: filters });
 };
 
-// Get caregiver by ID
-export const getCaregiverById = (id) => {
-  return http.get(`/admin/caregivers/user/${id}`);
+// Get caregiver by user ID
+export const getCaregiverByUserId = (userId) => {
+  return http.get(`/admin/caregivers/user/${userId}`);
+};
+
+// Get caregiver by caregiver document ID
+export const getCaregiverByCaregiverId = (caregiverId) => {
+  return http.get(`/admin/caregivers/by-id/${caregiverId}`);
 };
 
 // ==========================================
 // SERVICE MANAGEMENT
 // ==========================================
 export const getAllServices = (filters = {}) => {
-  return http.get("/services", { params: filters });
+  return http.get("/services", { params: { drafts: "all", ...filters } });
 };
 
 export const getServiceById = (id) => {
@@ -131,6 +136,10 @@ export const updateContactStatus = (contactId, status, adminNotes = null) => {
 // ==========================================
 // NOTIFICATION MANAGEMENT
 // ==========================================
+export const getNewsletterSubscribers = () => {
+  return http.get("/newsletter/subscribers");
+};
+
 export const getNotifications = (limit = 50) => {
   return http.get("/notifications", { params: { limit } });
 };
@@ -180,3 +189,17 @@ export const updateBlog = (id, data) => {
 export const deleteBlog = (id) => {
   return http.delete(`/blogs/${id}`);
 };
+
+// ==========================================
+// ANALYTICS & CAREGIVER ACTIONS
+// ==========================================
+export const getAnalytics = () => http.get("/admin/analytics");
+
+export const suspendCaregiver = (userId, suspend = true) =>
+  http.patch(`/admin/caregivers/${userId}/suspend`, { suspend });
+
+export const getCaregiverVerificationDetail = (caregiverId) =>
+  http.get(`/admin/caregivers/${caregiverId}/verification`);
+
+export const reviewCaregiverVerification = (caregiverId, action, feedback = "") =>
+  http.patch(`/admin/caregivers/${caregiverId}/verification`, { action, feedback });

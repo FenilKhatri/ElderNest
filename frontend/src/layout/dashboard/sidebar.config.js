@@ -1,31 +1,14 @@
-import { adminRoutes } from "../../features/public/data/routes/admin.routes";
-import { caregiverRoutes } from "../../features/public/data/routes/caregiver.routes";
 import { ROLES } from "../../utils/constants";
-import {
-    LayoutDashboard,
-    Users,
-    PersonStanding,
-    BriefcaseMedical,
-    CalendarCheck,
-    CreditCard,
-    Star,
-    Settings,
-    Calendar,
-    User,
-    Home,
-    Stethoscope,
-    Notebook,
-    ClipboardList
-} from "lucide-react";
+import { adminSidebarLinks } from "./adminSidebar.config";
 
 export const sidebarConfig = {
     [ROLES.ADMIN]: {
         title: "Admin Panel",
-        links: adminRoutes,
+        links: adminSidebarLinks,
     },
 
     [ROLES.CAREGIVER]: {
         title: "Caregiver Panel",
-        links: caregiverRoutes,
+        links: [],
     },
 };

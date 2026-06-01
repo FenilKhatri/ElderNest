@@ -9,8 +9,8 @@ import UserAuthBackground from "../../auth/components/UserAuthBackground";
 import CaregiverAuthBackground from "../../auth/components/CaregiverAuthBackground";
 import H2 from "../../../components/ui/H2"
 
-const AuthPage = ({ role = "user" }) => {
-  const [isLogin, setIsLogin] = useState(true);
+const AuthPage = ({ role = "user", initialMode = "login" }) => {
+  const [isLogin, setIsLogin] = useState(initialMode === "login");
 
   const isCaregiver = role === "caregiver";
   const isAdmin = role === "admin";

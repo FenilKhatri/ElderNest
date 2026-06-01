@@ -8,6 +8,10 @@ export const login = (payload) => {
     return http.post("/auth/login", payload);
 };
 
+export const loginAdmin = (payload) => {
+    return http.post("/auth/admin-login", payload);
+};
+
 export const registerCaregiver = (payload) => {
     return http.post("/auth/caregiver-register", payload);
 };

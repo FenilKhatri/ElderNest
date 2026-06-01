@@ -74,9 +74,17 @@ export const subscribeNewsletter = asyncHandler(async (req, res) => {
             "general",
             "New Newsletter Subscription",
             `${email} has subscribed to the newsletter.`,
-            "/admin/users"
+            "/admin/newsletter"
         );
     }
 
     return successResponse(res, 201, "Successfully subscribed to newsletter");
+});
+
+export const getNewsletterSubscribers = asyncHandler(async (req, res) => {
+    const subscribers = await Newsletter.find({ status: "subscribed" })
+        .sort({ createdAt: -1 })
+        .lean();
+
+    return successResponse(res, 200, "Newsletter subscribers fetched", { subscribers });
 });

@@ -1,6 +1,21 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --max-width-site: 90rem;
+  --max-width-site-wide: 100rem;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+}
+
 .dropdown-item {
   display: flex;
   align-items: center;

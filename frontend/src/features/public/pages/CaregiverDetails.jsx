@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   MapPin, Star, User, Calendar, CheckCircle2, ChevronRight
@@ -10,9 +10,12 @@ import { formatCurrency } from "../../../utils/helpers";
 import http from "../../../lib/axios";
 import { useAuth } from "../../../context/AuthContext";
 import { toast } from "react-toastify";
+import { handleBookCaregiver } from "../../../utils/booking";
 
 const CaregiverDetails = () => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const serviceIdFromQuery = searchParams.get("service");
   const navigate = useNavigate();
   const { user } = useAuth();
   
@@ -89,12 +92,15 @@ const CaregiverDetails = () => {
   }
 
   // Calculate pricing for sticky box
-  const shiftPrice = caregiver.pricing?.hourlyRate ? formatCurrency(caregiver.pricing.hourlyRate * 12) : (caregiver.pricing?.dailyRate ? formatCurrency(caregiver.pricing.dailyRate) : '₹1,500');
-  const numericPrice = caregiver.pricing?.hourlyRate ? (caregiver.pricing.hourlyRate * 12) : (caregiver.pricing?.dailyRate || 1500);
+  const shiftPrice = caregiver.pricing?.hourlyRate
+    ? formatCurrency(caregiver.pricing.hourlyRate * 12)
+    : caregiver.pricing?.dailyRate
+      ? formatCurrency(caregiver.pricing.dailyRate)
+      : null;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-site mx-auto">
         
         {/* Breadcrumb */}
         <div className="flex items-center text-sm text-slate-500 mb-6">
@@ -114,8 +120,8 @@ const CaregiverDetails = () => {
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] relative">
               <div className="flex flex-col sm:flex-row gap-6">
                 <div className="w-32 h-32 rounded-xl bg-slate-100 dark:bg-slate-700 shrink-0 overflow-hidden ring-4 ring-white dark:ring-slate-800 shadow-md">
-                  {caregiver.profilePicture ? (
-                    <img src={caregiver.profilePicture} alt={caregiver.userId?.name} className="w-full h-full object-cover" />
+                  {caregiver.profileImage ? (
+                    <img src={caregiver.profileImage} alt={caregiver.userId?.name} className="w-full h-full object-cover" />
                   ) : (
                     <User className="w-full h-full p-6 text-slate-400" />
                   )}
@@ -153,7 +159,7 @@ const CaregiverDetails = () => {
                     <div className="col-span-2 sm:col-span-3">
                       <p className="text-slate-500 dark:text-slate-400 mb-1">Languages</p>
                       <div className="flex flex-wrap gap-2">
-                        {(caregiver.languages || ["English", "Hindi"]).map(lang => (
+                        {(caregiver.languages?.length ? caregiver.languages : []).map(lang => (
                           <span key={lang} className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded text-xs font-medium">
                             {lang}
                           </span>
@@ -180,7 +186,7 @@ const CaregiverDetails = () => {
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">About {caregiver.userId?.name?.split(" ")[0]}</h3>
               <p className="text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">
-                {caregiver.bio || "Compassionate and dedicated professional with extensive experience..."}
+                {caregiver.bio || "No bio provided yet."}
               </p>
             </div>
 
@@ -198,21 +204,30 @@ const CaregiverDetails = () => {
               </div>
             )}
 
-            {/* Experience & Certifications (Mocked structured layout) */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Experience & Certifications</h3>
-              <div className="space-y-6">
-                <div className="relative pl-6 border-l-2 border-emerald-100 dark:border-emerald-800">
-                  <span className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-900 border-2 border-white dark:border-slate-800"></span>
-                  <h4 className="font-bold text-slate-900 dark:text-white text-base">Professional Caregiver</h4>
-                  <p className="text-sm text-slate-500 mt-1">Various Healthcare Settings • {caregiver.experienceYears} Years Total</p>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Experience</h3>
+              <p className="text-slate-600 dark:text-slate-400">{caregiver.experienceYears || 0} years of professional caregiving experience</p>
+              {(caregiver.certifications?.length > 0 || caregiver.skills?.length > 0) && (
+                <div className="mt-6 space-y-4">
+                  {caregiver.skills?.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {caregiver.skills.map((s) => (
+                          <span key={s} className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded text-sm">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {caregiver.certifications?.length > 0 && (
+                    <ul className="list-disc pl-5 text-slate-600 dark:text-slate-400">
+                      {caregiver.certifications.map((c) => (
+                        <li key={c}>{c}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                <div className="relative pl-6 border-l-2 border-emerald-100 dark:border-emerald-800">
-                  <span className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-900 border-2 border-white dark:border-slate-800"></span>
-                  <h4 className="font-bold text-slate-900 dark:text-white text-base">Background Verified</h4>
-                  <p className="text-sm text-slate-500 mt-1">ElderNest Verification Team • Valid till 2026</p>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Family Reviews */}
@@ -281,61 +296,60 @@ const CaregiverDetails = () => {
           {/* Sticky Booking Box (Right) */}
           <div className="w-full lg:w-1/3">
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sticky top-28 shadow-[0_2px_20px_-3px_rgba(0,0,0,0.08)]">
-              <div className="flex items-baseline gap-2 mb-6 border-b border-slate-100 dark:border-slate-700 pb-6">
-                <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white">{shiftPrice}</h3>
-                <span className="text-slate-500 font-medium text-sm">/ 12 hr shift</span>
-              </div>
+              {shiftPrice && (
+                <div className="flex items-baseline gap-2 mb-6 border-b border-slate-100 dark:border-slate-700 pb-6">
+                  <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white">{shiftPrice}</h3>
+                  <span className="text-slate-500 font-medium text-sm">
+                    {caregiver.pricing?.hourlyRate ? "/ 12 hr shift" : "/ day"}
+                  </span>
+                </div>
+              )}
 
               <div className="mb-6">
-                <h4 className="font-bold text-slate-900 dark:text-white mb-3 text-sm">Check Availability</h4>
-                {/* Mock Calendar */}
-                <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-4 bg-slate-50/50 dark:bg-slate-900/30">
-                  <div className="flex items-center justify-center font-bold text-slate-900 dark:text-white text-sm mb-4">
-                    <Calendar className="w-4 h-4 mr-2 text-slate-400" /> This Month
-                  </div>
-                  <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2 text-slate-500">
-                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
-                  </div>
-                  <div className="grid grid-cols-7 gap-1 text-center text-sm">
-                    {/* Just some dummy days to look like a calendar */}
-                    {[...Array(30)].map((_, i) => {
-                      const day = i + 1;
-                      const isSelected = [14, 15, 16].includes(day);
-                      return (
-                        <div key={day} className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full cursor-pointer ${
-                          isSelected ? 'bg-blue-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                        }`}>
-                          {day}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Estimate Summary */}
-                <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-xl p-4 text-sm">
-                  <div className="flex justify-between text-slate-600 dark:text-slate-400 mb-2">
-                    <span>Service Rate (12 hrs)</span>
-                    <span>{shiftPrice}</span>
-                  </div>
-                  <div className="flex justify-between text-slate-600 dark:text-slate-400 mb-3 pb-3 border-b border-emerald-100 dark:border-emerald-800/30">
-                    <span>Selected Days</span>
-                    <span>3 days</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-slate-900 dark:text-white">
-                    <span>Total Estimated</span>
-                    <span>{formatCurrency(numericPrice * 3)}</span>
-                  </div>
-                </div>
+                <h4 className="font-bold text-slate-900 dark:text-white mb-3 text-sm flex items-center gap-2">
+                  <Calendar className="w-4 h-4" /> Weekly Availability
+                </h4>
+                {caregiver.availability?.length > 0 ? (
+                  <ul className="space-y-3 text-sm">
+                    {caregiver.availability.map((dayBlock) => (
+                      <li key={dayBlock.day} className="border border-slate-200 dark:border-slate-700 rounded-lg p-3">
+                        <p className="font-semibold text-slate-900 dark:text-white mb-1">{dayBlock.day}</p>
+                        {dayBlock.slots?.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {dayBlock.slots.map((slot, idx) => (
+                              <span key={idx} className="text-xs px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded">
+                                {slot.startTime} – {slot.endTime}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-500 text-xs">No slots set</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-slate-500 capitalize">
+                    General timing: {caregiver.availableTiming || "Contact for schedule"}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-3">
-                <Link
-                  to={`/user/book-caregiver/${id}`}
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleBookCaregiver({
+                      user,
+                      caregiverId: id,
+                      navigate,
+                      serviceId: serviceIdFromQuery,
+                    })
+                  }
                   className="w-full flex items-center justify-center py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm"
                 >
                   Book Caregiver
-                </Link>
+                </button>
                 <button
                   className="w-full py-3.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                 >

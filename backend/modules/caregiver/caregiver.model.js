@@ -96,7 +96,12 @@ const caregiverSchema = new mongoose.Schema(
             default: [],
         },
 
-        // Skills & Languages
+        skills: {
+            type: [String],
+            default: [],
+        },
+
+        // Languages
         languages: {
             type: [String],
             default: [],
@@ -192,6 +197,33 @@ const caregiverSchema = new mongoose.Schema(
             type: String,
             enum: ["pending", "approved", "rejected", "changes-required"],
             default: "pending",
+        },
+        onboardingStage: {
+            type: String,
+            enum: [
+                "pending_account",
+                "account_approved",
+                "verification_pending",
+                "verification_changes",
+                "active",
+                "rejected",
+            ],
+            default: "pending_account",
+            index: true,
+        },
+        isPublished: {
+            type: Boolean,
+            default: false,
+            index: true,
+        },
+        verificationSubmittedAt: {
+            type: Date,
+            default: null,
+        },
+        verificationInfo: {
+            type: String,
+            trim: true,
+            default: "",
         },
         adminFeedback: {
             type: String,

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import http from '../../../lib/axios';
 import { stagger, fadeUp } from '../../../animations/motionVariants';
 import { formatDate } from '../../../utils/helpers';
+import { getBlogImageUrl } from '../../../utils/blogImage';
 import { Calendar, User, Search, Clock, ArrowRight } from 'lucide-react';
 
 const Blogs = () => {
@@ -60,10 +61,10 @@ const Blogs = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-site-wide mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">Latest Insights & Articles</h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-500 dark:text-slate-400 w-full max-w-4xl mx-auto">
             Stay updated with the latest trends, tips, and stories in elder care.
           </p>
         </div>
@@ -126,8 +127,8 @@ const Blogs = () => {
               <motion.div variants={fadeUp} initial="hidden" animate="show">
                 <Link to={`/blogs/${featuredBlog._id}`} className="group block bg-white dark:bg-slate-800 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all flex flex-col md:flex-row">
                   <div className="w-full md:w-1/2 aspect-video md:aspect-auto h-64 md:h-auto overflow-hidden">
-                    {featuredBlog.image ? (
-                      <img src={featuredBlog.image} alt={featuredBlog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    {getBlogImageUrl(featuredBlog) ? (
+                      <img src={getBlogImageUrl(featuredBlog)} alt={featuredBlog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <div className="w-full h-full bg-blue-50 dark:bg-slate-700 flex items-center justify-center text-blue-300 font-bold">Featured Image</div>
                     )}
@@ -170,8 +171,8 @@ const Blogs = () => {
                   <motion.div layout variants={fadeUp} initial="hidden" animate="show" exit="hidden" key={blog._id}>
                     <Link to={`/blogs/${blog._id}`} className="group block bg-white dark:bg-slate-800 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg transition-all h-full flex flex-col">
                       <div className="w-full aspect-[16/10] overflow-hidden">
-                        {blog.image ? (
-                          <img src={blog.image} alt={blog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        {getBlogImageUrl(blog) ? (
+                          <img src={getBlogImageUrl(blog)} alt={blog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         ) : (
                           <div className="w-full h-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 font-medium">No Image</div>
                         )}

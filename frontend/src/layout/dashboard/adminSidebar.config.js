@@ -8,6 +8,7 @@ import {
   CreditCard,
   MessageSquare,
   Bell,
+  Mail,
 } from "lucide-react";
 
 export const adminSidebarLinks = [
@@ -35,8 +36,9 @@ export const adminSidebarLinks = [
     label: "Users",
     icon: Users,
     subLinks: [
-      { to: "/admin/users", label: "All Users" },
+      { to: "/admin/users", label: "Users" },
       { to: "/admin/caregivers", label: "Caregivers" },
+      { to: "/admin/patients", label: "Patients" },
     ],
   },
   {
@@ -71,5 +73,10 @@ export const adminSidebarLinks = [
     to: "/admin/notifications",
     label: "Notifications",
     icon: Bell,
+  },
+  {
+    to: "/admin/newsletter",
+    label: "Newsletter",
+    icon: Mail,
   },
 ];

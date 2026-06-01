@@ -22,7 +22,7 @@ const ContactUs = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.2 }}
-          className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch justify-center gap-0 md:gap-5 p-5"
+          className="max-w-site-wide mx-auto flex flex-col md:flex-row items-stretch justify-center gap-0 md:gap-5 p-5"
         >
           <motion.div variants={slideLeft}>
             <div className="flex flex-col items-start justify-between gap-5">

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import http from '../../../lib/axios';
 import { formatDate } from '../../../utils/helpers';
-import { Calendar, User, ArrowLeft, Clock, Share2, Facebook, Twitter, Linkedin, Mail } from 'lucide-react';
+import { Calendar, User, ArrowLeft, Clock, Share2, Mail } from 'lucide-react';
+import { getBlogImageUrl } from '../../../utils/blogImage';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
@@ -63,9 +64,34 @@ const BlogDetails = () => {
     return null;
   }
 
+  const bannerImage = getBlogImageUrl(blog);
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  const handleShare = async () => {
+    const payload = {
+      title: blog.title,
+      text: blog.title,
+      url: shareUrl,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(payload);
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success('Link copied to clipboard');
+      } else {
+        toast.info(shareUrl);
+      }
+    } catch (err) {
+      if (err?.name !== 'AbortError') {
+        toast.error('Could not share this article');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-site-wide mx-auto">
         <Link to="/blogs" className="inline-flex items-center text-sm font-semibold text-slate-500 hover:text-blue-600 mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to All Articles
         </Link>
@@ -103,26 +129,21 @@ const BlogDetails = () => {
                     </div>
                   </div>
 
-                  {/* Share */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-500 hidden sm:block mr-2">Share:</span>
-                    <button className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 hover:text-blue-600 transition-colors">
-                      <Facebook className="w-4 h-4" />
-                    </button>
-                    <button className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 hover:text-blue-400 transition-colors">
-                      <Twitter className="w-4 h-4" />
-                    </button>
-                    <button className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 hover:text-blue-700 transition-colors">
-                      <Linkedin className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={handleShare}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share
+                  </button>
                 </div>
               </div>
 
               {/* Banner Image */}
-              {blog.image && (
+              {bannerImage && (
                 <div className="w-full h-[400px] bg-slate-100 dark:bg-slate-700 overflow-hidden px-8 md:px-12 mb-8">
-                  <img src={blog.image} alt={blog.title} className="w-full h-full object-cover rounded-2xl shadow-sm" />
+                  <img src={bannerImage} alt={blog.title} className="w-full h-full object-cover rounded-2xl shadow-sm" />
                 </div>
               )}
 
@@ -181,8 +202,8 @@ const BlogDetails = () => {
                   {relatedBlogs.map(rb => (
                     <Link to={`/blogs/${rb._id}`} key={rb._id} className="group flex gap-4 items-center">
                       <div className="w-20 h-20 rounded-xl bg-slate-100 dark:bg-slate-700 overflow-hidden shrink-0">
-                        {rb.image ? (
-                          <img src={rb.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                        {getBlogImageUrl(rb) ? (
+                          <img src={getBlogImageUrl(rb)} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">No Img</div>
                         )}

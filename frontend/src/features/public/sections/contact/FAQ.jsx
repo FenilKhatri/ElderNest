@@ -14,7 +14,7 @@ const FAQ = () => {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.2 }}
-      className="max-w-4xl mx-auto px-5 py-10"
+      className="w-full max-w-6xl mx-auto px-5 py-10"
     >
       {/* Heading */}
       <motion.div

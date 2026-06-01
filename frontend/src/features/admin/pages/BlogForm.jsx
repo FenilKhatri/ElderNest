@@ -135,6 +135,7 @@ const BlogForm = () => {
     if (!file) return;
     const data = new FormData();
     data.append("image", file);
+    data.append("folder", "photos");
 
     const setLoader = setUploadingImage;
     setLoader(true);
@@ -199,7 +200,7 @@ const BlogForm = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto pb-20">
+    <div className="max-w-site mx-auto pb-20">
       {/* Sticky Top Bar */}
       <div className="sticky top-0 z-40 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between mb-8 shadow-sm">
         <div className="flex items-center gap-4">

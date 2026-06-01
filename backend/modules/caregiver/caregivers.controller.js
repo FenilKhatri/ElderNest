@@ -47,7 +47,21 @@ export const getMyProfile = asyncHandler(async (req, res) => {
 
 // Caregiver dashboard
 export const caregiverDashboard = asyncHandler(async (req, res) => {
-    return res.json({
-        message: "Welcome to your dashboard! Here you can manage your profile, view appointments, and more.",
-    });
+    const stats = await caregiverService.getCaregiverDashboardStats(req.user.id);
+    return successResponse(res, 200, "Dashboard stats fetched", { stats });
+});
+
+export const updateProfile = asyncHandler(async (req, res) => {
+    const caregiver = await caregiverService.updateProfile(req.user.id, req.body);
+    return successResponse(res, 200, "Profile updated", { caregiver });
+});
+
+export const submitVerification = asyncHandler(async (req, res) => {
+    const caregiver = await caregiverService.submitVerification(req.user.id, req.body);
+    return successResponse(res, 201, "Verification submitted", { caregiver });
+});
+
+export const getOnboardingStatus = asyncHandler(async (req, res) => {
+    const status = await caregiverService.getOnboardingStatus(req.user.id);
+    return successResponse(res, 200, "Onboarding status fetched", status);
 });

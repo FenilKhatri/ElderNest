@@ -19,8 +19,9 @@ const Services = () => {
       try {
         setLoading(true);
         const res = await getAllServices({ isActive: true });
-        setServices(res.data?.services || []);
-        setFiltered(res.data?.services || []);
+        const list = res?.data?.services || res?.services || [];
+        setServices(list);
+        setFiltered(list);
       } catch (error) {
         console.error("Failed to fetch services", error);
       } finally {
@@ -47,12 +48,12 @@ const Services = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-site-wide mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
             Care Services
           </h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-500 dark:text-slate-400 w-full max-w-4xl mx-auto">
             Browse our comprehensive range of professional in-home care services designed to support you and your loved ones.
           </p>
         </div>

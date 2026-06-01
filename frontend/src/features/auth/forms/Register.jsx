@@ -12,8 +12,10 @@ import { registerFields } from "./data/inputFields";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { handleChange } from "../../../utils/auth/handleChange";
 import { handleAuthSubmit } from "../../../utils/auth/handleAuthSubmit";
+import { useAuth } from "../../../context/AuthContext";
 
 const Register = ({ role = ROLES.USER }) => {
+  const { fetchUser } = useAuth();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -32,6 +34,7 @@ const Register = ({ role = ROLES.USER }) => {
       form,
       navigate,
       setLoading,
+      fetchUser,
       successMessage: "Registered successfully!",
       validate: () => {
         if (form.password !== form.confirmPassword) {
