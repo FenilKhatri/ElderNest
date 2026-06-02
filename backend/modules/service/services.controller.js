@@ -137,7 +137,7 @@ export const updateService = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const payload = { ...req.body };
     if (payload.isDraft) payload.isActive = false;
-    const service = await Service.findByIdAndUpdate(id, payload, { new: true });
+    const service = await Service.findByIdAndUpdate(id, payload, { returnDocument: 'after' });
 
     if (!service) {
         return errorResponse(res, 404, "Service not found");

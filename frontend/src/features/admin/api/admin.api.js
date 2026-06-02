@@ -1,15 +1,9 @@
 import http from "../../../lib/axios";
-
-// ==========================================
 // DASHBOARD STATS
-// ==========================================
-export const getDashboardStats = () => {
-  return http.get("/admin/dashboard/stats");
+export const getDashboardStats = (timeframe = "last30") => {
+  return http.get("/admin/dashboard/stats", { params: { timeframe } });
 };
-
-// ==========================================
 // SETTINGS
-// ==========================================
 export const getSettings = () => {
   return http.get("/settings");
 };
@@ -17,26 +11,20 @@ export const getSettings = () => {
 export const updateSettings = (data) => {
   return http.patch("/settings", data);
 };
-
-// ==========================================
 // USER MANAGEMENT
-// ==========================================
 export const getAllUsers = (role = null) => {
   const params = role ? { role } : {};
   return http.get("/admin/users", { params });
 };
 
 export const getUserById = (id) => {
-  return http.get(`/auth/me`); // Using auth/me since there's no specific user endpoint
+  return http.get(`/auth/me`); 
 };
 
 export const deleteUser = (id) => {
   return http.delete(`/admin/users/${id}`);
 };
-
-// ==========================================
 // CAREGIVER MANAGEMENT
-// ==========================================
 // Pending caregiver registrations
 export const getPendingCaregivers = () => {
   return http.get("/admin/caregivers/pending");
@@ -77,10 +65,7 @@ export const getCaregiverByUserId = (userId) => {
 export const getCaregiverByCaregiverId = (caregiverId) => {
   return http.get(`/admin/caregivers/by-id/${caregiverId}`);
 };
-
-// ==========================================
 // SERVICE MANAGEMENT
-// ==========================================
 export const getAllServices = (filters = {}) => {
   return http.get("/services", { params: { drafts: "all", ...filters } });
 };
@@ -100,10 +85,7 @@ export const updateService = (id, data) => {
 export const deleteService = (id) => {
   return http.delete(`/services/${id}`);
 };
-
-// ==========================================
 // BOOKING MANAGEMENT
-// ==========================================
 export const getAllBookings = (filters = {}) => {
   return http.get("/bookings/admin/all", { params: filters });
 };
@@ -124,10 +106,7 @@ export const updateBookingStatus = (id, status, reason = null) => {
 export const deleteBooking = (id) => {
   return http.delete(`/bookings/${id}`);
 };
-
-// ==========================================
 // CONTACT/COMPLAINT MANAGEMENT
-// ==========================================
 export const getAllContacts = (status = null) => {
   const params = status ? { status } : {};
   return http.get("/admin/contacts", { params });
@@ -136,10 +115,7 @@ export const getAllContacts = (status = null) => {
 export const updateContactStatus = (contactId, status, adminNotes = null) => {
   return http.patch(`/admin/contacts/${contactId}/status`, { status, adminNotes });
 };
-
-// ==========================================
 // NOTIFICATION MANAGEMENT
-// ==========================================
 export const getNewsletterSubscribers = () => {
   return http.get("/newsletter/subscribers");
 };
@@ -167,17 +143,11 @@ export const deleteNotification = (id) => {
 export const deleteAllNotifications = () => {
   return http.delete("/notifications");
 };
-
-// ==========================================
 // REVIEW MANAGEMENT
-// ==========================================
 export const getCaregiverReviews = (caregiverId) => {
   return http.get(`/reviews/caregiver/${caregiverId}`);
 };
-
-// ==========================================
 // BLOG MANAGEMENT
-// ==========================================
 export const getAllBlogs = () => {
   return http.get("/blogs?all=true");
 };
@@ -197,10 +167,7 @@ export const updateBlog = (id, data) => {
 export const deleteBlog = (id) => {
   return http.delete(`/blogs/${id}`);
 };
-
-// ==========================================
 // ANALYTICS & CAREGIVER ACTIONS
-// ==========================================
 export const getAnalytics = () => http.get("/admin/analytics");
 
 export const suspendCaregiver = (userId, suspend = true) =>

@@ -31,11 +31,7 @@ export const updateBookingStatus = (id, data) => {
 export const getAllBookings = (filters = {}) => {
   return http.get("/bookings/admin/all", { params: filters });
 };
-
-// ==========================================
 // PAYMENT APIs
-// ==========================================
-
 // Get Razorpay key
 export const getRazorpayKey = () => {
   return http.get("/payments/key");
@@ -50,11 +46,7 @@ export const createPaymentOrder = (bookingData) => {
 export const verifyPayment = (paymentData) => {
   return http.post("/payments/verify", paymentData);
 };
-
-// ==========================================
 // MESSAGING APIs
-// ==========================================
-
 export const getBookingMessages = (bookingId) => {
   return http.get(`/messages/${bookingId}`);
 };

@@ -47,7 +47,7 @@ export const updateCareNote = async (noteId, caregiverUserId, data) => {
     const note = await CareNote.findOneAndUpdate(
         { _id: noteId, caregiverId: caregiver._id },
         data,
-        { new: true, runValidators: true }
+        { returnDocument: 'after', runValidators: true }
     );
     if (!note) {
         throw new Error("Care note not found");

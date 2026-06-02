@@ -99,7 +99,8 @@ export const getAllUsers = asyncHandler(async (req, res) => {
 
 // Get dashboard stats
 export const getDashboardStats = asyncHandler(async (req, res) => {
-    const stats = await adminService.getDashboardStats();
+    const { timeframe } = req.query;
+    const stats = await adminService.getDashboardStats(timeframe);
     return successResponse(res, 200, "Dashboard stats fetched", { stats });
 });
 
@@ -172,7 +173,7 @@ export const updateSettings = asyncHandler(async (req, res) => {
         await Setting.findOneAndUpdate(
             { key },
             { value: updates[key] },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: 'after' }
         );
     }
     return successResponse(res, 200, "Settings updated successfully");

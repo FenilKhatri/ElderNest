@@ -239,22 +239,74 @@ export const getAllUsers = async (role = null) => {
 };
 
 // Get dashboard stats
-export const getDashboardStats = async () => {
-    const totalUsers = await User.countDocuments({ role: "user" });
-    const totalCaregivers = await User.countDocuments({ role: "caregiver", isApproved: true });
-    const pendingCaregivers = await User.countDocuments({
-        role: "caregiver",
-        isApproved: false,
-        status: "pending",
-    });
-    const pendingProfiles = await Caregiver.countDocuments({
-        profileCompleted: true,
-        profileApprovalStatus: "pending",
-    });
-    const totalBookings = await Booking.countDocuments();
-    const pendingBookings = await Booking.countDocuments({ status: "pending" });
-    const completedBookings = await Booking.countDocuments({ status: "completed" });
-    const pendingContacts = await Contact.countDocuments({ status: "pending" });
+export const getDashboardStats = async (timeframe) => {
+    let dateFilter = {};
+    const now = new Date();
+    
+    if (timeframe === "last7") {
+        const d = new Date(); d.setDate(now.getDate() - 7);
+        dateFilter = { createdAt: { $gte: d } };
+    } else if (timeframe === "last30") {
+        const d = new Date(); d.setDate(now.getDate() - 30);
+        dateFilter = { createdAt: { $gte: d } };
+    } else if (timeframe === "thisYear") {
+        const d = new Date(now.getFullYear(), 0, 1);
+        dateFilter = { createdAt: { $gte: d } };
+    }
+
+    const totalUsers = await User.countDocuments({ role: "user", ...dateFilter });
+    const totalCaregivers = await User.countDocuments({ role: "caregiver", isApproved: true, ...dateFilter });
+    const pendingCaregivers = await User.countDocuments({ role: "caregiver", isApproved: false, status: "pending" });
+    const pendingProfiles = await Caregiver.countDocuments({ profileCompleted: true, profileApprovalStatus: "pending" });
+    
+    const totalBookings = await Booking.countDocuments(dateFilter);
+    const pendingBookings = await Booking.countDocuments({ status: "pending", ...dateFilter });
+    const completedBookings = await Booking.countDocuments({ status: "completed", ...dateFilter });
+    const pendingContacts = await Contact.countDocuments({ status: "pending", ...dateFilter });
+
+    // Bar Chart Data (Monthly Bookings)
+    let monthsAgo = new Date();
+    monthsAgo.setMonth(monthsAgo.getMonth() - 5);
+    monthsAgo.setDate(1);
+
+    const monthlyTrendsData = await Booking.aggregate([
+        { $match: { createdAt: { $gte: monthsAgo } } },
+        {
+            $group: {
+                _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                bookings: { $sum: 1 },
+            },
+        },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
+    ]);
+
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const barData = monthlyTrendsData.map(m => ({
+        name: monthNames[m._id.month - 1],
+        bookings: m.bookings
+    }));
+
+    // Pie Chart Data (Service Popularity)
+    const servicePopularityData = await Booking.aggregate([
+        { $match: dateFilter },
+        { $lookup: { from: "services", localField: "serviceId", foreignField: "_id", as: "service" } },
+        { $unwind: { path: "$service", preserveNullAndEmptyArrays: true } },
+        {
+            $group: {
+                _id: "$service.title",
+                value: { $sum: 1 }
+            }
+        },
+        { $sort: { value: -1 } },
+        { $limit: 3 }
+    ]);
+
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
+    const pieData = servicePopularityData.map((s, idx) => ({
+        name: s._id || "Other",
+        value: s.value,
+        color: colors[idx % colors.length]
+    }));
 
     return {
         totalUsers,
@@ -265,6 +317,8 @@ export const getDashboardStats = async () => {
         pendingBookings,
         completedBookings,
         pendingContacts,
+        barData,
+        pieData
     };
 };
 

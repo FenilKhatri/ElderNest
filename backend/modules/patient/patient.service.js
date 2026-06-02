@@ -23,7 +23,7 @@ export const updatePatient = async (patientId, userId, data) => {
     const patient = await Patient.findOneAndUpdate(
         filter,
         data,
-        { new: true, runValidators: true }
+        { returnDocument: 'after', runValidators: true }
     );
     if (!patient) {
         throw new Error("Patient not found");
@@ -38,7 +38,7 @@ export const deletePatient = async (patientId, userId) => {
     const patient = await Patient.findOneAndUpdate(
         filter,
         { isActive: false },
-        { new: true }
+        { returnDocument: 'after' }
     );
     if (!patient) {
         throw new Error("Patient not found");

@@ -44,7 +44,7 @@ const DashboardLayout = ({ theme, toggleTheme }) => {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 w-full bg-slate-100 dark:bg-slate-950">
         {/* HEADER */}
-        <div className="flex items-center justify-between px-4 md:px-6 py-3 bg-white dark:bg-slate-900 shadow">
+        <div className="sticky top-0 z-50 flex items-center justify-between px-4 md:px-6 py-3 bg-white dark:bg-slate-900 shadow">
           {/* LEFT */}
           <div className="hidden md:flex items-center gap-3">
             <button

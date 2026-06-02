@@ -35,7 +35,7 @@ export const getBlogById = asyncHandler(async (req, res) => {
 // Update blog
 export const updateBlog = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const blog = await Blog.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    const blog = await Blog.findByIdAndUpdate(id, req.body, { returnDocument: 'after', runValidators: true });
     if (!blog) {
         throw new Error("Blog not found");
     }
