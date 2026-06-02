@@ -23,18 +23,10 @@ import { useNotifications } from "../../context/NotificationContext";
 import { getOnboardingStatus } from "../../features/caregiver/api/caregiver.api";
 import { fadeUp } from "../../animations/motionVariants";
 import Logo from "../../assets/logo.avif";
-
-const STAGE_UNLOCK = {
-  pending_account: ["/caregiver/profile", "/caregiver/settings", "/caregiver/notifications"],
-  account_approved: ["/caregiver/profile", "/caregiver/settings", "/caregiver/verification", "/caregiver/notifications"],
-  verification_pending: ["/caregiver/profile", "/caregiver/settings", "/caregiver/verification", "/caregiver/notifications"],
-  verification_changes: ["/caregiver/profile", "/caregiver/settings", "/caregiver/verification", "/caregiver/notifications"],
-  active: ["*"],
-  rejected: ["/caregiver/rejected", "/caregiver/settings", "/caregiver/notifications"],
-};
+import { CAREGIVER_STAGE_UNLOCK } from "../../constants/caregiverConstants";
 
 const isUnlocked = (stage, href) => {
-  const allowed = STAGE_UNLOCK[stage] || STAGE_UNLOCK.pending_account;
+  const allowed = CAREGIVER_STAGE_UNLOCK[stage] || CAREGIVER_STAGE_UNLOCK.pending_account;
   if (allowed.includes("*")) {
     if (stage === "active" && href === "/caregiver/verification") return false;
     return true;

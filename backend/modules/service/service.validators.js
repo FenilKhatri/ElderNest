@@ -26,7 +26,7 @@ export const createServiceValidator = [
         .trim()
         .isLength({ min: 10, max: 5000 }),
 
-    body("shortDescription").optional().trim().isLength({ max: 300 }),
+    body("shortDescription").optional().trim().isLength({ max: 500 }),
     body("coverImage").optional().trim(),
     body("image").optional().trim(),
     body("images").optional().isArray(),
@@ -49,7 +49,7 @@ export const updateServiceValidator = [
     body("title").optional().trim().isLength({ min: 2, max: 100 }),
     body("category").optional().isIn(categories),
     body("description").optional().trim().isLength({ min: 10, max: 5000 }),
-    body("shortDescription").optional().trim().isLength({ max: 300 }),
+    body("shortDescription").optional().trim().isLength({ max: 1000 }),
     body("coverImage").optional().trim(),
     body("image").optional().trim(),
     body("images").optional().isArray(),

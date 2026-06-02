@@ -11,19 +11,12 @@ import { getAllServices } from "../../service/api/service.api";
 import { useAuth } from "../../../context/AuthContext";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
 import { indianStates, getCitiesByState } from "../data/locations";
-import { GENDER_OPTIONS, AVAILABLE_TIMINGS, LANGUAGES } from "../../../utils/constants";
+import { GENDER_OPTIONS, AVAILABLE_TIMINGS, LANGUAGES, COMPLETE_PROFILE_STEPS, PRICING_RATE_FIELDS } from "../../../constants/caregiverConstants";
 import Button from "../../../components/ui/Button";
 import Select from "../../../components/ui/Select";
 import Textarea from "../../../components/ui/Textarea";
-import Checkbox from "../../../components/ui/Checkbox"; // Unused now
 
-const steps = [
-  { id: 1, title: "Personal Information", fields: ["fullName", "email", "contactNumber", "alternateContact", "gender", "age"] },
-  { id: 2, title: "Experience & Bio", fields: ["experienceYears", "bio"] },
-  { id: 3, title: "Services & Skills", fields: ["servicesOffered", "languages"] },
-  { id: 4, title: "Location", fields: ["location.state", "location.city", "location.pincode", "location.fullAddress"] },
-  { id: 5, title: "Availability & Pricing", fields: ["availableTiming", "pricing.hourlyRate", "pricing.dailyRate", "pricing.monthlyRate"] },
-];
+const steps = COMPLETE_PROFILE_STEPS;
 
 const schema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters").max(100),
@@ -599,11 +592,7 @@ const CompleteProfile = () => {
                 Pricing (Optional)
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {[
-                  { key: "hourlyRate", label: "Hourly Rate (₹)" },
-                  { key: "dailyRate", label: "Daily Rate (₹)" },
-                  { key: "monthlyRate", label: "Monthly Rate (₹)" },
-                ].map(({ key, label }) => (
+                {PRICING_RATE_FIELDS.map(({ key, label }) => (
                   <div key={key}>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                       {label}

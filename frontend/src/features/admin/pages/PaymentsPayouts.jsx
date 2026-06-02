@@ -8,14 +8,7 @@ import { formatDateTime, formatDate } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
-
-const STATUS_OPTIONS = [
-  { id: "all", label: "All Statuses" },
-  { id: "pending", label: "Pending" },
-  { id: "processing", label: "Processing" },
-  { id: "completed", label: "Completed" },
-  { id: "failed", label: "Failed" },
-];
+import { PAYOUT_STATUS_OPTIONS } from "../../../constants/bookingConstants";
 
 const PaymentsPayouts = () => {
   const [payouts, setPayouts] = useState([]);
@@ -84,7 +77,7 @@ const PaymentsPayouts = () => {
         </div>
         
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg self-start overflow-x-auto">
-          {STATUS_OPTIONS.map(t => (
+          {PAYOUT_STATUS_OPTIONS.map(t => (
             <button
               key={t.id}
               onClick={() => setActiveStatus(t.id)}

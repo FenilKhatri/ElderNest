@@ -46,3 +46,13 @@ export const emptyServiceForm = () => ({
   isPopular: false,
   isRecommended: false,
 });
+
+// Plain enum values array (for backend model sync reference)
+export const SERVICE_CATEGORY_VALUES = SERVICE_CATEGORIES.map((c) => c.value);
+
+// Service filter tabs for browse/listing page
+export const SERVICE_FILTER_TABS = [
+  { id: "all", label: "All Services" },
+  ...SERVICE_CATEGORIES.map((c) => ({ id: c.value, label: c.label })),
+];
+

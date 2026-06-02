@@ -8,27 +8,11 @@ import { formatDateTime } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
-
-const STATUS_OPTIONS = [
-  { value: "pending", label: "Pending" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "resolved", label: "Resolved" },
-  { value: "closed", label: "Closed" },
-];
-
-const TABS = [
-  { id: "all", label: "All Complaints" },
-  { id: "pending", label: "Pending" },
-  { id: "in-progress", label: "In Progress" },
-  { id: "resolved", label: "Resolved" },
-  { id: "closed", label: "Closed" },
-];
-
-const TYPE_FILTER = [
-  { id: "all", label: "All Types" },
-  { id: "user", label: "User Complaints" },
-  { id: "caregiver", label: "Caregiver Complaints" },
-];
+import {
+  COMPLAINT_STATUS_OPTIONS,
+  COMPLAINT_STATUS_TABS,
+  COMPLAINT_TYPE_FILTER,
+} from "../../../constants/adminConstants";
 
 const Complaints = () => {
   const [complaints, setComplaints] = useState([]);
@@ -82,7 +66,7 @@ const Complaints = () => {
           <p className="text-slate-500 dark:text-slate-400 mt-1">Manage user and caregiver complaints</p>
         </div>
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg self-start">
-          {TYPE_FILTER.map(t => (
+          {COMPLAINT_TYPE_FILTER.map(t => (
             <button
               key={t.id}
               onClick={() => setActiveType(t.id)}
@@ -100,7 +84,7 @@ const Complaints = () => {
 
       {/* Tabs */}
       <motion.div variants={fadeUp} className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-        {TABS.map((tab) => (
+        {COMPLAINT_STATUS_TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
@@ -185,7 +169,7 @@ const Complaints = () => {
                   onChange={(e) => setNewStatus(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm"
                 >
-                  {STATUS_OPTIONS.map((s) => (
+                  {COMPLAINT_STATUS_OPTIONS.map((s) => (
                     <option key={s.value} value={s.value}>{s.label}</option>
                   ))}
                 </select>

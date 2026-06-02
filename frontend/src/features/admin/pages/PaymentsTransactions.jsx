@@ -8,12 +8,8 @@ import { formatDateTime } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 
-const TYPE_OPTIONS = [
-  { id: "all", label: "All Types" },
-  { id: "payment", label: "Payment" },
-  { id: "refund", label: "Refund" },
-  { id: "payout", label: "Payout" },
-];
+import { TRANSACTION_TYPE_OPTIONS as TYPE_OPTIONS } from "../../../constants/adminConstants";
+
 
 const PaymentsTransactions = () => {
   const [transactions, setTransactions] = useState([]);

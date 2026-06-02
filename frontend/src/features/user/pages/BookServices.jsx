@@ -11,20 +11,7 @@ import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
 import Textarea from "../../../components/ui/Textarea";
-
-const CARE_TYPES = [
-  { value: "hourly", label: "Hourly Care" },
-  { value: "part-time", label: "Part-Time Care" },
-  { value: "full-time", label: "Full-Time Care" },
-  { value: "live-in", label: "Live-In Care" },
-  { value: "emergency", label: "Emergency Care" },
-];
-
-const DURATION_TYPES = [
-  { value: "hourly", label: "Hourly Basis" },
-  { value: "daily", label: "Daily Basis" },
-  { value: "long-term", label: "Long-Term Basis" },
-];
+import { CARE_TYPES, DURATION_TYPES } from "../../../constants/bookingConstants";
 
 const BookServices = () => {
   const navigate = useNavigate();

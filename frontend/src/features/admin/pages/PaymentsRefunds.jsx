@@ -8,14 +8,7 @@ import { formatDateTime } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
-
-const STATUS_OPTIONS = [
-  { id: "all", label: "All Statuses" },
-  { id: "pending", label: "Pending" },
-  { id: "approved", label: "Approved" },
-  { id: "rejected", label: "Rejected" },
-  { id: "processed", label: "Processed" },
-];
+import { REFUND_STATUS_OPTIONS } from "../../../constants/bookingConstants";
 
 const PaymentsRefunds = () => {
   const [refunds, setRefunds] = useState([]);
@@ -84,7 +77,7 @@ const PaymentsRefunds = () => {
         </div>
         
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg self-start overflow-x-auto">
-          {STATUS_OPTIONS.map(t => (
+          {REFUND_STATUS_OPTIONS.map(t => (
             <button
               key={t.id}
               onClick={() => setActiveStatus(t.id)}

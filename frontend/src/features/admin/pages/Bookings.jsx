@@ -13,6 +13,7 @@ import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout"
 import EntityCard from "../../../components/cards/EntityCard";
 import Select from "../../../components/ui/Select";
 import ConfirmModal from "../../../components/ui/ConfirmModal";
+import { BOOKING_STATUS_OPTIONS } from "../../../constants/bookingConstants";
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -30,14 +31,7 @@ const Bookings = () => {
   const [deleteModal, setDeleteModal] = useState({ open: false, bookingId: null });
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const statuses = [
-    { value: "pending", label: "Pending" },
-    { value: "accepted", label: "Accepted" },
-    { value: "rejected", label: "Rejected" },
-    { value: "in-progress", label: "In Progress" },
-    { value: "completed", label: "Completed" },
-    { value: "cancelled", label: "Cancelled" },
-  ];
+  const statuses = BOOKING_STATUS_OPTIONS;
 
   useEffect(() => {
     fetchBookings();
