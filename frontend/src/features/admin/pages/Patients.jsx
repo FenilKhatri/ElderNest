@@ -141,9 +141,9 @@ const Patients = () => {
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
           </button>
           <button
-            onClick={() => setLayout("list")}
-            className={`p-2 rounded-md transition-all ${layout === "list" ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
-            title="List View"
+            onClick={() => setLayout("table")}
+            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+            title="Table View"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
           </button>
@@ -225,54 +225,69 @@ const Patients = () => {
             ))}
             </GridLayout>
           ) : (
-            <ListLayout>
-              {filteredPatients.map((p) => (
-                <EntityCard
-                  key={p._id}
-                  className="flex-row items-center !min-h-0"
-                >
-                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white font-semibold shadow-sm shrink-0">
-                        {p.name?.charAt(0).toUpperCase() || "P"}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-slate-900 dark:text-white truncate">{p.name}</p>
-                        <p className="text-xs text-slate-500">{p.age} years • {p.gender}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col sm:items-end gap-1 text-sm text-slate-600 dark:text-slate-400">
-                      <p className="truncate">
-                        <span className="font-medium text-slate-700 dark:text-slate-300">User:</span> {p.userId?.name} <span className="text-xs opacity-75">({p.userId?.email})</span>
-                      </p>
-                      {p.emergencyContact?.name && (
-                        <p className="truncate">
-                          <span className="font-medium text-slate-700 dark:text-slate-300">Emergency:</span> {p.emergencyContact.name} ({p.emergencyContact.phone})
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 sm:mt-0 sm:ml-6 flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => handleEdit(p)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                      title="Edit Patient"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(p._id)}
-                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                      title="Delete Patient"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </EntityCard>
-              ))}
-            </ListLayout>
+            <div className="overflow-x-auto min-h-[400px]">
+              <table className="w-full">
+                <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                  <tr>
+                    {["Patient", "Age / Gender", "Parent User", "Emergency Contact", "Medical", "Actions"].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                  {filteredPatients.length === 0 ? (
+                    <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">No patients found</td></tr>
+                  ) : filteredPatients.map((p) => (
+                    <tr key={p._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-9 h-9 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 font-semibold text-sm">
+                            {p.name?.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="font-medium text-slate-900 dark:text-white text-sm">{p.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
+                        {p.age} yrs, <span className="capitalize">{p.gender}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{p.userId?.name}</p>
+                        <p className="text-xs text-slate-500">{p.userId?.email}</p>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
+                        {p.emergencyContact?.name ? (
+                          <>
+                            <p className="font-medium">{p.emergencyContact.name}</p>
+                            <p className="text-xs">{p.emergencyContact.phone}</p>
+                          </>
+                        ) : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 max-w-xs truncate" title={p.medicalRequirements}>
+                        {p.medicalRequirements || "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleEdit(p)}
+                            className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100"
+                            title="Edit Patient"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(p._id)}
+                            className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100"
+                            title="Delete Patient"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )
         )}
       </motion.div>

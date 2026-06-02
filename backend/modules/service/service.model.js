@@ -123,12 +123,22 @@ const serviceSchema = new mongoose.Schema(
     }
 );
 
-serviceSchema.pre("save", function () {
+serviceSchema.pre("save", async function (next) {
     if (this.title && (this.isModified("title") || !this.slug)) {
-        this.slug = this.title
+        let baseSlug = this.title
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/(^-|-$)+/g, "");
+            
+        let uniqueSlug = baseSlug;
+        let counter = 1;
+        while (true) {
+            const existing = await mongoose.models.Service.findOne({ slug: uniqueSlug, _id: { $ne: this._id } });
+            if (!existing) break;
+            uniqueSlug = `${baseSlug}-${counter}`;
+            counter++;
+        }
+        this.slug = uniqueSlug;
     }
     if (!this.coverImage && this.image) {
         this.coverImage = this.image;

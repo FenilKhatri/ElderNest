@@ -19,9 +19,14 @@ export const protect = asyncHandler(async (req, res, next) => {
     return errorResponse(res, 401, "Not authorized, no token");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  if (!decoded?.id) {
-    return errorResponse(res, 401, "Invalid token");
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded?.id) {
+      return errorResponse(res, 401, "Invalid token structure");
+    }
+  } catch (error) {
+    return errorResponse(res, 401, "Invalid or expired token");
   }
 
   const user = await User.findById(decoded.id);
@@ -31,6 +36,7 @@ export const protect = asyncHandler(async (req, res, next) => {
 
   req.user = {
     id: user._id,
+    name: user.name,
     role: user.role,
     isApproved: user.isApproved,
     status: user.status,

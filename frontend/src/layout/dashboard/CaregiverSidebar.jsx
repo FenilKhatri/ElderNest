@@ -65,6 +65,7 @@ const CaregiverSidebar = ({ isOpen, onClose }) => {
     { name: "Services", href: "/caregiver/services", icon: FileText },
     { name: "Bookings", href: "/caregiver/bookings", icon: BookOpen },
     { name: "Care Notes", href: "/caregiver/care-notes", icon: FileText },
+    { name: "Complaints", href: "/caregiver/complaints", icon: AlertCircle },
     { name: "Analytics", href: "/caregiver/analytics", icon: BarChart3 },
     { name: "Notifications", href: "/caregiver/notifications", icon: Bell, badge: unreadCount > 0 ? unreadCount : null },
     { name: "Settings", href: "/caregiver/settings", icon: Settings },

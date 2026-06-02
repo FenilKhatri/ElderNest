@@ -8,6 +8,9 @@ import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 import UserPageLayout from "../../../layout/dashboard/UserPageLayout";
+import MessagePanel from "../../booking/components/MessagePanel";
+import { MessageSquare } from "lucide-react";
+import { useAuth } from "../../../context/AuthContext";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -17,6 +20,9 @@ const MyBookings = () => {
   const [reviewModal, setReviewModal] = useState({ open: false, booking: null });
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
   const [reviewLoading, setReviewLoading] = useState(false);
+  const [activeMessageBooking, setActiveMessageBooking] = useState(null);
+  const { user } = useAuth();
+  const currentUserId = user?._id;
 
   useEffect(() => {
     fetchBookings();
@@ -136,6 +142,15 @@ const MyBookings = () => {
                       <XCircle className="w-4 h-4" /> Cancel
                     </button>
                   )}
+                  {["accepted", "in-progress"].includes(booking.status) && (
+                    <button
+                      type="button"
+                      onClick={() => setActiveMessageBooking(booking)}
+                      className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                    >
+                      <MessageSquare className="w-4 h-4" /> Message
+                    </button>
+                  )}
                   {booking.status === "completed" && (
                     <button
                       type="button"
@@ -217,6 +232,21 @@ const MyBookings = () => {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Message Modal */}
+      <Modal
+        isOpen={!!activeMessageBooking}
+        onClose={() => setActiveMessageBooking(null)}
+        title={`Message Caregiver`}
+        size="lg"
+      >
+        {activeMessageBooking && currentUserId && (
+          <MessagePanel 
+            bookingId={activeMessageBooking._id} 
+            currentUserId={currentUserId} 
+          />
+        )}
       </Modal>
     </UserPageLayout>
   );

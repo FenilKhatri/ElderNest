@@ -150,6 +150,11 @@ const caregiverSchema = new mongoose.Schema(
                         "Sunday",
                     ],
                 },
+                careTypes: {
+                    type: [String],
+                    enum: ["hourly", "part-time", "full-time", "live-in", "emergency"],
+                    default: [],
+                },
                 slots: [
                     {
                         startTime: String,

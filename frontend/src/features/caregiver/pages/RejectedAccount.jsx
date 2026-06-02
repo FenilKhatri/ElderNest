@@ -46,17 +46,13 @@ const RejectedAccount = () => {
           </motion.div>
 
           {/* Reason */}
-          <motion.div variants={fadeUp} className="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 mb-8">
+          <motion.div variants={fadeUp} className="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 mb-8 text-left">
             <h3 className="font-semibold text-red-900 dark:text-red-100 mb-3">
-              Common reasons for rejection:
+              Reason for rejection:
             </h3>
-            <ul className="text-sm text-red-800 dark:text-red-200 space-y-2 text-left">
-              <li>• Incomplete or inaccurate information provided</li>
-              <li>• Insufficient experience or qualifications</li>
-              <li>• Unable to verify credentials or references</li>
-              <li>• Background check concerns</li>
-              <li>• Service area not currently supported</li>
-            </ul>
+            <p className="text-sm text-red-800 dark:text-red-200">
+              {user?.adminFeedback || "Your application did not meet our current requirements. Please contact support for more details."}
+            </p>
           </motion.div>
 
           {/* Next Steps */}

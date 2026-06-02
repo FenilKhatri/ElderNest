@@ -25,17 +25,14 @@ const ServiceDetails = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // 1. Fetch Service
         const res = await getServiceById(idOrSlug);
         const serviceData = res.data?.service;
         setService(serviceData);
 
         if (serviceData) {
-          // 2. Fetch Caregivers for this service
           const cgRes = await http.get(`/caregivers?services=${serviceData._id}&status=approved`);
           setCaregivers(cgRes.data?.caregivers || []);
 
-          // 3. Fetch Service Reviews
           const revRes = await http.get(`/reviews/service/${serviceData._id}`);
           setReviews(revRes.data?.reviews || []);
         }
@@ -217,21 +214,6 @@ const ServiceDetails = () => {
           </div>
         </section>
       )}
-
-      {/* Pricing */}
-      <section className="py-20 max-w-site-wide mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-lg mx-auto bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-lg text-center">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Pricing</h2>
-          <p className="text-4xl font-extrabold text-blue-600 my-4">
-            {formatCurrency(service.price || 0)}
-            <span className="text-base font-medium text-slate-500"> / {service.duration || 1} hr session</span>
-          </p>
-          <p className="text-sm text-slate-500 mb-6">{service.totalBookings || 0} families have booked this service</p>
-          <Link to={`/caregivers?service=${service._id}`} className="inline-block w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl">
-            Book a Caregiver
-          </Link>
-        </div>
-      </section>
 
       {/* 6. Family Reviews */}
       {reviews.length > 0 && (

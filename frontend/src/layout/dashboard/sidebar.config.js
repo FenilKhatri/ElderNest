@@ -1,5 +1,5 @@
 import { ROLES } from "../../utils/constants";
-import { adminSidebarLinks } from "./adminSidebar.config";
+import { adminSidebarLinks } from "../../data/sidebar.data.js";
 
 export const sidebarConfig = {
     [ROLES.ADMIN]: {

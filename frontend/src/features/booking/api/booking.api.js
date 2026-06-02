@@ -50,3 +50,15 @@ export const createPaymentOrder = (bookingData) => {
 export const verifyPayment = (paymentData) => {
   return http.post("/payments/verify", paymentData);
 };
+
+// ==========================================
+// MESSAGING APIs
+// ==========================================
+
+export const getBookingMessages = (bookingId) => {
+  return http.get(`/messages/${bookingId}`);
+};
+
+export const sendBookingMessage = (bookingId, data) => {
+  return http.post(`/messages/${bookingId}`, data);
+};

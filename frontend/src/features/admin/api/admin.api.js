@@ -121,6 +121,10 @@ export const updateBookingStatus = (id, status, reason = null) => {
   return http.patch(`/bookings/${id}/status`, payload);
 };
 
+export const deleteBooking = (id) => {
+  return http.delete(`/bookings/${id}`);
+};
+
 // ==========================================
 // CONTACT/COMPLAINT MANAGEMENT
 // ==========================================
@@ -158,6 +162,10 @@ export const markAllNotificationsAsRead = () => {
 
 export const deleteNotification = (id) => {
   return http.delete(`/notifications/${id}`);
+};
+
+export const deleteAllNotifications = () => {
+  return http.delete("/notifications");
 };
 
 // ==========================================

@@ -1,27 +1,9 @@
 import Logo from "../../assets/logo.avif";
 import { Link, NavLink } from "react-router-dom";
 import FooterSection from "../../features/public/sections/footer/FooterSection";
+import { footerLinks } from "../../data/navigation.data";
 
 const Footer = () => {
-  const footerLinks = {
-    company: [
-      { name: "About Us", path: "/about" },
-      { name: "Contact Us", path: "/contact" },
-      { name: "Careers", path: "/careers" },
-      { name: "Blog", path: "/blog" },
-    ],
-    services: [
-      { name: "Elder Care", path: "/services" },
-      { name: "Medical Care", path: "/services" },
-      { name: "Physiotherapy", path: "/services" },
-      { name: "Nursing Care", path: "/services" },
-      { name: "Companion Care", path: "/services" },
-    ],
-    support: [
-      { name: "Privacy Policy", path: "/privacy-policy" },
-      { name: "Terms & Conditions", path: "/terms-of-service" },
-    ],
-  };
 
   const footerLinksDesgin =
     "relative text-slate-500 dark:text-slate-300 font-medium after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-[#FF3366] after:transition-all after:duration-300 hover:after:w-full hover:text-[#FF3366]";

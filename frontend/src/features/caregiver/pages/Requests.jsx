@@ -9,6 +9,7 @@ import Button from "../../../components/ui/Button";
 const Requests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState(null);
 
   useEffect(() => {
     fetchRequests();
@@ -34,12 +35,24 @@ const Requests = () => {
   };
 
   const handleStatusUpdate = async (id, newStatus) => {
+    if (processingId) return;
+
     try {
+      setProcessingId(id);
+      
+      // Optimistic update
+      setRequests((prev) => prev.filter((req) => req._id !== id));
+      
       await updateBookingStatus(id, { status: newStatus, reason: newStatus === 'rejected' ? 'Caregiver declined' : '' });
       toast.success(`Request ${newStatus} successfully`);
+      
+      // Sync in background
       fetchRequests();
     } catch (error) {
       toast.error(error.message || "Failed to update request status");
+      fetchRequests(); // Revert on failure
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -109,14 +122,18 @@ const Requests = () => {
                     variant="outline" 
                     className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
                     onClick={() => handleStatusUpdate(request._id, "rejected")}
+                    disabled={processingId === request._id}
                   >
-                    <XCircle className="w-4 h-4 mr-2" /> Decline
+                    <XCircle className="w-4 h-4 mr-2" /> 
+                    {processingId === request._id ? "Processing..." : "Decline"}
                   </Button>
                   <Button 
                     className="bg-green-600 hover:bg-green-700 text-white border-transparent"
                     onClick={() => handleStatusUpdate(request._id, "accepted")}
+                    disabled={processingId === request._id}
                   >
-                    <CheckCircle className="w-4 h-4 mr-2" /> Accept Request
+                    <CheckCircle className="w-4 h-4 mr-2" /> 
+                    {processingId === request._id ? "Processing..." : "Accept Request"}
                   </Button>
                 </div>
               </div>

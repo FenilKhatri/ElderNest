@@ -17,22 +17,17 @@ const GoogleAuthButton = ({ role = "user", allowedRoles = null }) => {
     try {
       setLoading(true);
 
-      // 1. Open Google popup
       const result = await firebaseGoogleLogin(role);
 
-      // 2. Guard — if popup closed or no user
       if (!result?.user) {
         toast.error("Google sign-in was cancelled");
         return;
       }
 
-      // 3. Get Firebase ID token
       const idToken = await result.user.getIdToken();
 
-      // 4. Send to backend → sets cookie
       const res = await googleAuthApi({ token: idToken, role });
 
-      // 5. Extract user from response
       const loggedInUser = res?.data?.user || res?.data?.caregiver || null;
 
       if (!loggedInUser) {
@@ -47,7 +42,6 @@ const GoogleAuthButton = ({ role = "user", allowedRoles = null }) => {
         return;
       }
 
-      // 6. Refresh auth state and navigate
       if (fetchUser) {
         await fetchUser();
       } else {

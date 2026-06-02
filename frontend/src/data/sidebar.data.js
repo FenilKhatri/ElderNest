@@ -60,14 +60,9 @@ export const adminSidebarLinks = [
     ],
   },
   {
+    to: "/admin/complaints",
     label: "Complaints",
     icon: MessageSquare,
-    subLinks: [
-      { to: "/admin/complaints/user", label: "User Complaints" },
-      { to: "/admin/complaints/caregiver", label: "Caregiver Complaints" },
-      { to: "/admin/complaints/resolved", label: "Resolved Complaints" },
-      { to: "/admin/complaints/pending", label: "Pending Complaints" },
-    ],
   },
   {
     to: "/admin/notifications",

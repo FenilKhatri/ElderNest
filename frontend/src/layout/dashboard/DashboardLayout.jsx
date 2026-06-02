@@ -12,6 +12,7 @@ import {
 
 import Sidebar from "./Sidebar";
 import AdminSidebar from "./AdminSidebar";
+import NotificationBell from "../../components/ui/NotificationBell";
 import { sidebarConfig } from "./sidebar.config";
 import { useAuth } from "../../context/AuthContext";
 import { useNotifications } from "../../context/NotificationContext";
@@ -70,18 +71,7 @@ const DashboardLayout = ({ theme, toggleTheme }) => {
             </button>
 
             {/* Notification Bell */}
-            <button
-              onClick={() => navigate("/admin/notifications")}
-              className="relative p-2 rounded bg-slate-200 dark:bg-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors"
-              title="Notifications"
-            >
-              <Bell size={18} />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </button>
+            <NotificationBell />
 
             <div className="hidden sm:flex items-center gap-2 text-sm font-medium dark:text-slate-100">
               {user?.profileImage ? (

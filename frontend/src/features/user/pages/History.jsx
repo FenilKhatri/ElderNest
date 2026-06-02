@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, History as HistoryIcon, Download, FileText, CreditCard, Receipt, CalendarDays, User } from "lucide-react";
+import { Clock, History as HistoryIcon, Download, FileText, CreditCard, Receipt, CalendarDays, User, Undo2 } from "lucide-react";
+import http from "../../../lib/axios";
 import { getUserBookings } from "../../booking/api/booking.api";
 import { formatDate, formatCurrency } from "../../../utils/helpers";
 import { generateBookingReceipt } from "../../../utils/pdfGenerator";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Button from "../../../components/ui/Button";
+import Modal from "../../../components/ui/Modal";
 import UserPageLayout from "../../../layout/dashboard/UserPageLayout";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 
@@ -14,6 +16,9 @@ const History = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [refundModal, setRefundModal] = useState({ open: false, bookingId: null });
+  const [refundReason, setRefundReason] = useState("");
+  const [refundLoading, setRefundLoading] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -59,6 +64,27 @@ const History = () => {
       window.open(`http://localhost:8000${booking.bookingPdfUrl}`, "_blank");
     } else {
       toast.info("Booking details PDF is not available for this booking.");
+    }
+  };
+
+  const handleRequestRefund = async () => {
+    if (!refundReason.trim()) {
+      return toast.error("Please provide a reason for the refund");
+    }
+    try {
+      setRefundLoading(true);
+      await http.post("/refunds", {
+        bookingId: refundModal.bookingId,
+        reason: refundReason
+      });
+      toast.success("Refund request submitted successfully");
+      setRefundModal({ open: false, bookingId: null });
+      setRefundReason("");
+      fetchBookings();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to submit refund request");
+    } finally {
+      setRefundLoading(false);
     }
   };
 
@@ -177,32 +203,66 @@ const History = () => {
                   </div>
 
                   {/* Actions */}
-                  {booking.status === "completed" && (
-                    <div className="pt-4 flex flex-wrap gap-3 justify-end">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleDownloadReceipt(booking)}
-                        className="flex items-center gap-2 text-sm"
+                  <div className="pt-4 flex flex-wrap gap-3 justify-end">
+                    {booking.status === "completed" && (
+                      <>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleDownloadReceipt(booking)}
+                          className="flex items-center gap-2 text-sm"
+                        >
+                          <Download className="w-4 h-4" /> Payment Receipt
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleDownloadBookingPdf(booking)}
+                          className="flex items-center gap-2 text-sm"
+                        >
+                          <FileText className="w-4 h-4" /> Booking Details
+                        </Button>
+                      </>
+                    )}
+                    {["cancelled", "rejected", "completed"].includes(booking.status) && booking.paymentStatus === "paid" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setRefundModal({ open: true, bookingId: booking._id })}
+                        className="flex items-center gap-2 text-sm text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20"
                       >
-                        <Download className="w-4 h-4" /> Payment Receipt
+                        <Undo2 className="w-4 h-4" /> Request Refund
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleDownloadBookingPdf(booking)}
-                        className="flex items-center gap-2 text-sm"
-                      >
-                        <FileText className="w-4 h-4" /> Booking Details
-                      </Button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
       )}
+
+      {/* Refund Modal */}
+      <Modal isOpen={refundModal.open} onClose={() => setRefundModal({ open: false, bookingId: null })} title="Request a Refund" size="sm">
+        <div className="p-6 space-y-4">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Please provide a detailed reason for requesting a refund. Our team will review your request.
+          </p>
+          <textarea
+            rows={4}
+            placeholder="Why are you requesting a refund?"
+            value={refundReason}
+            onChange={(e) => setRefundReason(e.target.value)}
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
+          />
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="outline" size="sm" onClick={() => setRefundModal({ open: false, bookingId: null })}>Cancel</Button>
+            <Button size="sm" disabled={refundLoading || !refundReason.trim()} onClick={handleRequestRefund}>
+              {refundLoading ? "Submitting..." : "Submit Request"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </UserPageLayout>
   );
 };

@@ -23,11 +23,20 @@ const getTokenFromRequest = (req) => {
     return req.cookies?.token || null;
 };
 
+let cachedSettings = null;
+let lastFetchTime = 0;
+const CACHE_TTL = 60 * 1000; // 1 minute
+
 /** Block non-admin API traffic when maintenance mode is on */
 export const maintenanceMiddleware = async (req, res, next) => {
     try {
-        const settings = await Settings.findOne().lean();
-        if (!settings?.maintenanceMode) {
+        const now = Date.now();
+        if (!cachedSettings || (now - lastFetchTime) > CACHE_TTL) {
+            cachedSettings = await Settings.findOne().lean();
+            lastFetchTime = now;
+        }
+
+        if (!cachedSettings?.maintenanceMode) {
             return next();
         }
 

@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import SearchFilterBar from "../../../components/filters/SearchFilterBar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { 
   CheckCircle, XCircle, Eye, UserCheck, AlertCircle, 
-  ChevronDown, Activity, Clock, Trash2, LayoutGrid, List
+  ChevronDown, Activity, Clock, Trash2, LayoutGrid, List,
+  Loader2
 } from "lucide-react";
 import {
   getPendingCaregivers,
@@ -24,7 +25,7 @@ import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 
 // Action Dropdown Component
-const ActionDropdown = ({ caregiver, onApprove, onReject, onCancel, onDelete, open, onToggle, onClose }) => {
+const ActionDropdown = ({ caregiver, onApprove, onReject, open, onToggle, onClose, isLoading }) => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -40,20 +41,17 @@ const ActionDropdown = ({ caregiver, onApprove, onReject, onCancel, onDelete, op
 
   return (
     <div className="flex items-center space-x-2">
-      <button
-        onClick={() => navigate(`/admin/caregivers/${caregiver._id}`)}
-        className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition-colors"
-        title="View Details"
-      >
-        <Eye className="w-4 h-4" />
-      </button>
-
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={(e) => { e.stopPropagation(); onToggle(); }}
-          className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition-colors flex items-center"
+          disabled={isLoading}
+          className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition-colors flex items-center disabled:opacity-50"
         >
-          <span className="text-xs mr-1 font-medium">Status</span>
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+          ) : (
+            <span className="text-xs mr-1 font-medium">Status</span>
+          )}
           <ChevronDown className="w-4 h-4" />
         </button>
         <AnimatePresence>
@@ -62,7 +60,7 @@ const ActionDropdown = ({ caregiver, onApprove, onReject, onCancel, onDelete, op
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 5 }}
-              className="absolute right-0 mt-1 w-36 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 z-10 py-1"
+              className="absolute right-0 mt-1 w-32 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 z-10 py-1"
             >
               <button
                 onClick={(e) => { e.stopPropagation(); onClose(); onApprove(caregiver); }}
@@ -76,20 +74,6 @@ const ActionDropdown = ({ caregiver, onApprove, onReject, onCancel, onDelete, op
               >
                 <AlertCircle className="w-4 h-4 mr-2" /> Reject
               </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); onClose(); onCancel(caregiver); }}
-                className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center"
-              >
-                <XCircle className="w-4 h-4 mr-2" /> Cancel
-              </button>
-              {onDelete && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onClose(); onDelete(caregiver); }}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center border-t border-slate-100 dark:border-slate-700 mt-1 pt-1"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" /> Delete
-                </button>
-              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -100,6 +84,7 @@ const ActionDropdown = ({ caregiver, onApprove, onReject, onCancel, onDelete, op
 
 const Caregivers = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [tab, setTab] = useState("all");
   const [caregivers, setCaregivers] = useState([]);
   const [pendingRegistrations, setPendingRegistrations] = useState([]);
@@ -136,6 +121,15 @@ const Caregivers = () => {
 
   useEffect(() => { fetchAll(); }, []);
 
+  // Auto-switch tab when returning from verification review
+  useEffect(() => {
+    if (location.state?.tab) {
+      setTab(location.state.tab);
+      // Clear the state to prevent re-triggering on subsequent renders
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   const handleApprove = async (c) => {
     if (c.status !== "pending" || c.isApproved) {
       toast.info(c.status === "rejected" ? "This caregiver was rejected." : "This caregiver is already approved.");
@@ -159,23 +153,6 @@ const Caregivers = () => {
       return;
     }
     setRejectModal({ open: true, id: c._id, type: "registration" });
-  };
-
-  const handleCancel = async (c) => {
-    if (c.status !== "pending") {
-      toast.info("Only pending registrations can be cancelled.");
-      return;
-    }
-    try {
-      setActionLoading(c._id);
-      await rejectCaregiverRegistration(c._id, "Cancelled by admin");
-      toast.success("Registration cancelled.");
-      fetchAll();
-    } catch (err) {
-      toast.error(err.message || "Failed to cancel");
-    } finally {
-      setActionLoading(null);
-    }
   };
 
   const handleDeleteClick = (c) => {
@@ -392,16 +369,38 @@ const Caregivers = () => {
                       <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
                       <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDate(c.createdAt)}</td>
                       <td className="px-4 py-3">
-                        <ActionDropdown 
-                          caregiver={c}
-                          open={openDropdownId === c._id}
-                          onToggle={() => setOpenDropdownId(openDropdownId === c._id ? null : c._id)}
-                          onClose={() => setOpenDropdownId(null)}
-                          onApprove={handleApprove}
-                          onReject={handleReject}
-                          onCancel={handleCancel}
-                          onDelete={handleDeleteClick}
-                        />
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => navigate(`/admin/caregivers/${c._id}`)}
+                            className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition-colors"
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          {c.status === "pending" && (
+                            <ActionDropdown 
+                              caregiver={c}
+                              open={openDropdownId === c._id}
+                              onToggle={() => setOpenDropdownId(openDropdownId === c._id ? null : c._id)}
+                              onClose={() => setOpenDropdownId(null)}
+                              onApprove={handleApprove}
+                              onReject={handleReject}
+                              isLoading={actionLoading === c._id}
+                            />
+                          )}
+                          <button
+                            onClick={() => handleDeleteClick(c)}
+                            disabled={actionLoading === c._id}
+                            className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors disabled:opacity-50"
+                            title="Delete"
+                          >
+                            {actionLoading === c._id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -413,17 +412,30 @@ const Caregivers = () => {
                     <div className="col-span-full py-8 text-center text-slate-500 dark:text-slate-400">No caregivers found</div>
                   ) : filteredAll.map((c) => (
                     <div key={c._id} className="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4 relative">
-                      <div className="absolute top-4 right-4">
-                        <ActionDropdown 
-                          caregiver={c}
-                          open={openDropdownId === c._id}
-                          onToggle={() => setOpenDropdownId(openDropdownId === c._id ? null : c._id)}
-                          onClose={() => setOpenDropdownId(null)}
-                          onApprove={handleApprove}
-                          onReject={handleReject}
-                          onCancel={handleCancel}
-                          onDelete={handleDeleteClick}
-                        />
+                      <div className="absolute top-4 right-4 flex items-center gap-2">
+                        {c.status === "pending" && (
+                          <ActionDropdown 
+                            caregiver={c}
+                            open={openDropdownId === c._id}
+                            onToggle={() => setOpenDropdownId(openDropdownId === c._id ? null : c._id)}
+                            onClose={() => setOpenDropdownId(null)}
+                            onApprove={handleApprove}
+                            onReject={handleReject}
+                            isLoading={actionLoading === c._id}
+                          />
+                        )}
+                        <button
+                          onClick={() => handleDeleteClick(c)}
+                          disabled={actionLoading === c._id}
+                          className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors disabled:opacity-50"
+                          title="Delete"
+                        >
+                          {actionLoading === c._id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
                       </div>
                       <div className="flex items-center space-x-4 cursor-pointer" onClick={() => navigate(`/admin/caregivers/${c._id}`)}>
                         <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-lg">
@@ -487,11 +499,12 @@ const Caregivers = () => {
                             disabled={actionLoading === c._id}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50 cursor-pointer"
                           >
-                            <CheckCircle className="w-3.5 h-3.5" /> Approve
+                            {actionLoading === c._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />} Approve
                           </button>
                           <button
                             onClick={() => setRejectModal({ open: true, id: c._id, type: "registration" })}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors cursor-pointer"
+                            disabled={actionLoading === c._id}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors cursor-pointer disabled:opacity-50"
                           >
                             <XCircle className="w-3.5 h-3.5" /> Reject
                           </button>
@@ -532,11 +545,12 @@ const Caregivers = () => {
                           disabled={actionLoading === c._id}
                           className="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50"
                         >
-                          <CheckCircle className="w-3.5 h-3.5" /> Approve
+                          {actionLoading === c._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />} Approve
                         </button>
                         <button
                           onClick={() => setRejectModal({ open: true, id: c._id, type: "registration" })}
-                          className="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                          disabled={actionLoading === c._id}
+                          className="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors disabled:opacity-50"
                         >
                           <XCircle className="w-3.5 h-3.5" /> Reject
                         </button>
@@ -592,11 +606,12 @@ const Caregivers = () => {
                             disabled={actionLoading === c._id}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50"
                           >
-                            <UserCheck className="w-3.5 h-3.5" /> Approve
+                            {actionLoading === c._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserCheck className="w-3.5 h-3.5" />} Approve
                           </button>
                           <button
                             onClick={() => setRejectModal({ open: true, id: c._id, type: "profile" })}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                            disabled={actionLoading === c._id}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors disabled:opacity-50"
                           >
                             <AlertCircle className="w-3.5 h-3.5" /> Request Changes
                           </button>
@@ -645,13 +660,14 @@ const Caregivers = () => {
                         <button
                           onClick={() => handleApproveProfile(c._id)}
                           disabled={actionLoading === c._id}
-                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium disabled:opacity-50"
+                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium disabled:opacity-50 transition-colors hover:bg-green-100 dark:hover:bg-green-900/40"
                         >
-                          <UserCheck className="w-3.5 h-3.5" /> Approve
+                          {actionLoading === c._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserCheck className="w-3.5 h-3.5" />} Approve
                         </button>
                         <button
                           onClick={() => setRejectModal({ open: true, id: c._id, type: "profile" })}
-                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium"
+                          disabled={actionLoading === c._id}
+                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors disabled:opacity-50"
                         >
                           <AlertCircle className="w-3.5 h-3.5" /> Changes
                         </button>
@@ -692,10 +708,16 @@ const Caregivers = () => {
             <Button
               variant="danger"
               size="sm"
-              disabled={!rejectReason.trim() || actionLoading}
+              disabled={!rejectReason.trim() || actionLoading === rejectModal.id}
               onClick={executeReject}
             >
-              {rejectModal.type === "profile" ? "Send Feedback" : "Reject"}
+              {actionLoading === rejectModal.id ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...
+                </>
+              ) : (
+                rejectModal.type === "profile" ? "Send Feedback" : "Reject"
+              )}
             </Button>
           </div>
         </div>
@@ -719,8 +741,12 @@ const Caregivers = () => {
             <Button variant="outline" size="sm" onClick={() => setDeleteModal({ open: false, id: null })}>
               Cancel
             </Button>
-            <Button variant="danger" size="sm" disabled={actionLoading} onClick={confirmDeleteCaregiver}>
-              {actionLoading ? "Deleting..." : "Delete"}
+            <Button variant="danger" size="sm" disabled={actionLoading === deleteModal.id} onClick={confirmDeleteCaregiver}>
+              {actionLoading === deleteModal.id ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Deleting...
+                </>
+              ) : "Delete"}
             </Button>
           </div>
         </div>

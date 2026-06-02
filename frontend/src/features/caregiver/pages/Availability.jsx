@@ -7,10 +7,19 @@ import GlobalLoader from "../../../components/ui/GlobalLoader";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
+const CARE_TYPES = [
+  { value: "hourly", label: "Hourly" },
+  { value: "part-time", label: "Part-Time" },
+  { value: "full-time", label: "Full-Time" },
+  { value: "live-in", label: "Live-In" },
+  { value: "emergency", label: "Emergency" },
+];
+
 const defaultSchedule = () =>
   DAYS.map((day) => ({
     day,
     enabled: false,
+    careTypes: [],
     slots: [{ startTime: "09:00", endTime: "17:00" }],
   }));
 
@@ -28,8 +37,8 @@ const Availability = () => {
             DAYS.map((day) => {
               const found = av.find((a) => a.day === day);
               return found
-                ? { day, enabled: true, slots: found.slots?.length ? found.slots : [{ startTime: "09:00", endTime: "17:00" }] }
-                : { day, enabled: false, slots: [{ startTime: "09:00", endTime: "17:00" }] };
+                ? { day, enabled: true, careTypes: found.careTypes || [], slots: found.slots?.length ? found.slots : [{ startTime: "09:00", endTime: "17:00" }] }
+                : { day, enabled: false, careTypes: [], slots: [{ startTime: "09:00", endTime: "17:00" }] };
             })
           );
         }
@@ -41,6 +50,21 @@ const Availability = () => {
   const toggleDay = (index) => {
     setSchedule((s) =>
       s.map((row, i) => (i === index ? { ...row, enabled: !row.enabled } : row))
+    );
+  };
+
+  const toggleCareType = (dayIndex, value) => {
+    setSchedule((s) =>
+      s.map((row, i) => {
+        if (i !== dayIndex) return row;
+        const hasType = row.careTypes.includes(value);
+        return {
+          ...row,
+          careTypes: hasType
+            ? row.careTypes.filter((c) => c !== value)
+            : [...row.careTypes, value],
+        };
+      })
     );
   };
 
@@ -80,12 +104,19 @@ const Availability = () => {
   };
 
   const handleSave = async () => {
-    const availability = schedule
-      .filter((d) => d.enabled)
-      .map(({ day, slots }) => ({
-        day,
-        slots: slots.map(({ startTime, endTime }) => ({ startTime, endTime })),
-      }));
+    // Validate careTypes
+    const activeDays = schedule.filter((d) => d.enabled);
+    const missingCareTypes = activeDays.some((d) => d.careTypes.length === 0);
+    if (missingCareTypes) {
+      toast.error("Please select at least one care type for each enabled day.");
+      return;
+    }
+
+    const availability = activeDays.map(({ day, careTypes, slots }) => ({
+      day,
+      careTypes,
+      slots: slots.map(({ startTime, endTime }) => ({ startTime, endTime })),
+    }));
 
     try {
       setSaving(true);
@@ -127,9 +158,33 @@ const Availability = () => {
             </label>
 
             {row.enabled && (
-              <div className="space-y-3 pl-7">
-                {row.slots.map((slot, slotIndex) => (
-                  <div key={slotIndex} className="flex flex-wrap items-center gap-2">
+              <div className="space-y-4 pl-7">
+                {/* Care Types Selection */}
+                <div>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Supported Care Types *</p>
+                  <div className="flex flex-wrap gap-2">
+                    {CARE_TYPES.map((type) => (
+                      <button
+                        key={type.value}
+                        type="button"
+                        onClick={() => toggleCareType(dayIndex, type.value)}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
+                          row.careTypes.includes(type.value)
+                            ? "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400"
+                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-700"
+                        }`}
+                      >
+                        {type.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Time Slots */}
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Time Slots *</p>
+                  {row.slots.map((slot, slotIndex) => (
+                    <div key={slotIndex} className="flex flex-wrap items-center gap-2">
                     <input
                       type="time"
                       value={slot.startTime}
@@ -161,6 +216,7 @@ const Availability = () => {
                 >
                   <Plus className="w-4 h-4" /> Add slot
                 </button>
+                </div>
               </div>
             )}
           </div>

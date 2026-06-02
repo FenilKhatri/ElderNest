@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import LogoutButton from "../../components/ui/LogoutButton";
-import { adminSidebarLinks } from "./adminSidebar.config";
+import { adminSidebarLinks } from "../../data/sidebar.data";
 import Logo from "../../assets/logo.avif";
 
 const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {

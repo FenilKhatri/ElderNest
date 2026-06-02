@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import ScrollToTop from "../layout/core/ScrollToTop";
 import AppRoutes from "./routes/AppRoutes";
+import ErrorBoundary from "../components/ui/ErrorBoundary";
 
 function App() {
 
@@ -31,7 +32,9 @@ function App() {
     <>
       <ScrollToTop />
       <ToastContainer autoClose={5000} position="top-right" newestOnTop />
-      <AppRoutes theme={theme} toggleTheme={toggleTheme} />
+      <ErrorBoundary>
+        <AppRoutes theme={theme} toggleTheme={toggleTheme} />
+      </ErrorBoundary>
     </>
   );
 }

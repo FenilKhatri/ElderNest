@@ -8,6 +8,7 @@ import {
   markNotificationAsRead, 
   markAllNotificationsAsRead, 
   deleteNotification,
+  deleteAllNotifications,
   getUnreadCount 
 } from "../api/admin.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
@@ -85,6 +86,18 @@ const Notifications = () => {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (!window.confirm("Are you sure you want to delete all notifications?")) return;
+    try {
+      await deleteAllNotifications();
+      setNotifications([]);
+      setUnreadCount(0);
+      toast.success("All notifications deleted");
+    } catch (error) {
+      toast.error("Failed to delete all notifications");
+    }
+  };
+
   const getNotificationIcon = (type) => {
     const iconClass = "w-5 h-5";
     switch (type) {
@@ -125,12 +138,20 @@ const Notifications = () => {
             {unreadCount > 0 ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
           </p>
         </div>
-        {unreadCount > 0 && (
-          <Button onClick={handleMarkAllAsRead} variant="outline" size="sm">
-            <CheckCheck className="w-4 h-4 mr-2" />
-            Mark All as Read
-          </Button>
-        )}
+        <div className="flex items-center gap-3">
+          {unreadCount > 0 && (
+            <Button onClick={handleMarkAllAsRead} variant="outline" size="sm">
+              <CheckCheck className="w-4 h-4 mr-2" />
+              Mark All as Read
+            </Button>
+          )}
+          {notifications.length > 0 && (
+            <Button onClick={handleDeleteAll} variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 dark:border-red-900/50">
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete All
+            </Button>
+          )}
+        </div>
       </motion.div>
 
       <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">

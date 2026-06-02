@@ -43,4 +43,6 @@ export const emptyServiceForm = () => ({
   isFeatured: false,
   isActive: true,
   isDraft: false,
+  isPopular: false,
+  isRecommended: false,
 });

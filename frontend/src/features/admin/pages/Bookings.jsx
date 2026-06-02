@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { Eye, Filter } from "lucide-react";
-import { getAllBookings, updateBookingStatus } from "../api/admin.api";
+import { Eye, Filter, LayoutGrid, List, Trash2 } from "lucide-react";
+import { getAllBookings, updateBookingStatus, deleteBooking } from "../api/admin.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { formatDate } from "../../../utils/helpers";
 import Modal from "../../../components/ui/Modal";
@@ -12,12 +12,14 @@ import SearchFilterBar from "../../../components/filters/SearchFilterBar";
 import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout";
 import EntityCard from "../../../components/cards/EntityCard";
 import Select from "../../../components/ui/Select";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [layout, setLayout] = useState("grid");
   
   // Modals
   const [viewModal, setViewModal] = useState({ open: false, booking: null });
@@ -25,6 +27,8 @@ const Bookings = () => {
   const [statusLoading, setStatusLoading] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [reason, setReason] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ open: false, bookingId: null });
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const statuses = [
     { value: "pending", label: "Pending" },
@@ -101,6 +105,20 @@ const Bookings = () => {
     setStatusModal({ open: true, booking });
   };
 
+  const handleDelete = async () => {
+    try {
+      setDeleteLoading(true);
+      await deleteBooking(deleteModal.bookingId);
+      toast.success("Booking deleted successfully");
+      setDeleteModal({ open: false, bookingId: null });
+      fetchBookings();
+    } catch (error) {
+      toast.error(error?.message || "Failed to delete booking");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   return (
     <motion.div
       variants={stagger}
@@ -142,55 +160,129 @@ const Bookings = () => {
             setStatusFilter("all");
           }}
         />
+        
+        {/* Layout Toggle */}
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-fit mt-4 ml-auto">
+          <button
+            onClick={() => setLayout("table")}
+            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+            title="Table View"
+          >
+            <List className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setLayout("grid")}
+            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+            title="Grid View"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+        </div>
       </motion.div>
 
       <motion.div variants={fadeUp}>
         {loading ? (
-          <GridSkeleton count={6} />
+          layout === "grid" ? <GridSkeleton count={6} /> : (
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden p-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="animate-pulse h-12 bg-slate-200 dark:bg-slate-700 rounded mb-4 w-full" />
+              ))}
+            </div>
+          )
         ) : filteredBookings.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center text-slate-500 dark:text-slate-400">
             {search || statusFilter !== "all" ? "No bookings match your filters" : "No bookings found"}
           </div>
         ) : (
-          <GridLayout>
-            {filteredBookings.map((booking) => (
-              <EntityCard
-                key={booking._id}
-                footer={
-                  <div className="flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setViewModal({ open: true, booking })}
-                      className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600"
-                      title="View"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openStatusModal(booking)}
-                      className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600"
-                      title="Update status"
-                    >
-                      <Filter className="w-4 h-4" />
-                    </button>
+          layout === "grid" ? (
+            <GridLayout>
+              {filteredBookings.map((booking) => (
+                <EntityCard
+                  key={booking._id}
+                  footer={
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setViewModal({ open: true, booking })}
+                        className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600"
+                        title="View"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openStatusModal(booking)}
+                        className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600"
+                        title="Update status"
+                      >
+                        <Filter className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteModal({ open: true, bookingId: booking._id })}
+                        className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600"
+                        title="Delete booking"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  }
+                >
+                  <p className="text-xs font-mono text-slate-500 mb-2">{booking.bookingId}</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">{booking.patientName}</p>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Age {booking.patientAge} · {booking.careType}
+                  </p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">{booking.contactNumber}</p>
+                  <p className="text-xs text-slate-500 truncate">{booking.email}</p>
+                  <p className="text-xs text-slate-400 mt-2">{formatDate(booking.bookingDate)}</p>
+                  <div className="mt-3">
+                    <StatusBadge status={booking.status} />
                   </div>
-                }
-              >
-                <p className="text-xs font-mono text-slate-500 mb-2">{booking.bookingId}</p>
-                <p className="font-semibold text-slate-900 dark:text-white">{booking.patientName}</p>
-                <p className="text-sm text-slate-500 mt-1">
-                  Age {booking.patientAge} · {booking.careType}
-                </p>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">{booking.contactNumber}</p>
-                <p className="text-xs text-slate-500 truncate">{booking.email}</p>
-                <p className="text-xs text-slate-400 mt-2">{formatDate(booking.bookingDate)}</p>
-                <div className="mt-3">
-                  <StatusBadge status={booking.status} />
-                </div>
-              </EntityCard>
-            ))}
-          </GridLayout>
+                </EntityCard>
+              ))}
+            </GridLayout>
+          ) : (
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID / Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Patient Details</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                    {filteredBookings.map((booking) => (
+                      <tr key={booking._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td className="px-4 py-3">
+                          <p className="text-xs font-mono text-slate-500">{booking.bookingId}</p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{formatDate(booking.bookingDate)}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white">{booking.patientName}</p>
+                          <p className="text-xs text-slate-500">Age {booking.patientAge} · {booking.careType}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">{booking.contactNumber}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <StatusBadge status={booking.status} />
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button onClick={() => setViewModal({ open: true, booking })} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded dark:text-blue-400 dark:hover:bg-blue-900/20" title="View"><Eye size={16} /></button>
+                            <button onClick={() => openStatusModal(booking)} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded dark:text-amber-400 dark:hover:bg-amber-900/20" title="Update Status"><Filter size={16} /></button>
+                            <button onClick={() => setDeleteModal({ open: true, bookingId: booking._id })} className="p-1.5 text-red-600 hover:bg-red-50 rounded dark:text-red-400 dark:hover:bg-red-900/20" title="Delete"><Trash2 size={16} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
         )}
       </motion.div>
 
@@ -375,6 +467,19 @@ const Bookings = () => {
           </div>
         </div>
       </Modal>
+
+      {/* Delete Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, bookingId: null })}
+        onConfirm={handleDelete}
+        title="Delete Booking"
+        message="Are you sure you want to delete this booking? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+        isLoading={deleteLoading}
+      />
     </motion.div>
   );
 };

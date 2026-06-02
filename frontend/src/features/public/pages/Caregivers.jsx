@@ -27,26 +27,35 @@ const Caregivers = () => {
   const [selectedExperience, setSelectedExperience] = useState(searchParams.get('experience') ? searchParams.get('experience').split(',') : []);
   const [selectedLanguages, setSelectedLanguages] = useState([]); // Kept client-side or we can add to backend if needed
   const [selectedRatings, setSelectedRatings] = useState(searchParams.get('rating') ? [searchParams.get('rating') + '+'] : []);
+  const [selectedCareType, setSelectedCareType] = useState(searchParams.get('careType') ? searchParams.get('careType').split(',') : []);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
-  // Apply filters function to update URL and trigger fetch
-  const applyFilters = () => {
-    const params = new URLSearchParams();
-    if (searchCity) params.set('city', searchCity);
-    if (searchTerm) params.set('search', searchTerm);
-    if (initialService) params.set('service', initialService);
-    
-    // We only support one experience range in backend or we could loop, let's just use the first selected or join
-    if (selectedExperience.length > 0) params.set('experience', selectedExperience[0]); 
-    
-    if (selectedRatings.length > 0) {
-      // get minimum rating from selected
-      const minRat = Math.min(...selectedRatings.map(r => parseFloat(r)));
-      params.set('rating', minRat);
-    }
-    
-    navigate(`/caregivers?${params.toString()}`);
-  };
+  // Auto-apply filters with debounce
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (searchCity) params.set('city', searchCity);
+      if (searchTerm) params.set('search', searchTerm);
+      if (initialService) params.set('service', initialService);
+      
+      if (selectedExperience.length > 0) params.set('experience', selectedExperience[0]); 
+      
+      if (selectedRatings.length > 0) {
+        const minRat = Math.min(...selectedRatings.map(r => parseFloat(r)));
+        params.set('rating', minRat);
+      }
+      
+      if (selectedCareType.length > 0) {
+        params.set('careType', selectedCareType.join(','));
+      }
+      
+      navigate(`/caregivers?${params.toString()}`, { replace: true });
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchCity, searchTerm, selectedExperience, selectedRatings, selectedCareType, initialService, navigate]);
+
+  // applyFilters function is removed as it's now handled by the useEffect above
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,8 +104,9 @@ const Caregivers = () => {
     setSelectedExperience([]);
     setSelectedLanguages([]);
     setSelectedRatings([]);
+    setSelectedCareType([]);
     setSearchTerm("");
-    navigate("/caregivers");
+    navigate("/caregivers", { replace: true });
   };
 
   const allLanguages = useMemo(() => {
@@ -177,6 +187,33 @@ const Caregivers = () => {
                 </div>
               </div>
 
+              {/* Care Type Filter */}
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Care Type</h3>
+                <div className="space-y-2.5">
+                  {[
+                    { id: 'hourly', label: 'Hourly' },
+                    { id: 'part_time', label: 'Part Time' },
+                    { id: 'full_time', label: 'Full Time' },
+                    { id: 'live_in', label: 'Live-In' },
+                    { id: 'emergency', label: 'Emergency' }
+                  ].map(option => (
+                    <label key={option.id} className="flex items-center cursor-pointer group" onClick={() => handleCheckboxChange(setSelectedCareType, option.id)}>
+                      <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 transition-colors ${
+                        selectedCareType.includes(option.id) 
+                          ? 'bg-blue-600 border-blue-600' 
+                          : 'border-slate-300 dark:border-slate-600 group-hover:border-blue-400'
+                      }`}>
+                        {selectedCareType.includes(option.id) && <CheckCircle2 className="w-3 h-3 text-white" />}
+                      </div>
+                      <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+                        {option.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               {/* Language Filter */}
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Language</h3>
@@ -224,12 +261,6 @@ const Caregivers = () => {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <button 
-                  onClick={applyFilters}
-                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors"
-                >
-                  Apply Filters
-                </button>
                 <button 
                   onClick={resetFilters}
                   className="w-full py-2.5 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-semibold transition-colors"

@@ -16,16 +16,22 @@ const router = express.Router();
  *     documents/    ← PDFs, certificates, experience letters, etc.
  */
 const resolveFolder = (req, file) => {
-    // Allow the client to explicitly request a sub-folder
-    const explicit = req.body?.folder || req.query?.folder;
-    if (explicit) return `Eldernest/${explicit}`;
+    if (!req.user) {
+        return "Eldernest/public";
+    }
 
-    // Auto-detect from mimetype
-    if (file.mimetype === "application/pdf") return "Eldernest/documents";
-    if (file.mimetype?.startsWith("image/")) return "Eldernest/photos";
+    const userRole = req.user.role === 'caregiver' ? 'caregivers' : 'users';
+    const userName = req.user.name 
+        ? req.user.name.trim().replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() 
+        : req.user.id.toString();
+    
+    const baseFolder = `Eldernest/${userRole}/${userName}`;
 
-    // Fallback
-    return "Eldernest/photos";
+    if (file.mimetype === "application/pdf" || file.mimetype.includes("document")) {
+        return `${baseFolder}/docs`;
+    }
+    
+    return `${baseFolder}/photos`;
 };
 
 /**

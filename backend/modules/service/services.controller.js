@@ -99,6 +99,13 @@ export const getServiceByIdOrSlug = asyncHandler(async (req, res) => {
 
 // Create service (admin only)
 export const createService = asyncHandler(async (req, res) => {
+    try {
+        await Service.collection.dropIndex("name_1");
+        console.log("Dropped obsolete index name_1");
+    } catch (e) {
+        // Ignored
+    }
+
     if (!req.body.isDraft) {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

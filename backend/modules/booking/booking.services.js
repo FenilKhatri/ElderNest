@@ -6,6 +6,7 @@ import Patient from "../patient/patient.model.js";
 import { validateLocation } from "../../common/validators/location.validator.js";
 import { createNotification } from "../../common/services/notification.service.js";
 import { sendEmail } from "../../common/services/email.service.js";
+import { isSlotLocked } from "./slotLocking.service.js";
 
 // Check slot availability
 export const checkSlotAvailability = async (caregiverId, bookingDate, startTime, endTime) => {
@@ -31,7 +32,13 @@ export const checkSlotAvailability = async (caregiverId, bookingDate, startTime,
         ],
     });
 
-    return !existingBooking;
+    if (existingBooking) return false;
+
+    // Check if the slot is locked by someone else
+    const locked = await isSlotLocked(caregiverId, date, startTime, endTime);
+    if (locked) return false;
+
+    return true;
 };
 
 // Calculate duration and amount
@@ -53,15 +60,15 @@ export const calculateBookingDetails = async (serviceId, startTime, endTime) => 
     return { duration, totalAmount, service };
 };
 
-// Create booking
-export const createBooking = async (userId, bookingData) => {
+// Validate booking request before payment or creation
+export const validateBookingRequest = async (userId, bookingData) => {
     const {
         caregiverId,
         serviceId,
         bookingDate,
         timeSlot,
         address,
-        ...otherData
+        patientId
     } = bookingData;
 
     // Validate caregiver exists and is approved
@@ -112,13 +119,35 @@ export const createBooking = async (userId, bookingData) => {
         throw new Error("This caregiver is not assigned to the selected service");
     }
 
+    // Validate patient if provided
+    if (patientId) {
+        const patient = await Patient.findOne({ _id: patientId, userId });
+        if (!patient) {
+            throw new Error("Patient profile not found");
+        }
+    }
+
+    return { caregiver, service };
+};
+
+// Create booking
+export const createBooking = async (userId, bookingData) => {
+    const {
+        caregiverId,
+        serviceId,
+        bookingDate,
+        timeSlot,
+        address,
+        ...otherData
+    } = bookingData;
+
+    // Validate the request
+    const { caregiver, service } = await validateBookingRequest(userId, bookingData);
+
     // Load patient profile if provided
     let patientFields = {};
     if (otherData.patientId) {
         const patient = await Patient.findOne({ _id: otherData.patientId, userId });
-        if (!patient) {
-            throw new Error("Patient profile not found");
-        }
         patientFields = {
             patientId: patient._id,
             patientName: patient.name,
@@ -408,4 +437,17 @@ export const getAllBookings = async (filters = {}) => {
         .sort({ createdAt: -1 });
 
     return bookings;
+};
+
+// Delete booking (admin)
+export const deleteBooking = async (bookingId) => {
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+        throw new Error("Booking not found");
+    }
+
+    // Only allow deletion if it's not completed or if admin forces it?
+    // Usually admin can delete any booking, let's just delete it.
+    await Booking.findByIdAndDelete(bookingId);
+    return booking;
 };

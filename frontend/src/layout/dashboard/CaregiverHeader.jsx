@@ -1,13 +1,12 @@
+import NotificationBell from "../../components/ui/NotificationBell";
 import { useState } from "react";
-import { Menu, Bell, Sun, Moon, User } from "lucide-react";
+import { Menu, Sun, Moon, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { useNotifications } from "../../context/NotificationContext";
 import { useNavigate } from "react-router-dom";
 import LogoutButton from "../../components/ui/LogoutButton";
 
 const CaregiverHeader = ({ onMenuClick, theme, toggleTheme }) => {
   const { user } = useAuth();
-  const { unreadCount } = useNotifications();
   const navigate = useNavigate();
 
   return (
@@ -41,17 +40,7 @@ const CaregiverHeader = ({ onMenuClick, theme, toggleTheme }) => {
           </button>
 
           {/* Notifications */}
-          <button
-            onClick={() => navigate("/caregiver/notifications")}
-            className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <Bell className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
-            )}
-          </button>
+          <NotificationBell />
 
           {/* User name */}
           <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800">

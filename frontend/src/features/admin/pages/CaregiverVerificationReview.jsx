@@ -47,9 +47,11 @@ const CaregiverVerificationReview = () => {
   const [caregiver, setCaregiver] = useState(null);
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [actionInProgress, setActionInProgress] = useState(null); // 'approve' | 'reject' | 'changes' | null
   const [changesModal, setChangesModal] = useState(false);
   const [rejectModal, setRejectModal] = useState(false);
+
+  const isSubmitting = actionInProgress !== null;
 
   useEffect(() => {
     getCaregiverVerificationDetail(id)
@@ -64,9 +66,32 @@ const CaregiverVerificationReview = () => {
       toast.error("Please provide feedback for the caregiver");
       return;
     }
+    if (isSubmitting) return; // prevent double-clicks
     try {
-      setSubmitting(true);
+      setActionInProgress(action);
       await reviewCaregiverVerification(id, action, msg);
+
+      // Optimistic state update so the UI reflects the change immediately
+      if (caregiver) {
+        const updatedCaregiver = { ...caregiver };
+        if (action === "approve") {
+          updatedCaregiver.onboardingStage = "active";
+          updatedCaregiver.profileApprovalStatus = "approved";
+          updatedCaregiver.isPublished = true;
+        } else if (action === "reject") {
+          updatedCaregiver.onboardingStage = "rejected";
+          updatedCaregiver.profileApprovalStatus = "rejected";
+          updatedCaregiver.isPublished = false;
+          updatedCaregiver.adminFeedback = msg;
+        } else if (action === "changes") {
+          updatedCaregiver.onboardingStage = "verification_changes";
+          updatedCaregiver.profileApprovalStatus = "changes-required";
+          updatedCaregiver.isPublished = false;
+          updatedCaregiver.adminFeedback = msg;
+        }
+        setCaregiver(updatedCaregiver);
+      }
+
       toast.success(
         action === "approve"
           ? "Verification approved"
@@ -80,7 +105,7 @@ const CaregiverVerificationReview = () => {
     } catch (err) {
       toast.error(err?.message || "Review failed");
     } finally {
-      setSubmitting(false);
+      setActionInProgress(null);
     }
   };
 
@@ -131,13 +156,13 @@ const CaregiverVerificationReview = () => {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <Button onClick={() => review("approve")} loading={submitting} className="flex items-center gap-2">
-          <Check className="w-4 h-4" /> Approve
+        <Button onClick={() => review("approve")} loading={actionInProgress === 'approve'} disabled={isSubmitting} className="flex items-center gap-2">
+          <Check className="w-4 h-4" /> {actionInProgress === 'approve' ? 'Approving...' : 'Approve'}
         </Button>
-        <Button variant="outline" onClick={() => setChangesModal(true)} className="flex items-center gap-2">
+        <Button variant="outline" onClick={() => setChangesModal(true)} disabled={isSubmitting} className="flex items-center gap-2">
           <MessageSquare className="w-4 h-4" /> Request changes
         </Button>
-        <Button variant="outline" onClick={() => setRejectModal(true)} className="flex items-center gap-2 text-red-600">
+        <Button variant="outline" onClick={() => setRejectModal(true)} disabled={isSubmitting} className="flex items-center gap-2 text-red-600">
           <X className="w-4 h-4" /> Reject
         </Button>
       </div>
@@ -152,9 +177,9 @@ const CaregiverVerificationReview = () => {
             placeholder="Explain what documents or information need to be updated..."
           />
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setChangesModal(false)}>Cancel</Button>
-            <Button loading={submitting} onClick={() => review("changes", feedback)}>
-              Send to caregiver
+            <Button variant="outline" onClick={() => setChangesModal(false)} disabled={isSubmitting}>Cancel</Button>
+            <Button loading={actionInProgress === 'changes'} disabled={isSubmitting} onClick={() => review("changes", feedback)}>
+              {actionInProgress === 'changes' ? 'Sending...' : 'Send to caregiver'}
             </Button>
           </div>
         </div>
@@ -169,9 +194,9 @@ const CaregiverVerificationReview = () => {
             rows={4}
           />
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setRejectModal(false)}>Cancel</Button>
-            <Button loading={submitting} onClick={() => review("reject", feedback)} className="bg-red-600 hover:bg-red-700">
-              Reject
+            <Button variant="outline" onClick={() => setRejectModal(false)} disabled={isSubmitting}>Cancel</Button>
+            <Button loading={actionInProgress === 'reject'} disabled={isSubmitting} onClick={() => review("reject", feedback)} className="bg-red-600 hover:bg-red-700">
+              {actionInProgress === 'reject' ? 'Rejecting...' : 'Reject'}
             </Button>
           </div>
         </div>

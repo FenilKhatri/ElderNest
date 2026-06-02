@@ -13,20 +13,13 @@ const ServiceFormPage = () => {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
-  const [form, setForm] = useState(emptyServiceForm());
-  const [caregivers, setCaregivers] = useState([]);
+  const [form, setForm] = useState({ ...emptyServiceForm(), status: "published" });
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [featureInput, setFeatureInput] = useState("");
   const [benefitInput, setBenefitInput] = useState("");
   const [imageUrlInput, setImageUrlInput] = useState("");
-
-  useEffect(() => {
-    getAllCaregivers({ status: "approved" })
-      .then((res) => setCaregivers(res?.data?.caregivers || []))
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -43,14 +36,11 @@ const ServiceFormPage = () => {
           image: s.image || s.coverImage || "",
           images: s.images || [],
           duration: s.duration ?? 1,
-          price: s.price ?? 0,
           serviceMode: s.serviceMode || "home-visit",
           features: s.features || [],
           benefits: s.benefits || [],
-          caregivers: (s.caregivers || []).map((c) => (typeof c === "object" ? c._id : c)),
           isFeatured: Boolean(s.isFeatured),
-          isActive: s.isActive !== false,
-          isDraft: Boolean(s.isDraft),
+          status: s.isDraft ? "draft" : (s.isActive !== false ? "published" : "inactive"),
         });
       })
       .catch(() => toast.error("Failed to load service"))
@@ -81,18 +71,6 @@ const ServiceFormPage = () => {
     }
   };
 
-  const toggleCaregiver = (cgId) => {
-    setForm((prev) => {
-      const ids = prev.caregivers.map(String);
-      const sid = String(cgId);
-      return {
-        ...prev,
-        caregivers: ids.includes(sid)
-          ? prev.caregivers.filter((c) => String(c) !== sid)
-          : [...prev.caregivers, cgId],
-      };
-    });
-  };
 
   const addListItem = (key, value, clear) => {
     const v = value.trim();
@@ -101,33 +79,34 @@ const ServiceFormPage = () => {
     clear("");
   };
 
-  const savePayload = (asDraft) => ({
+  const savePayload = () => ({
     ...form,
-    isDraft: asDraft,
+    isDraft: form.status === "draft",
+    isActive: form.status === "published",
     duration: Number(form.duration) || 0,
-    price: Number(form.price) || 0,
     image: form.coverImage || form.image,
     coverImage: form.coverImage || form.image,
   });
 
-  const handleSubmit = async (e, asDraft = false) => {
+  const handleSubmit = async (e) => {
     e?.preventDefault?.();
-    if (!asDraft && (!form.title || !form.category || !form.description)) {
+    if (form.status !== "draft" && (!form.title || !form.category || !form.description)) {
       toast.error("Title, category, and description are required");
       return;
     }
     try {
       setSaving(true);
-      const payload = savePayload(asDraft);
+      const payload = savePayload();
+      const isDraft = payload.isDraft;
       if (isEdit) {
         await updateService(id, payload);
-        toast.success(asDraft ? "Draft saved" : "Service updated");
-        navigate(asDraft ? "/admin/services" : `/admin/services/${id}`);
+        toast.success(isDraft ? "Draft saved" : "Service updated");
+        navigate(isDraft ? "/admin/services" : `/admin/services/${id}`);
       } else {
         const res = await createService(payload);
-        toast.success(asDraft ? "Draft saved" : "Service created");
+        toast.success(isDraft ? "Draft saved" : "Service created");
         const createdId = res?.data?.service?._id;
-        navigate(createdId && !asDraft ? `/admin/services/${createdId}` : "/admin/services");
+        navigate(createdId && !isDraft ? `/admin/services/${createdId}` : "/admin/services");
       }
     } catch (err) {
       toast.error(err.message || "Failed to save service");
@@ -144,7 +123,7 @@ const ServiceFormPage = () => {
     <div className="w-full max-w-6xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => navigate(isEdit ? `/admin/services/${id}` : "/admin/services")} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-5 h-5 dark:text-slate-100" />
         </button>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           {isEdit ? "Edit Service" : "Create Service"}
@@ -172,20 +151,31 @@ const ServiceFormPage = () => {
               options={SERVICE_MODES}
             />
           </Field>
-          <Field label="Price (₹)">
-            <input type="number" min="0" className={inputCls} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
-          </Field>
           <Field label="Duration (hours)">
             <input type="number" min="0" step="0.5" className={inputCls} value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
           </Field>
         </div>
 
         <Field label="Short Description">
-          <input className={inputCls} value={form.shortDescription} onChange={(e) => setForm({ ...form, shortDescription: e.target.value })} maxLength={300} />
+          <div className="relative">
+            <textarea 
+              className={`${inputCls} resize-none pr-16`} 
+              rows={3} 
+              value={form.shortDescription} 
+              onChange={(e) => setForm({ ...form, shortDescription: e.target.value })} 
+              maxLength={500} 
+              placeholder="Brief summary of the service..."
+            />
+            <div className={`absolute bottom-3 right-3 text-xs font-medium ${
+              form.shortDescription.length >= 480 ? 'text-orange-500' : 'text-slate-400 dark:text-slate-500'
+            }`}>
+              {form.shortDescription.length}/500
+            </div>
+          </div>
         </Field>
 
         <Field label="Description *">
-          <textarea className={`${inputCls} resize-none`} rows={5} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
+          <textarea className={`${inputCls} resize-none`} rows={10} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
         </Field>
 
         <Field label="Cover Image">
@@ -199,8 +189,8 @@ const ServiceFormPage = () => {
           </div>
           <div className="flex flex-wrap gap-2">
             {form.images.map((url) => (
-              <span key={url} className="inline-flex items-center gap-1 text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
-                {url.slice(0, 30)}…
+              <span key={url} className="inline-flex items-center gap-1 text-xs bg-slate-100 dark:bg-slate-800 dark:text-slate-100 px-2 py-1 rounded">
+                <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline">{url.slice(0, 30)}…</a>
                 <button type="button" onClick={() => setForm({ ...form, images: form.images.filter((u) => u !== url) })}><X className="w-3 h-3" /></button>
               </span>
             ))}
@@ -223,50 +213,32 @@ const ServiceFormPage = () => {
           <TagList items={form.benefits} onRemove={(i) => setForm({ ...form, benefits: form.benefits.filter((_, idx) => idx !== i) })} />
         </Field>
 
-        <Field label="Assigned Caregivers">
-          {caregivers.length === 0 ? (
-            <p className="text-sm text-slate-500">No approved caregivers available</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-              {caregivers.map((cg) => {
-                const checked = form.caregivers.some((id) => String(id) === String(cg._id));
-                return (
-                  <div key={cg._id} className={`p-3 rounded-lg border ${checked ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-700"}`}>
-                    <label className="flex items-center space-x-2 w-full cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleCaregiver(cg._id)}
-                        className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 bg-white dark:bg-slate-800"
-                      />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {cg.fullName || cg.userId?.name || "Caregiver"}
-                      </span>
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </Field>
 
         <div className="flex flex-wrap gap-6">
-          <label className="flex items-center space-x-2">
+          <label className="flex items-center space-x-2 mr-6">
             <input type="checkbox" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 bg-white dark:bg-slate-800" />
             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Featured service</span>
           </label>
-          <label className="flex items-center space-x-2">
-            <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 bg-white dark:bg-slate-800" />
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Active (published)</span>
-          </label>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Status:</label>
+            <Select
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+              options={[
+                { value: "published", label: "Active (Published)" },
+                { value: "draft", label: "Draft" },
+                { value: "inactive", label: "Inactive (Hidden)" }
+              ]}
+              className="w-56"
+            />
+          </div>
         </div>
 
         <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
           <Button type="button" variant="outline" onClick={() => navigate(-1)}>Cancel</Button>
-          <Button type="button" variant="outline" disabled={saving} onClick={(e) => handleSubmit(e, true)}>
-            {saving ? "Saving..." : "Save as draft"}
+          <Button type="submit" disabled={saving}>
+            {saving ? "Saving..." : "Save Service"}
           </Button>
-          <Button type="submit" disabled={saving}>{saving ? "Saving..." : isEdit ? "Publish update" : "Publish service"}</Button>
         </div>
       </form>
     </div>

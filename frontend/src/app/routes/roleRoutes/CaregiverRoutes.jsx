@@ -24,7 +24,9 @@ const CaregiverDocuments = lazy(() => import("../../../features/caregiver/pages/
 const CaregiverVerification = lazy(() => import("../../../features/caregiver/pages/Verification"));
 const CaregiverAvailability = lazy(() => import("../../../features/caregiver/pages/Availability"));
 const CaregiverAnalytics = lazy(() => import("../../../features/caregiver/pages/Analytics"));
+const CaregiverComplaints = lazy(() => import("../../../features/caregiver/pages/CaregiverComplaints"));
 const CaregiverSettings = lazy(() => import("../../../features/caregiver/pages/Settings"));
+const CaregiverBookingDetails = lazy(() => import("../../../features/caregiver/pages/BookingDetails"));
 
 const CaregiverRoutes = ({ theme, toggleTheme }) => (
   <>
@@ -40,12 +42,14 @@ const CaregiverRoutes = ({ theme, toggleTheme }) => (
           <Route path="/caregiver/complete-profile" element={<CompleteProfile />} />
           <Route path="/caregiver/profile" element={<CaregiverProfile />} />
           <Route path="/caregiver/bookings" element={<CaregiverBookings />} />
+          <Route path="/caregiver/bookings/:id" element={<CaregiverBookingDetails />} />
           <Route path="/caregiver/requests" element={<CaregiverRequests />} />
           <Route path="/caregiver/services" element={<CaregiverServices />} />
           <Route path="/caregiver/payments" element={<CaregiverPayments />} />
           <Route path="/caregiver/reviews" element={<CaregiverReviews />} />
           <Route path="/caregiver/notifications" element={<CaregiverNotifications />} />
           <Route path="/caregiver/care-notes" element={<CareNotes />} />
+          <Route path="/caregiver/complaints" element={<CaregiverComplaints />} />
           <Route path="/caregiver/documents" element={<CaregiverDocuments />} />
           <Route path="/caregiver/verification" element={<CaregiverVerification />} />
           <Route path="/caregiver/availability" element={<CaregiverAvailability />} />

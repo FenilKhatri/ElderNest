@@ -35,5 +35,11 @@ export const getUnreadCount = asyncHandler(async (req, res) => {
 export const deleteNotification = asyncHandler(async (req, res) => {
     const { id } = req.params;
     await notificationService.deleteNotification(id, req.user.id);
-    return successResponse(res, 200, "Notification deleted");
+    return successResponse(res, 200, "Notification deleted successfully");
+});
+
+// Delete all notifications
+export const deleteAllNotifications = asyncHandler(async (req, res) => {
+    await notificationService.deleteAllNotifications(req.user.id);
+    return successResponse(res, 200, "All notifications deleted successfully");
 });

@@ -186,7 +186,7 @@ export const getMe = asyncHandler(async (req, res) => {
         const caregiver = await Caregiver.findOne({ userId: user._id })
             .populate("userId", "name email profileImage phone")
             .select(
-                "profileCompleted profileApprovalStatus onboardingStage isPublished fullName bio experienceYears"
+                "profileCompleted profileApprovalStatus onboardingStage isPublished fullName bio experienceYears adminFeedback"
             );
 
         return successResponse(res, 200, "User fetched", {
@@ -196,6 +196,7 @@ export const getMe = asyncHandler(async (req, res) => {
                 profileApprovalStatus: caregiver?.profileApprovalStatus,
                 onboardingStage: caregiver?.onboardingStage,
                 isPublished: caregiver?.isPublished ?? false,
+                adminFeedback: caregiver?.adminFeedback,
             },
             caregiver: sanitizeCaregiver(caregiver),
         });

@@ -82,6 +82,17 @@ export const deleteNotification = async (notificationId, userId) => {
     }
 };
 
+// Delete All Notifications
+export const deleteAllNotifications = async (userId) => {
+    try {
+        await Notification.deleteMany({ userId });
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to delete all notifications:", error);
+        throw error;
+    }
+};
+
 // Notification Templates
 export const notificationTemplates = {
     caregiverApproved: {

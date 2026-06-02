@@ -4,8 +4,8 @@ import { ROLES, LOCK_TIME, MAX_FAILED_ATTEMPTS, CAREGIVER_STATUSES } from "../..
 import { AppError } from "../../common/utils/appError.js";
 import Caregiver from "../caregiver/caregiver.model.js";
 import { createNotification } from "../../common/services/notification.service.js";
+import { sendEmail } from "../../common/services/email.service.js";
 
-// Registration Logic
 export const createUser = async (data) => {
     const { name, email, phone, password } = data;
 
@@ -38,7 +38,6 @@ export const createUser = async (data) => {
     return user;
 };
 
-// Login Logic
 export const existingUser = async (data) => {
     const { email, password } = data;
 
@@ -107,12 +106,10 @@ export const loginAdmin = async (data) => {
 export const createCaregiver = async (data) => {
     const { name, email, phone, password } = data;
 
-    // 1. Check if user already exists
     const existingUser = await User.findOne({ email });
 
     if (existingUser) throw new AppError("User already exists!", 400);
 
-    // 2. Hash password
     if (!password || typeof password !== "string") {
         throw new AppError("Password is required", 400);
     }
@@ -124,7 +121,6 @@ export const createCaregiver = async (data) => {
         throw new AppError("Invalid password format", 400);
     }
 
-    // 3. Create user (auth layer)
     const user = await User.create({
         name,
         email,
@@ -135,12 +131,10 @@ export const createCaregiver = async (data) => {
         isApproved: false,
     });
 
-    // 4. Create caregiver profile
     await Caregiver.create({
         userId: user._id,
     });
 
-    // 5. Notify admin
     const admins = await User.find({ role: ROLES.ADMIN });
     for (const admin of admins) {
         await createNotification(
@@ -150,7 +144,14 @@ export const createCaregiver = async (data) => {
             `${user.name} has registered as a caregiver and is waiting for approval.`,
             "/admin/caregivers"
         );
+        // Send email to admin
+        await sendEmail(admin.email, "adminCaregiverNotification", {
+            caregiverName: user.name,
+            caregiverEmail: user.email,
+        });
     }
+
+    await sendEmail(user.email, "caregiverRegistration", { name: user.name });
 
     return user;
 };
@@ -159,14 +160,12 @@ export const createCaregiver = async (data) => {
 export const existingCaregiver = async (data) => {
     const { email, password } = data;
 
-    // 1. Find user
     const user = await User.findOne({ email }).select("+password");
 
     if (!user || user.role !== ROLES.CAREGIVER) {
         throw new AppError("Caregiver not found!", 404);
     }
 
-    // 2. Check account lock
     if (user.lockUntil && user.lockUntil > Date.now()) {
         const error = new AppError("Account is locked. Try again later!", 403);
         error.statusCode = 403;
@@ -182,7 +181,6 @@ export const existingCaregiver = async (data) => {
         throw new AppError("Invalid credentials", 401);
     }
 
-    // 3. Compare password
     let isMatch;
     try {
         isMatch = await bcrypt.compare(password, user.password);
@@ -190,7 +188,6 @@ export const existingCaregiver = async (data) => {
         throw new AppError("Invalid credentials", 401);
     }
 
-    // WRONG PASSWORD
     if (!isMatch) {
         user.failedLoginAttempts += 1;
 

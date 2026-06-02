@@ -75,6 +75,15 @@ export const getAllCaregivers = async (filters = {}) => {
         else if (filters.experience === '1-3') query.experienceYears = { $gte: 1, $lt: 3 };
     }
 
+    // Filter by careType
+    if (filters.careType) {
+        const careTypesArray = Array.isArray(filters.careType) ? filters.careType : filters.careType.split(',');
+        // For now, we match against availableTiming as a proxy for careType since we haven't added a dedicated careType array yet,
+        // or we can query against a new field if we add one.
+        // Assuming availability object is updated in Phase 7 to contain careTypes, we'll query it here.
+        query['availability.careTypes'] = { $in: careTypesArray };
+    }
+
     // Search by name (via populated userId, but since we can't easily search populated fields in mongoose find query, 
     // we first find users matching the search, then filter caregivers by those userIds)
     if (filters.search) {

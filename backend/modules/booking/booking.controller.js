@@ -80,3 +80,10 @@ export const getAllBookings = asyncHandler(async (req, res) => {
     const bookings = await bookingService.getAllBookings(filters);
     return successResponse(res, 200, "Bookings fetched successfully", { bookings });
 });
+
+// Delete booking (admin)
+export const deleteBooking = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    await bookingService.deleteBooking(id);
+    return successResponse(res, 200, "Booking deleted successfully");
+});

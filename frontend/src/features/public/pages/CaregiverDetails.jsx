@@ -30,12 +30,10 @@ const CaregiverDetails = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // 1. Fetch Caregiver
         const res = await getCaregiverById(id);
         setCaregiver(res.data?.caregiver);
 
         if (res.data?.caregiver) {
-          // 2. Fetch Reviews
           const revRes = await http.get(`/reviews/caregiver/${id}`);
           setReviews(revRes.data?.reviews || []);
         }

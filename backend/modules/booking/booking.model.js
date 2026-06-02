@@ -191,7 +191,7 @@ const bookingSchema = new mongoose.Schema(
         // Payment
         paymentStatus: {
             type: String,
-            enum: ["pending", "paid", "refunded", "failed", "Pending", "Completed", "Failed", "Refunded"],
+            enum: ["pending", "paid", "refunded", "failed", "completed"],
             default: "pending",
         },
         paymentId: {
@@ -240,5 +240,14 @@ bookingSchema.pre("save", async function () {
 bookingSchema.index({ userId: 1, status: 1 });
 bookingSchema.index({ caregiverId: 1, status: 1 });
 bookingSchema.index({ bookingDate: 1, status: 1 });
+
+// Compound unique index to prevent overlapping double bookings
+bookingSchema.index(
+    { caregiverId: 1, bookingDate: 1, "timeSlot.startTime": 1, "timeSlot.endTime": 1 },
+    { 
+        unique: true,
+        partialFilterExpression: { status: { $in: ["pending", "accepted", "in-progress"] } }
+    }
+);
 
 export default mongoose.model("Booking", bookingSchema);

@@ -1,6 +1,7 @@
 import Complaint from "./complaint.model.js";
 import { createNotification } from "../../common/services/notification.service.js";
 import Booking from "../booking/booking.model.js";
+import User from "../user/user.model.js";
 
 export const createComplaint = async (userId, data) => {
     let internalBookingId = undefined;
@@ -13,7 +14,21 @@ export const createComplaint = async (userId, data) => {
             internalBookingId = isMongoId ? data.bookingId : undefined;
         }
     }
-    return Complaint.create({ ...data, userId, type: data.type || "user", bookingId: internalBookingId });
+    
+    const complaint = await Complaint.create({ ...data, userId, type: data.type || "user", bookingId: internalBookingId });
+    
+    // Notify all admins
+    const admins = await User.find({ role: "admin" }).select("_id");
+    const notifications = admins.map(admin => createNotification(
+        admin._id,
+        "general",
+        "New Complaint",
+        `A new ${data.type || "user"} complaint has been submitted: "${data.subject}"`,
+        "/admin/complaints"
+    ));
+    await Promise.allSettled(notifications);
+    
+    return complaint;
 };
 
 export const getMyComplaints = async (userId) => {

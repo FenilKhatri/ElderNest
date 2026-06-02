@@ -5,9 +5,15 @@ import Contact from "../contact/contact.model.js";
 import Service from "../service/service.model.js";
 import Patient from "../patient/patient.model.js";
 import Complaint from "../complaint/complaint.model.js";
+import Notification from "../notification/notification.model.js";
+import Message from "../message/message.model.js";
+import Review from "../review/review.model.js";
+import CareNote from "../careNote/careNote.model.js";
 import { createNotification } from "../../common/services/notification.service.js";
 import { sendEmail } from "../../common/services/email.service.js";
 import { ONBOARDING_STAGES } from "../../common/utils/caregiverOnboarding.js";
+import mongoose from "mongoose";
+import { deleteFromCloudinary } from "../../config/cloudinary.js";
 
 // Get pending caregiver registrations
 export const getPendingCaregivers = async () => {
@@ -73,6 +79,7 @@ export const rejectCaregiverRegistration = async (userId, reason) => {
     const caregiver = await Caregiver.findOne({ userId: user._id });
     if (caregiver) {
         caregiver.onboardingStage = ONBOARDING_STAGES.REJECTED;
+        caregiver.adminFeedback = reason;
         await caregiver.save();
     }
 
@@ -375,17 +382,55 @@ export const getAnalytics = async () => {
     };
 };
 
-// Delete user or caregiver
+// Delete user or caregiver (Cascade Delete)
 export const deleteUser = async (userId) => {
-    const user = await User.findById(userId);
-    if (!user) {
-        throw new Error("User not found");
-    }
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
 
-    if (user.role === "caregiver") {
-        await Caregiver.findOneAndDelete({ userId });
-    }
+        if (user.profileImage && user.profileImage.includes("cloudinary.com")) {
+            await deleteFromCloudinary(user.profileImage);
+        }
 
-    await User.findByIdAndDelete(userId);
-    return true;
+        if (user.role === "caregiver") {
+            const caregiver = await Caregiver.findOne({ userId });
+            if (caregiver) {
+                // Delete caregiver documents from Cloudinary
+                const docs = caregiver.documents || {};
+                if (docs.idProof && docs.idProof.includes("cloudinary.com")) await deleteFromCloudinary(docs.idProof);
+                if (docs.backgroundCheck && docs.backgroundCheck.includes("cloudinary.com")) await deleteFromCloudinary(docs.backgroundCheck);
+                if (docs.certifications) {
+                    for (const cert of docs.certifications) {
+                        if (cert && cert.includes("cloudinary.com")) await deleteFromCloudinary(cert);
+                    }
+                }
+
+                await Booking.deleteMany({ caregiverId: caregiver._id });
+                await Review.deleteMany({ caregiverId: caregiver._id });
+                await CareNote.deleteMany({ caregiverId: caregiver._id });
+                
+                await Caregiver.findByIdAndDelete(caregiver._id);
+            }
+        } else {
+            await Booking.deleteMany({ userId });
+            await Patient.deleteMany({ userId });
+            await Review.deleteMany({ userId });
+        }
+
+        await Notification.deleteMany({ userId });
+        await Complaint.deleteMany({ userId });
+        await Message.deleteMany({
+            $or: [{ senderId: userId }, { receiverId: userId }]
+        });
+
+        await User.findByIdAndDelete(userId);
+
+        return true;
+
+    } catch (error) {
+        console.error("Cascade Delete Error:", error);
+        throw error;
+    }
 };

@@ -9,6 +9,8 @@ import UserDropdown from "../../components/ui/UserDropdown";
 import AuthSkeleton from "../../components/feedback/skeleton/AuthSkeleton";
 import MobileAuthSkeleton from "../../components/feedback/skeleton/MobileAuthSkeleton";
 import LogoutButton from "../../components/ui/LogoutButton";
+import NotificationBell from "../../components/ui/NotificationBell";
+import { publicNavLinks } from "../../data/navigation.data";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -16,15 +18,6 @@ const Navbar = ({ theme, toggleTheme }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Caregivers", path: "/caregivers" },
-    { name: "Services", path: "/services" },
-    { name: "About", path: "/about" },
-    { name: "Blogs", path: "/blogs" },
-    { name: "Contact", path: "/contact" }
-  ];
 
   const activeLinks = ({ isActive }) =>
     `p-2 font-semibold transition duration-300 ${
@@ -134,7 +127,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
           {/* DESKTOP LINKS */}
           <ul className="hidden md:flex items-center gap-4">
-            {navLinks?.map((link) => (
+            {publicNavLinks?.map((link) => (
               <li key={link.path}>
                 <NavLink to={link.path} className={activeLinks}>
                   {link.name}
@@ -154,11 +147,14 @@ const Navbar = ({ theme, toggleTheme }) => {
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
+            {user && <NotificationBell />}
+
             <DesktopAuthButtons />
           </div>
 
           {/* MOBILE BUTTONS */}
           <div className="md:hidden flex items-center gap-2">
+            {user && <NotificationBell />}
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800"
@@ -198,7 +194,7 @@ const Navbar = ({ theme, toggleTheme }) => {
         </div>
 
         <div className="p-4 flex flex-col gap-3">
-          {navLinks?.map((link) => (
+          {publicNavLinks?.map((link) => (
             <NavLink
               key={link.path}
               to={link.path}

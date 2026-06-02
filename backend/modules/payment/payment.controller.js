@@ -3,6 +3,7 @@ import getRazorpayInstance from "../../config/razorpay.js";
 import { asyncHandler } from "../../common/middlewares/async.helper.js";
 import { successResponse, errorResponse } from "../../common/utils/responseHandler.utils.js";
 import * as bookingService from "../booking/booking.services.js";
+import { acquireSlotLock } from "../booking/slotLocking.service.js";
 import Booking from "../booking/booking.model.js";
 import { generateReceiptPdf, generateBookingPdf } from "../../common/utils/pdf/index.js";
 import { sendEmail } from "../../common/services/email.service.js";
@@ -20,12 +21,32 @@ export const createOrder = asyncHandler(async (req, res) => {
         return errorResponse(res, 400, "Booking data with caregiverId and serviceId is required");
     }
 
+    // Pre-validate the booking (throws error if invalid)
+    try {
+        await bookingService.validateBookingRequest(req.user.id, bookingData);
+    } catch (error) {
+        return errorResponse(res, 400, error.message);
+    }
+
     // Calculate the amount using existing booking service logic
     const { totalAmount } = await bookingService.calculateBookingDetails(
         bookingData.serviceId,
         bookingData.timeSlot?.startTime,
         bookingData.timeSlot?.endTime
     );
+
+    // Acquire slot lock to prevent double booking race conditions
+    const lock = await acquireSlotLock(
+        bookingData.caregiverId,
+        bookingData.bookingDate,
+        bookingData.timeSlot?.startTime,
+        bookingData.timeSlot?.endTime,
+        req.user.id
+    );
+
+    if (!lock) {
+        return errorResponse(res, 409, "This time slot is currently being booked by someone else. Please try another slot or try again in 10 minutes.");
+    }
 
     const amountInPaise = Math.round(totalAmount * 100); // Razorpay expects amount in paise
 
@@ -67,7 +88,6 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         return errorResponse(res, 400, "Payment verification data missing");
     }
 
-    // 1. Verify signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
         .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -78,10 +98,9 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         return errorResponse(res, 400, "Payment verification failed. Invalid signature.");
     }
 
-    // 2. Create the actual booking via existing service
     const booking = await bookingService.createBooking(req.user.id, bookingData);
 
-    // 3. Mark payment as completed
+    await Booking.findByIdAndUpdate(booking._id, { status: "pending" });
     booking.paymentStatus = "paid";
     booking.transactionId = razorpay_payment_id;
     booking.razorpayOrderId = razorpay_order_id;
@@ -89,7 +108,6 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     booking.paymentDate = new Date();
     await booking.save();
 
-    // 4. Generate PDFs (non-blocking — don't fail the request if PDF gen fails)
     try {
         const populatedBooking = await Booking.findById(booking._id)
             .populate("userId", "name email phone")
@@ -106,7 +124,6 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         booking.bookingPdfUrl = bookingPdfUrl;
         await booking.save();
 
-        // 5. Send confirmation email with PDF attachments
         await sendEmail(
             populatedBooking.userId.email,
             "bookingPaymentConfirmation",

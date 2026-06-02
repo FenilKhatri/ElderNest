@@ -115,7 +115,7 @@ const CustomDropdown = ({
 
       {open && (
         <div
-          className="absolute z-50 left-0 right-0 mt-1 max-h-60 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl"
+          className="absolute z-50 left-0 min-w-full mt-1 max-h-60 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl"
           role="listbox"
         >
           {searchable && (
@@ -144,7 +144,7 @@ const CustomDropdown = ({
                     <button
                       type="button"
                       onClick={() => toggle(opt.value)}
-                      className={`w-full px-3 py-2 text-sm rounded-md flex items-center justify-between text-left
+                      className={`w-full px-3 py-2 text-sm rounded-md flex items-center justify-between text-left whitespace-nowrap gap-4
                         ${selected ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"}`}
                     >
                       {opt.label}

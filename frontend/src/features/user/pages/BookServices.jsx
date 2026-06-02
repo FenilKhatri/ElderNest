@@ -124,14 +124,12 @@ const BookServices = () => {
       if (!payload.patientId) delete payload.patientId;
       if (!payload.patientName) delete payload.patientName;
 
-      // 1. Load Razorpay script
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
         toast.error("Failed to load payment gateway. Please check your internet connection.");
         return;
       }
 
-      // 2. Get Razorpay key
       const keyRes = await getRazorpayKey();
       const razorpayKey = keyRes?.data?.key;
       if (!razorpayKey) {
@@ -139,7 +137,6 @@ const BookServices = () => {
         return;
       }
 
-      // 3. Create Razorpay order
       const orderRes = await createPaymentOrder(payload);
       const { orderId, amount, currency } = orderRes?.data || {};
 
@@ -148,7 +145,6 @@ const BookServices = () => {
         return;
       }
 
-      // 4. Open Razorpay modal
       const options = {
         key: razorpayKey,
         amount,
@@ -166,7 +162,6 @@ const BookServices = () => {
         },
         handler: async (response) => {
           try {
-            // 5. Verify payment on backend
             await verifyPayment({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -224,6 +219,37 @@ const BookServices = () => {
     );
   }
 
+  const hasServices = caregiver.servicesOffered && caregiver.servicesOffered.length > 0;
+  const hasAvailability = caregiver.availability && caregiver.availability.length > 0;
+
+  if (!hasServices || !hasAvailability) {
+    return (
+      <div className="w-full max-w-4xl mx-auto px-4 py-12 text-center">
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Caregiver Unavailable</h2>
+        <p className="mt-2 text-slate-600 dark:text-slate-400">
+          This caregiver has not configured their services or availability schedule yet and cannot be booked at this time.
+        </p>
+        <Button onClick={() => navigate("/caregivers")} className="mt-6">Browse Other Caregivers</Button>
+      </div>
+    );
+  }
+
+  // Calculate available slots and care types based on selected date
+  const selectedDateObj = form.bookingDate ? new Date(form.bookingDate) : null;
+  const dayOfWeek = selectedDateObj ? selectedDateObj.toLocaleDateString("en-US", { weekday: "long" }) : "";
+  const dayAvailability = caregiver.availability?.find(a => a.day === dayOfWeek);
+  
+  const availableSlotsForDay = dayAvailability?.slots || [];
+  const availableCareTypesForDay = dayAvailability?.careTypes || [];
+  
+  const slotOptions = availableSlotsForDay.map(slot => ({
+    value: `${slot.startTime}-${slot.endTime}`,
+    label: `${slot.startTime} to ${slot.endTime} ${slot.isBooked ? '(Unavailable)' : ''}`,
+    disabled: slot.isBooked
+  }));
+
+  const availableCareTypeOptions = CARE_TYPES.filter(type => availableCareTypesForDay.includes(type.value));
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
       <div className="mb-8">
@@ -249,7 +275,14 @@ const BookServices = () => {
                   options={caregiver.servicesOffered?.map(s => ({ value: s._id, label: s.title || s.name })) || []} 
                   required 
                 />
-                <Select label="Care Type *" value={form.careType} onChange={(e) => setForm({ ...form, careType: e.target.value })} options={CARE_TYPES} required />
+                <Select 
+                  label="Care Type *" 
+                  value={form.careType} 
+                  onChange={(e) => setForm({ ...form, careType: e.target.value })} 
+                  options={form.bookingDate ? availableCareTypeOptions : [{value: "", label: "Select Start Date first"}]} 
+                  disabled={!form.bookingDate || availableCareTypeOptions.length === 0}
+                  required 
+                />
                 <Select label="Duration Type *" value={form.durationType} onChange={(e) => setForm({ ...form, durationType: e.target.value })} options={DURATION_TYPES} required />
               </div>
             </div>
@@ -308,9 +341,55 @@ const BookServices = () => {
                 <Calendar className="w-5 h-5 mr-2 text-blue-600" /> Schedule
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <Input labelName="Start Date *" type="date" min={new Date().toISOString().split("T")[0]} value={form.bookingDate} onChange={(e) => setForm({ ...form, bookingDate: e.target.value })} required />
-                <Input labelName="Start Time *" type="time" value={form.timeSlot.startTime} onChange={(e) => setNested("timeSlot", "startTime", e.target.value)} required />
-                <Input labelName="End Time *" type="time" value={form.timeSlot.endTime} onChange={(e) => setNested("timeSlot", "endTime", e.target.value)} required />
+                <Input 
+                  labelName="Start Date *" 
+                  type="date" 
+                  min={new Date().toISOString().split("T")[0]} 
+                  value={form.bookingDate} 
+                  onChange={(e) => {
+                    const newDate = e.target.value;
+                    const newDateObj = new Date(newDate);
+                    const newDayOfWeek = newDateObj.toLocaleDateString("en-US", { weekday: "long" });
+                    const newDayAv = caregiver.availability?.find(a => a.day === newDayOfWeek);
+                    const newCareTypes = newDayAv?.careTypes || [];
+                    
+                    setForm(prev => ({ 
+                      ...prev, 
+                      bookingDate: newDate, 
+                      timeSlot: { startTime: "", endTime: "" },
+                      careType: newCareTypes.includes(prev.careType) ? prev.careType : ""
+                    }));
+                  }} 
+                  required 
+                />
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Time Slot *
+                  </label>
+                  <select
+                    className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    value={form.timeSlot.startTime ? `${form.timeSlot.startTime}-${form.timeSlot.endTime}` : ""}
+                    onChange={(e) => {
+                      if (!e.target.value) {
+                        setForm(prev => ({ ...prev, timeSlot: { startTime: "", endTime: "" } }));
+                        return;
+                      }
+                      const [start, end] = e.target.value.split("-");
+                      setForm(prev => ({ ...prev, timeSlot: { startTime: start, endTime: end } }));
+                    }}
+                    disabled={!form.bookingDate || slotOptions.length === 0}
+                    required
+                  >
+                    <option value="">
+                      {!form.bookingDate ? "Select a date first" : slotOptions.length === 0 ? "No availability on this day" : "Select a time slot"}
+                    </option>
+                    {slotOptions.map(opt => (
+                      <option key={opt.value} value={opt.value} disabled={opt.disabled}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 

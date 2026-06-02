@@ -50,4 +50,10 @@ router.patch(
     bookingController.updateBookingStatus
 );
 
+router.delete(
+    "/:id",
+    authorizeRoles(ROLES.ADMIN),
+    bookingController.deleteBooking
+);
+
 export default router;

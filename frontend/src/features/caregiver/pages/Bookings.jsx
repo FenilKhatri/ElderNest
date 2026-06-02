@@ -6,11 +6,18 @@ import { getMyProfile } from "../api/caregiver.api";
 import { formatDate } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Button from "../../../components/ui/Button";
+import Modal from "../../../components/ui/Modal";
+import MessagePanel from "../../booking/components/MessagePanel";
+import { MessageSquare, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [processingId, setProcessingId] = useState(null);
+  const [activeMessageBooking, setActiveMessageBooking] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
     fetchBookings();
@@ -21,6 +28,7 @@ const Bookings = () => {
       setLoading(true);
       const profileRes = await getMyProfile();
       const caregiverId = profileRes?.data?.caregiver?._id;
+      setCurrentUserId(profileRes?.data?.user?._id); // Assuming getMyProfile returns user._id
       
       if (caregiverId) {
         const res = await getCaregiverBookings(caregiverId);
@@ -36,12 +44,24 @@ const Bookings = () => {
   };
 
   const handleStatusUpdate = async (id, newStatus) => {
+    if (processingId) return;
+
     try {
+      setProcessingId(id);
+
+      // Optimistic update
+      setBookings(prev => 
+        prev.map(b => b._id === id ? { ...b, status: newStatus } : b)
+      );
+
       await updateBookingStatus(id, { status: newStatus });
       toast.success(`Booking ${newStatus} successfully`);
       fetchBookings();
     } catch (error) {
       toast.error(error.message || "Failed to update booking status");
+      fetchBookings(); // Revert on failure
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -126,37 +146,66 @@ const Bookings = () => {
                   </div>
                 </div>
 
-                {booking.status === "pending" && (
-                  <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                    <Button variant="outline" onClick={() => handleStatusUpdate(booking._id, "rejected")}>
-                      Reject
-                    </Button>
-                    <Button onClick={() => handleStatusUpdate(booking._id, "accepted")}>
-                      Accept Request
-                    </Button>
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center flex-wrap gap-4">
+                  <Link to={`/caregiver/bookings/${booking._id}`} className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                    <ExternalLink className="w-4 h-4" /> View Full Details
+                  </Link>
+
+                  <div className="flex justify-end gap-3 flex-1">
+                    {booking.status === "pending" && (
+                      <>
+                        <Button variant="outline" onClick={() => handleStatusUpdate(booking._id, "rejected")} disabled={processingId === booking._id}>
+                          {processingId === booking._id ? "Processing..." : "Reject"}
+                        </Button>
+                        <Button onClick={() => handleStatusUpdate(booking._id, "accepted")} disabled={processingId === booking._id}>
+                          {processingId === booking._id ? "Processing..." : "Accept Request"}
+                        </Button>
+                      </>
+                    )}
+                    
+                    {booking.status === "accepted" && (
+                      <>
+                        <Button variant="outline" onClick={() => setActiveMessageBooking(booking)} className="flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4" /> Message
+                        </Button>
+                        <Button onClick={() => handleStatusUpdate(booking._id, "in-progress")} disabled={processingId === booking._id}>
+                          {processingId === booking._id ? "Processing..." : "Start Care (In Progress)"}
+                        </Button>
+                      </>
+                    )}
+                    
+                    {booking.status === "in-progress" && (
+                      <>
+                        <Button variant="outline" onClick={() => setActiveMessageBooking(booking)} className="flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4" /> Message
+                        </Button>
+                        <Button onClick={() => handleStatusUpdate(booking._id, "completed")} className="bg-green-600 hover:bg-green-700 text-white" disabled={processingId === booking._id}>
+                          {processingId === booking._id ? "Processing..." : "Mark Completed"}
+                        </Button>
+                      </>
+                    )}
                   </div>
-                )}
-                
-                {booking.status === "accepted" && (
-                  <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                    <Button onClick={() => handleStatusUpdate(booking._id, "in-progress")}>
-                      Start Care (In Progress)
-                    </Button>
-                  </div>
-                )}
-                
-                {booking.status === "in-progress" && (
-                  <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                    <Button onClick={() => handleStatusUpdate(booking._id, "completed")} className="bg-green-600 hover:bg-green-700 text-white">
-                      Mark Completed
-                    </Button>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Message Modal */}
+      <Modal
+        isOpen={!!activeMessageBooking}
+        onClose={() => setActiveMessageBooking(null)}
+        title={`Message ${activeMessageBooking?.patientName}`}
+        size="lg"
+      >
+        {activeMessageBooking && currentUserId && (
+          <MessagePanel 
+            bookingId={activeMessageBooking._id} 
+            currentUserId={currentUserId} 
+          />
+        )}
+      </Modal>
     </div>
   );
 };

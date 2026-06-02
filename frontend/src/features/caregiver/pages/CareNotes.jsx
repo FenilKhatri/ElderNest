@@ -107,11 +107,11 @@ const CareNotes = () => {
               required
             />
           )}
-          <Input label="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-          <Textarea label="Content *" rows={4} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} required />
-          <Input label="Vitals" value={form.vitals} onChange={(e) => setForm({ ...form, vitals: e.target.value })} />
-          <Input label="Medications" value={form.medications} onChange={(e) => setForm({ ...form, medications: e.target.value })} />
-          <Textarea label="Follow-up" rows={2} value={form.followUp} onChange={(e) => setForm({ ...form, followUp: e.target.value })} />
+          <Input label="Title" placeholder="e.g. Daily Progress Note" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+          <Textarea label="Content *" placeholder="Detail the care provided, patient's status, and any observations..." rows={4} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} required />
+          <Input label="Vitals" placeholder="e.g. BP 120/80, Pulse 72, Temp 98.6" value={form.vitals} onChange={(e) => setForm({ ...form, vitals: e.target.value })} />
+          <Input label="Medications" placeholder="e.g. Aspirin 81mg at 9AM" value={form.medications} onChange={(e) => setForm({ ...form, medications: e.target.value })} />
+          <Textarea label="Follow-up" placeholder="e.g. Check blood pressure again tomorrow morning." rows={2} value={form.followUp} onChange={(e) => setForm({ ...form, followUp: e.target.value })} />
           <div className="flex justify-end gap-3">
             <Button type="button" variant="outline" onClick={() => setModal({ open: false, editing: null })}>Cancel</Button>
             <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save"}</Button>

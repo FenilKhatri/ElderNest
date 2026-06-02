@@ -23,10 +23,8 @@ const PaymentsPayouts = lazy(() => import("../../../features/admin/pages/Payment
 const PaymentsRefunds = lazy(() => import("../../../features/admin/pages/PaymentsRefunds"));
 
 // Complaints
-const ComplaintsUser = lazy(() => import("../../../features/admin/pages/ComplaintsUser"));
-const ComplaintsCaregiver = lazy(() => import("../../../features/admin/pages/ComplaintsCaregiver"));
-const ComplaintsResolved = lazy(() => import("../../../features/admin/pages/ComplaintsResolved"));
-const ComplaintsPending = lazy(() => import("../../../features/admin/pages/ComplaintsPending"));
+const AdminComplaints = lazy(() => import("../../../features/admin/pages/Complaints"));
+const Contacts = lazy(() => import("../../../features/admin/pages/Contacts"));
 
 const AdminNotifications = lazy(() => import("../../../features/admin/pages/Notifications"));
 const AdminNewsletter = lazy(() => import("../../../features/admin/pages/Newsletter"));
@@ -68,10 +66,8 @@ const AdminRoutes = ({ theme, toggleTheme }) => (
         <Route path="/admin/payments/refunds" element={<PaymentsRefunds />} />
         
         {/* Complaints */}
-        <Route path="/admin/complaints/user" element={<ComplaintsUser />} />
-        <Route path="/admin/complaints/caregiver" element={<ComplaintsCaregiver />} />
-        <Route path="/admin/complaints/resolved" element={<ComplaintsResolved />} />
-        <Route path="/admin/complaints/pending" element={<ComplaintsPending />} />
+        <Route path="/admin/complaints" element={<AdminComplaints />} />
+        <Route path="/admin/contacts" element={<Contacts />} />
         
         <Route path="/admin/notifications" element={<AdminNotifications />} />
         <Route path="/admin/newsletter" element={<AdminNewsletter />} />
