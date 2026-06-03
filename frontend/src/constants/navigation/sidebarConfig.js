@@ -1,4 +1,4 @@
-import { ROLES } from "../../utils/constants";
+import { ROLES } from "../auth/roles";
 import { adminSidebarLinks } from "../../data/sidebar.data.js";
 
 export const sidebarConfig = {

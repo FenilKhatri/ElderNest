@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { ArrowLeft, Check, X, MessageSquare, Eye } from "lucide-react";
+import { ArrowLeft, Check, X, MessageSquare, Eye, Download } from "lucide-react";
 import {
   getCaregiverVerificationDetail,
   reviewCaregiverVerification,
@@ -14,6 +14,29 @@ import GlobalLoader from "../../../components/ui/GlobalLoader";
 const DocRow = ({ label, url }) => {
   if (!url) return null;
   const isImage = /\.(jpe?g|png|gif|webp|avif)$/i.test(url);
+  const isPdf = /\.pdf$/i.test(url) || url.includes('/pdf/');
+
+  const handleDownload = async () => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = label.replace(/\s+/g, "_") + ".pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      let openUrl = url;
+      if (openUrl.includes("cloudinary.com") && !openUrl.includes("fl_attachment")) {
+        openUrl = openUrl.replace("/upload/", "/upload/fl_attachment/");
+      }
+      window.open(openUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
       <div>
@@ -22,21 +45,27 @@ const DocRow = ({ label, url }) => {
           <img src={url} alt={label} className="mt-2 max-h-32 rounded-lg border border-slate-200 dark:border-slate-700" />
         )}
       </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="flex items-center gap-2 shrink-0"
-        onClick={() => {
-          let openUrl = url;
-          if (openUrl.includes('cloudinary.com') && openUrl.toLowerCase().endsWith('.pdf') && !openUrl.includes('fl_attachment')) {
-            openUrl = openUrl.replace('/upload/', '/upload/fl_attachment/');
-          }
-          window.open(openUrl, "_blank", "noopener,noreferrer");
-        }}
-      >
-        <Eye className="w-4 h-4" /> Preview
-      </Button>
+      {isPdf ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2 shrink-0"
+          onClick={handleDownload}
+        >
+          <Download className="w-4 h-4" /> Download
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2 shrink-0"
+          onClick={() => window.open(url, "_blank", "noopener,noreferrer")}
+        >
+          <Eye className="w-4 h-4" /> Preview
+        </Button>
+      )}
     </div>
   );
 };

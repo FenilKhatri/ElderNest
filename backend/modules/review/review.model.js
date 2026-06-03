@@ -8,7 +8,6 @@ const reviewSchema = new mongoose.Schema(
             required: true,
             index: true,
         },
-        // Target can be either a Caregiver or a Service
         caregiverId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Caregiver",
@@ -51,7 +50,7 @@ const reviewSchema = new mongoose.Schema(
         status: {
             type: String,
             enum: ["pending", "approved", "rejected"],
-            default: "approved", // Moderation status
+            default: "approved", 
         },
         replies: [
             {

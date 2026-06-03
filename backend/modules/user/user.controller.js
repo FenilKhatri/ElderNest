@@ -2,7 +2,6 @@ import { asyncHandler } from "../../common/middlewares/async.helper.js";
 import { successResponse, errorResponse } from "../../common/utils/responseHandler.utils.js";
 import User from "./user.model.js";
 
-// Update profile
 export const updateProfile = asyncHandler(async (req, res) => {
     const { name, phone, profileImage, email } = req.body;
     

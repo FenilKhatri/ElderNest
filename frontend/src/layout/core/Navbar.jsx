@@ -61,14 +61,14 @@ const Navbar = ({ theme, toggleTheme }) => {
 
         {user?.role === "user" && (
           <div className="relative">
-            <button
+            <Button
               onClick={() => setUserOpen((prev) => !prev)}
               title="User Dropdown"
               className="flex items-center justify-center gap-3 px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 cursor-pointer"
             >
               {user.name}
               <ChevronDown size={18} />
-            </button>
+            </Button>
             <UserDropdown open={userOpen} setOpen={setUserOpen} />
           </div>
         )}
@@ -139,13 +139,13 @@ const Navbar = ({ theme, toggleTheme }) => {
           {/* RIGHT ACTIONS */}
           <div className="hidden md:flex items-center gap-3">
             {/* THEME */}
-            <button
+            <Button
               onClick={toggleTheme}
               title="Toggle Theme"
-              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 cursor-pointer"
+              className="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700"
             >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
+              {theme === "dark" ? <Sun size={18} className="text-slate-200" /> : <Moon size={18} className="text-slate-800" />}
+            </Button>
 
             {user && <NotificationBell />}
 
@@ -155,16 +155,16 @@ const Navbar = ({ theme, toggleTheme }) => {
           {/* MOBILE BUTTONS */}
           <div className="md:hidden flex items-center gap-2">
             {user && <NotificationBell />}
-            <button
+            <Button
               onClick={toggleTheme}
-              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800"
+              className="p-2 dark:bg-slate-800"
             >
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
+            </Button>
 
-            <button onClick={() => setMenuOpen(true)}>
+            <Button onClick={() => setMenuOpen(true)}>
               <Menu size={28} />
-            </button>
+            </Button>
           </div>
         </nav>
       </header>
@@ -188,9 +188,9 @@ const Navbar = ({ theme, toggleTheme }) => {
       >
         <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
           <h2 className="font-bold text-slate-700 dark:text-white">Menu</h2>
-          <button onClick={() => setMenuOpen(false)}>
+          <Button onClick={() => setMenuOpen(false)}>
             <X />
-          </button>
+          </Button>
         </div>
 
         <div className="p-4 flex flex-col gap-3">

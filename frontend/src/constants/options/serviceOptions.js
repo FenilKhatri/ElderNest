@@ -23,36 +23,5 @@ export const WEEK_DAYS = [
   { key: "sunday", label: "Sunday" },
 ];
 
-export const defaultAvailability = () =>
-  WEEK_DAYS.reduce((acc, { key }) => ({ ...acc, [key]: true }), {});
-
-export const emptyServiceForm = () => ({
-  title: "",
-  category: "",
-  shortDescription: "",
-  description: "",
-  coverImage: "",
-  image: "",
-  images: [],
-  duration: 1,
-  price: 0,
-  serviceMode: "home-visit",
-  features: [],
-  benefits: [],
-  caregivers: [],
-  isFeatured: false,
-  isActive: true,
-  isDraft: false,
-  isPopular: false,
-  isRecommended: false,
-});
-
-// Plain enum values array (for backend model sync reference)
 export const SERVICE_CATEGORY_VALUES = SERVICE_CATEGORIES.map((c) => c.value);
-
-// Service filter tabs for browse/listing page
-export const SERVICE_FILTER_TABS = [
-  { id: "all", label: "All Services" },
-  ...SERVICE_CATEGORIES.map((c) => ({ id: c.value, label: c.label })),
-];
 

@@ -93,12 +93,6 @@ export const completeProfileValidator = [
         .isMongoId()
         .withMessage("Invalid service ID"),
     
-    body("availableTiming")
-        .notEmpty()
-        .withMessage("Available timing is required")
-        .isIn(["morning", "afternoon", "evening", "night", "full-day", "flexible"])
-        .withMessage("Invalid timing option"),
-    
     body("pricing.hourlyRate")
         .optional()
         .isFloat({ min: 0 })
@@ -127,35 +121,35 @@ export const completeProfileValidator = [
 ];
 
 export const updateAvailabilityValidator = [
-    body("availability")
+    body("blocks")
         .notEmpty()
-        .withMessage("Availability is required")
+        .withMessage("Blocks array is required")
         .isArray()
-        .withMessage("Availability must be an array"),
+        .withMessage("Blocks must be an array"),
     
-    body("availability.*.day")
+    body("blocks.*.dayOfWeek")
         .notEmpty()
-        .withMessage("Day is required")
-        .isIn(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-        .withMessage("Invalid day"),
+        .withMessage("dayOfWeek is required")
+        .isInt({ min: 0, max: 6 })
+        .withMessage("dayOfWeek must be between 0 (Sun) and 6 (Sat)"),
     
-    body("availability.*.slots")
-        .notEmpty()
-        .withMessage("Slots are required")
-        .isArray({ min: 1 })
-        .withMessage("At least one slot is required"),
-    
-    body("availability.*.slots.*.startTime")
+    body("blocks.*.startTime")
         .notEmpty()
         .withMessage("Start time is required")
         .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
         .withMessage("Invalid time format (HH:MM)"),
     
-    body("availability.*.slots.*.endTime")
+    body("blocks.*.endTime")
         .notEmpty()
         .withMessage("End time is required")
         .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
         .withMessage("Invalid time format (HH:MM)"),
+        
+    body("blocks.*.slotDuration")
+        .notEmpty()
+        .withMessage("Slot duration is required")
+        .isInt({ min: 15, max: 480 })
+        .withMessage("Slot duration must be between 15 and 480 minutes"),
 ];
 
 export const getCaregiverByIdValidator = [

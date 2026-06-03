@@ -128,12 +128,11 @@ export const createBookingValidator = [
         .withMessage("Invalid time format (HH:MM)"),
     
     body("timeSlot.endTime")
-        .notEmpty()
-        .withMessage("End time is required")
+        .optional()
         .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
         .withMessage("Invalid time format (HH:MM)")
         .custom((endTime, { req }) => {
-            if (req.body.timeSlot?.startTime) {
+            if (req.body.timeSlot?.startTime && endTime) {
                 const start = req.body.timeSlot.startTime.split(":").map(Number);
                 const end = endTime.split(":").map(Number);
                 const startMinutes = start[0] * 60 + start[1];

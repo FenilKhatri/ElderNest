@@ -1,6 +1,6 @@
 import { lazy } from "react";
-import { Route } from "react-router-dom";
-import { ROLES } from "../../../utils/constants";
+import { Route, Navigate } from "react-router-dom";
+import { ROLES } from "@/constants";
 import ProtectedRoute from "../ProtectedRoute";
 import RoleRoute from "../RoleRoutes";
 import CaregiverLayout from "../../../layout/dashboard/CaregiverLayout";
@@ -48,6 +48,7 @@ const CaregiverRoutes = ({ theme, toggleTheme }) => (
           <Route path="/caregiver/payments" element={<CaregiverPayments />} />
           <Route path="/caregiver/reviews" element={<CaregiverReviews />} />
           <Route path="/caregiver/notifications" element={<CaregiverNotifications />} />
+          <Route path="/caregiver/notification" element={<Navigate to="/caregiver/notifications" replace />} />
           <Route path="/caregiver/care-notes" element={<CareNotes />} />
           <Route path="/caregiver/complaints" element={<CaregiverComplaints />} />
           <Route path="/caregiver/documents" element={<CaregiverDocuments />} />

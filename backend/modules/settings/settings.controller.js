@@ -2,7 +2,6 @@ import { asyncHandler } from "../../common/middlewares/async.helper.js";
 import { successResponse, errorResponse } from "../../common/utils/responseHandler.utils.js";
 import Settings from "./settings.model.js";
 
-// Get settings
 export const getSettings = asyncHandler(async (req, res) => {
   let settings = await Settings.findOne();
   if (!settings) {
@@ -11,7 +10,6 @@ export const getSettings = asyncHandler(async (req, res) => {
   return successResponse(res, 200, "Settings fetched successfully", { settings });
 });
 
-// Update settings (Admin only)
 export const updateSettings = asyncHandler(async (req, res) => {
   let settings = await Settings.findOne();
   if (!settings) {

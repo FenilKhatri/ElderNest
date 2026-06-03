@@ -21,6 +21,11 @@ router.post(
 );
 
 router.get(
+    "/available-slots",
+    bookingController.getAvailableSlots
+);
+
+router.get(
     "/user/my-bookings",
     authorizeRoles(ROLES.USER),
     bookingController.getUserBookings

@@ -227,21 +227,21 @@ const Notifications = () => {
                           })()
                         )}
                         {!notification.isRead && (
-                          <button
+                          <Button
                             onClick={() => handleMarkAsRead(notification._id)}
                             className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
                             title="Mark as read"
                           >
                             <Check className="w-4 h-4" />
-                          </button>
+                          </Button>
                         )}
-                        <button
+                        <Button
                           onClick={() => handleDelete(notification._id)}
                           className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>

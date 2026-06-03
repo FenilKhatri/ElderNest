@@ -14,9 +14,9 @@ const CaregiverHeader = ({ onMenuClick, theme, toggleTheme }) => {
       <div className="flex items-center justify-between">
         {/* Left — mobile menu + title */}
         <div className="flex items-center space-x-3">
-          <button
+          <button 
             onClick={onMenuClick}
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="lg:hidden p-2 dark:hover:bg-slate-800"
           >
             <Menu className="w-5 h-5 text-slate-600 dark:text-slate-400" />
           </button>
@@ -28,9 +28,9 @@ const CaregiverHeader = ({ onMenuClick, theme, toggleTheme }) => {
         {/* Right — theme, bell, user name, logout */}
         <div className="flex items-center space-x-2">
           {/* Theme toggle */}
-          <button
+          <button 
             onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 dark:hover:bg-slate-800"
           >
             {theme === "light" ? (
               <Moon className="w-5 h-5 text-slate-600 dark:text-slate-400" />

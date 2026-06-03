@@ -64,7 +64,6 @@ export const subscribeNewsletter = asyncHandler(async (req, res) => {
         // Continue anyway since subscription succeeded
     }
 
-    // Notify admins
     const User = (await import("../user/user.model.js")).default;
     const { createNotification } = await import("../../common/services/notification.service.js");
     const admins = await User.find({ role: "admin" });

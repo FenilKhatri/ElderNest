@@ -5,7 +5,7 @@ import { Shield } from "lucide-react";
 import Button from "../../../components/ui/Button";
 import FormFields from "../../../components/ui/FormFields";
 import GoogleAuthButton from "../../../components/ui/GoogleAuthButton";
-import { ROLES } from "../../../utils/constants";
+import { ROLES } from "@/constants";
 import { useAuth } from "../../../context/AuthContext";
 import { loginAdmin } from "../api/auth.api";
 import { loginFields } from "../forms/data/inputFields";
@@ -33,7 +33,7 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 p-6">
       <motion.div
         variants={stagger}
         initial="hidden"

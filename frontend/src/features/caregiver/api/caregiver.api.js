@@ -20,8 +20,12 @@ export const updateProfile = (data) => {
   return http.patch("/caregivers/profile", data);
 };
 
-export const updateAvailability = (availability) => {
-  return http.patch("/caregivers/availability", { availability });
+export const updateAvailability = (blocks) => {
+  return http.patch("/caregivers/availability", { blocks });
+};
+
+export const getMyAvailability = () => {
+  return http.get("/caregivers/availability");
 };
 
 export const getOnboardingStatus = () => {

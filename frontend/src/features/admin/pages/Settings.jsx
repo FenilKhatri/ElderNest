@@ -5,6 +5,8 @@ import { Save, AlertTriangle, Globe, Lock, Bell } from "lucide-react";
 import { getSettings, updateSettings } from "../api/admin.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import Button from "../../../components/ui/Button";
+import Checkbox from "../../../components/ui/Checkbox";
+import Input from "../../../components/ui/Input";
 
 const Settings = () => {
   const [loading, setLoading] = useState(true);
@@ -75,7 +77,7 @@ const Settings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Site Name</label>
-                <input
+                <Input
                   type="text"
                   name="siteName"
                   value={settings.siteName}
@@ -85,7 +87,7 @@ const Settings = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Support Email</label>
-                <input
+                <Input
                   type="email"
                   name="contactEmail"
                   value={settings.contactEmail}
@@ -95,7 +97,7 @@ const Settings = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Support Phone</label>
-                <input
+                <Input
                   type="text"
                   name="supportPhone"
                   value={settings.supportPhone}
@@ -124,16 +126,11 @@ const Settings = () => {
                 </p>
               </div>
               <div className="flex items-center">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    name="maintenanceMode" 
-                    checked={settings.maintenanceMode} 
-                    onChange={handleChange} 
-                    className="sr-only peer" 
-                  />
-                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
-                </label>
+                <Checkbox
+                  checked={settings.maintenanceMode} 
+                  onChange={handleChange}
+                  name="maintenanceMode"
+                />
               </div>
             </div>
 
@@ -154,16 +151,11 @@ const Settings = () => {
                 </p>
               </div>
               <div className="flex items-center">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    name="allowNewRegistrations" 
-                    checked={settings.allowNewRegistrations} 
-                    onChange={handleChange} 
-                    className="sr-only peer" 
-                  />
-                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
-                </label>
+                <Checkbox
+                  checked={settings.allowNewRegistrations} 
+                  onChange={handleChange}
+                  name="allowNewRegistrations"
+                />
               </div>
             </div>
 

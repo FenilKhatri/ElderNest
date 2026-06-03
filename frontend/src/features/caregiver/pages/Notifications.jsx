@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Check, Trash2, Calendar, Shield, Info, Clock } from "lucide-react";
+import { Bell, Check, Trash2, Calendar, Shield, Info, Clock, Loader2 } from "lucide-react";
 import { useNotifications } from "../../../context/NotificationContext";
 import { markAsRead, deleteNotification } from "../../notification/api/notification.api";
 import { formatDate } from "../../../utils/helpers";
@@ -11,6 +11,7 @@ import Button from "../../../components/ui/Button";
 const Notifications = () => {
   const navigate = useNavigate();
   const { notifications, loading, refreshNotifications, unreadCount } = useNotifications();
+  const [actionLoading, setActionLoading] = useState(null);
 
   // Poll notifications when the component is mounted
   useEffect(() => {
@@ -23,10 +24,13 @@ const Notifications = () => {
 
   const handleMarkAsRead = async (id) => {
     try {
+      setActionLoading(id + "-read");
       await markAsRead(id);
       refreshNotifications();
     } catch (error) {
       console.error("Failed to mark as read", error);
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -38,10 +42,13 @@ const Notifications = () => {
 
   const handleDelete = async (id) => {
     try {
+      setActionLoading(id + "-delete");
       await deleteNotification(id);
       refreshNotifications();
     } catch (error) {
       console.error("Failed to delete notification", error);
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -136,21 +143,22 @@ const Notifications = () => {
                     </div>
                     <div className="flex items-center gap-3 mt-4">
                       {!notif.isRead && (
-                        <button
+                        <Button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); handleMarkAsRead(notif._id); }}
-                          className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1"
+                          disabled={actionLoading === notif._id + "-read"}
                         >
-                          <Check className="w-3.5 h-3.5" /> Mark as Read
-                        </button>
+                          {actionLoading === notif._id + "-read" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />} Mark as Read
+                        </Button>
                       )}
-                      <button
+                      <Button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleDelete(notif._id); }}
-                        className="text-xs font-medium text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 flex items-center gap-1"
+                        variant="outline"
+                        disabled={actionLoading === notif._id + "-delete"}
                       >
-                        <Trash2 className="w-3.5 h-3.5" /> Delete
-                      </button>
+                        {actionLoading === notif._id + "-delete" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />} Delete
+                      </Button>
                     </div>
                   </div>
                 </motion.div>

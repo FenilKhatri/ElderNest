@@ -11,7 +11,6 @@ const caregiverSchema = new mongoose.Schema(
             index: true,
         },
 
-        // Basic Profile
         fullName: {
             type: String,
             trim: true,
@@ -49,13 +48,11 @@ const caregiverSchema = new mongoose.Schema(
             min: 0,
         },
 
-        // Profile Image
         profileImage: {
             type: String,
             default: "",
         },
 
-        // Location Details
         location: {
             state: {
                 type: String,
@@ -101,19 +98,16 @@ const caregiverSchema = new mongoose.Schema(
             default: [],
         },
 
-        // Languages
         languages: {
             type: [String],
             default: [],
         },
 
-        // Certifications
         certifications: {
             type: [String],
             default: [],
         },
 
-        // Pricing
         pricing: {
             hourlyRate: {
                 type: Number,
@@ -129,13 +123,11 @@ const caregiverSchema = new mongoose.Schema(
             },
         },
 
-        // Availability Timing
         availableTiming: {
             type: String,
             enum: ["morning", "afternoon", "evening", "night", "full-day", "flexible"],
         },
 
-        // Availability Schedule
         availability: [
             {
                 day: {
@@ -168,7 +160,6 @@ const caregiverSchema = new mongoose.Schema(
             },
         ],
 
-        // Documents
         documents: {
             aadharCard: String,
             idProof: String,
@@ -176,7 +167,6 @@ const caregiverSchema = new mongoose.Schema(
             policeClearance: String,
         },
 
-        // Rating System
         rating: {
             type: Number,
             default: 0,
@@ -189,7 +179,6 @@ const caregiverSchema = new mongoose.Schema(
             min: 0,
         },
 
-        // Status Control
         isActive: {
             type: Boolean,
             default: true,
@@ -235,7 +224,6 @@ const caregiverSchema = new mongoose.Schema(
             trim: true,
         },
 
-        // Total Bookings
         totalBookings: {
             type: Number,
             default: 0,

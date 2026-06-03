@@ -22,7 +22,7 @@ const AuthBackground = ({
         />
 
         {/* Overlay */}
-        <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-black/80 to-black/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent dark:from-slate-950 dark:via-black/70 dark:to-transparent"></div>
 
         {/* Text */}
         <div className="absolute bottom-6 left-6 right-6 text-white">

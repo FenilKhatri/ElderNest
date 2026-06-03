@@ -40,6 +40,7 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ["user", "admin", "caregiver"],
             default: "user",
+            index: true,
         },
 
         profileImage: {
@@ -70,6 +71,7 @@ const userSchema = new mongoose.Schema(
             default: function() {
                 return this.role === "caregiver" ? "pending" : "approved";
             },
+            index: true,
         },
     },
     {

@@ -2,8 +2,8 @@ import { asyncHandler } from "../../common/middlewares/async.helper.js";
 import { successResponse, errorResponse } from "../../common/utils/responseHandler.utils.js";
 import { validationResult } from "express-validator";
 import * as bookingService from "./booking.services.js";
+import { generateAvailableSlots } from "../../common/utils/slotGenerator.js";
 
-// Create booking
 export const createBooking = asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -14,14 +14,21 @@ export const createBooking = asyncHandler(async (req, res) => {
     return successResponse(res, 201, "Booking created successfully", { booking });
 });
 
-// Get user bookings
+export const getAvailableSlots = asyncHandler(async (req, res) => {
+    const { caregiverId, date } = req.query;
+    if (!caregiverId || !date) {
+        return errorResponse(res, 400, "caregiverId and date are required");
+    }
+    const slots = await generateAvailableSlots(caregiverId, date);
+    return successResponse(res, 200, "Available slots fetched", { slots });
+});
+
 export const getUserBookings = asyncHandler(async (req, res) => {
     const { status } = req.query;
     const bookings = await bookingService.getUserBookings(req.user.id, status);
     return successResponse(res, 200, "Bookings fetched successfully", { bookings });
 });
 
-// Get caregiver bookings
 export const getCaregiverBookings = asyncHandler(async (req, res) => {
     const { status } = req.query;
     const { caregiverId } = req.params;
@@ -30,7 +37,6 @@ export const getCaregiverBookings = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Bookings fetched successfully", { bookings });
 });
 
-// Update booking status
 export const updateBookingStatus = asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -52,7 +58,6 @@ export const updateBookingStatus = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Booking status updated", { booking });
 });
 
-// Get booking by ID
 export const getBookingById = asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -62,7 +67,6 @@ export const getBookingById = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const booking = await bookingService.getBookingById(id);
 
-    // Authorization check
     if (
         req.user.role !== "admin" &&
         booking.userId._id.toString() !== req.user.id &&
@@ -74,14 +78,12 @@ export const getBookingById = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Booking fetched successfully", { booking });
 });
 
-// Get all bookings (admin)
 export const getAllBookings = asyncHandler(async (req, res) => {
     const filters = req.query;
     const bookings = await bookingService.getAllBookings(filters);
     return successResponse(res, 200, "Bookings fetched successfully", { bookings });
 });
 
-// Delete booking (admin)
 export const deleteBooking = asyncHandler(async (req, res) => {
     const { id } = req.params;
     await bookingService.deleteBooking(id);

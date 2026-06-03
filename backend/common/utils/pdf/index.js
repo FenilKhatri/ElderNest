@@ -33,12 +33,10 @@ export const generateReceiptPdf = async (booking) => {
             
             doc.pipe(stream);
 
-            // Header
             doc.fontSize(20).text("ELDERNEST CARE SERVICES", { align: 'center' });
             doc.fontSize(14).text("PAYMENT RECEIPT", { align: 'center' });
             doc.moveDown();
             
-            // Meta
             doc.fontSize(10);
             doc.text(`Receipt No: REC-${booking.bookingId || booking._id}`);
             doc.text(`Transaction ID: ${booking.transactionId || booking.razorpayPaymentId || "N/A"}`);
@@ -46,7 +44,6 @@ export const generateReceiptPdf = async (booking) => {
             doc.text(`Payment Method: Razorpay Online Payment`);
             doc.moveDown();
 
-            // Customer Details
             doc.fontSize(12).text("CUSTOMER DETAILS", { underline: true });
             doc.fontSize(10);
             doc.text(`Name: ${booking.userId?.name || booking.patientName}`);
@@ -54,7 +51,6 @@ export const generateReceiptPdf = async (booking) => {
             doc.text(`Phone: ${booking.userId?.phone || booking.contactNumber}`);
             doc.moveDown();
 
-            // Service Details
             doc.fontSize(12).text("SERVICE DETAILS", { underline: true });
             doc.fontSize(10);
             doc.text(`Service: ${booking.serviceId?.title || "Care Service"}`);
@@ -63,7 +59,6 @@ export const generateReceiptPdf = async (booking) => {
             doc.text(`Caregiver: ${booking.caregiverId?.userId?.name || "Assigned"}`);
             doc.moveDown();
 
-            // Payment Breakdown
             doc.fontSize(12).text("PAYMENT BREAKDOWN", { underline: true });
             doc.fontSize(10);
             doc.text(`Service Amount: Rs. ${amount.toLocaleString("en-IN")}`);
@@ -103,11 +98,9 @@ export const generateBookingPdf = async (booking) => {
             
             doc.pipe(stream);
 
-            // Header
             doc.fontSize(20).text("ELDERNEST BOOKING SUMMARY", { align: 'center' });
             doc.moveDown();
             
-            // Meta
             doc.fontSize(10);
             doc.text(`Booking ID: ${booking.bookingId || booking._id}`);
             doc.text(`Created: ${new Date(booking.createdAt).toLocaleDateString("en-IN")}`);
@@ -115,7 +108,6 @@ export const generateBookingPdf = async (booking) => {
             doc.text(`Payment Status: ${(booking.paymentStatus || "pending").toUpperCase()}`);
             doc.moveDown();
 
-            // Patient
             doc.fontSize(12).text("PATIENT INFORMATION", { underline: true });
             doc.fontSize(10);
             doc.text(`Patient Name: ${booking.patientName}`);
@@ -123,7 +115,6 @@ export const generateBookingPdf = async (booking) => {
             doc.text(`Condition: ${booking.disease || "N/A"}`);
             doc.moveDown();
 
-            // Caregiver
             doc.fontSize(12).text("CAREGIVER & SERVICE", { underline: true });
             doc.fontSize(10);
             doc.text(`Caregiver: ${booking.caregiverId?.userId?.name || "Assigned"}`);
@@ -133,7 +124,6 @@ export const generateBookingPdf = async (booking) => {
             doc.text(`Duration Type: ${(booking.durationType || "hourly").toUpperCase()}`);
             doc.moveDown();
 
-            // Schedule
             doc.fontSize(12).text("SCHEDULE", { underline: true });
             doc.fontSize(10);
             doc.text(`Date: ${new Date(booking.bookingDate).toLocaleDateString("en-IN")}`);
@@ -141,7 +131,6 @@ export const generateBookingPdf = async (booking) => {
             doc.text(`Duration: ${booking.duration || 0} hours`);
             doc.moveDown();
 
-            // Address
             doc.fontSize(12).text("ADDRESS", { underline: true });
             doc.fontSize(10);
             doc.text(`Street: ${addr.street || "N/A"}`);
@@ -150,7 +139,6 @@ export const generateBookingPdf = async (booking) => {
             doc.text(`Pincode: ${addr.pincode || "N/A"}`);
             doc.moveDown();
 
-            // Emergency
             doc.fontSize(12).text("EMERGENCY CONTACT", { underline: true });
             doc.fontSize(10);
             doc.text(`Name: ${ec.name || "N/A"}`);
@@ -158,7 +146,6 @@ export const generateBookingPdf = async (booking) => {
             doc.text(`Relation: ${ec.relation || "N/A"}`);
             doc.moveDown();
 
-            // Payment
             doc.fontSize(12).text("PAYMENT", { underline: true });
             doc.fontSize(10);
             doc.text(`Amount: Rs. ${(booking.totalAmount || 0).toLocaleString("en-IN")}`);

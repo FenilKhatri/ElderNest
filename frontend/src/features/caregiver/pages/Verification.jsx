@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { Upload, Shield, FileText, Eye, X, Loader2 } from "lucide-react";
+import { Upload, Shield, FileText, Download, X, Loader2 } from "lucide-react";
 import http from "../../../lib/axios";
 import { getOnboardingStatus, submitVerification } from "../api/caregiver.api";
 import { getAllServices } from "../../service/api/service.api";
@@ -9,40 +9,7 @@ import Button from "../../../components/ui/Button";
 import Textarea from "../../../components/ui/Textarea";
 import CustomDropdown from "../../../components/ui/CustomDropdown";
 import { apiPayload, apiStage, apiCaregiver, uploadUrlFromResponse } from "../../../utils/apiHelpers";
-
-const MB = 1024 * 1024;
-
-const UPLOAD_RULES = {
-  governmentId: {
-    label: "Government ID",
-    hint: "Upload Aadhaar card, PAN card, or passport. JPG/PNG only, max 5 MB.",
-    accept: "image/jpeg,image/png,.jpg,.jpeg,.png",
-    maxBytes: 5 * MB,
-    validate: (f) => /\.(jpe?g|png)$/i.test(f.name) || f.type.startsWith("image/"),
-  },
-  idProof: {
-    label: "ID proof",
-    hint: "Secondary ID such as voter ID, driving licence, or passport photo page. JPG/PNG only, max 5 MB.",
-    accept: "image/jpeg,image/png,.jpg,.jpeg,.png",
-    maxBytes: 5 * MB,
-    validate: (f) => /\.(jpe?g|png)$/i.test(f.name) || f.type.startsWith("image/"),
-  },
-  experienceDocuments: {
-    label: "Experience documents",
-    hint: "Employment letters or experience certificates. PDF only, max 2 MB.",
-    accept: "application/pdf,.pdf",
-    maxBytes: 2 * MB,
-    validate: (f) => f.type === "application/pdf" || /\.pdf$/i.test(f.name),
-  },
-  certificates: {
-    label: "Qualification certificates",
-    hint: "Nursing or caregiving certificates. PDF only, max 2 MB each.",
-    accept: "application/pdf,.pdf",
-    maxBytes: 2 * MB,
-    validate: (f) => f.type === "application/pdf" || /\.pdf$/i.test(f.name),
-    multi: true,
-  },
-};
+import { MB, UPLOAD_RULES } from "@/constants";
 
 const uploadFile = async (file, folder) => {
   const data = new FormData();
@@ -54,24 +21,65 @@ const uploadFile = async (file, folder) => {
   return uploadUrlFromResponse(res);
 };
 
-const DocPreview = ({ url, label, onRemove }) => {
+const DocPreview = ({ url, label, onRemove, onReplace, replaceAccept, isUploading }) => {
   const isImage = /\.(jpe?g|png|gif|webp|avif)$/i.test(url);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    try {
+      setDownloading(true);
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = label.replace(/\s+/g, "_") + ".pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      // Fallback: open in new tab with fl_attachment for Cloudinary
+      let openUrl = url;
+      if (openUrl.includes("cloudinary.com") && !openUrl.includes("fl_attachment")) {
+        openUrl = openUrl.replace("/upload/", "/upload/fl_attachment/");
+      }
+      window.open(openUrl, "_blank", "noopener,noreferrer");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="mt-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
       <div className="flex items-start justify-between gap-2">
         <p className="text-xs font-medium text-green-600 dark:text-green-400">Uploaded: {label}</p>
-        {onRemove && (
-          <button type="button" onClick={onRemove} className="text-slate-400 hover:text-red-500" aria-label="Remove">
-            <X className="w-4 h-4" />
-          </button>
-        )}
+        <div className="flex gap-2 items-center">
+          {onReplace && (
+            <label className={`cursor-pointer px-2 py-1 text-xs font-medium rounded transition-colors ${isUploading ? "bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-wait" : "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50"}`}>
+               {isUploading && <Loader2 className="w-3 h-3 animate-spin inline mr-1" />}
+               Replace
+               <input type="file" className="hidden" accept={replaceAccept} onChange={onReplace} disabled={isUploading} />
+            </label>
+          )}
+          {onRemove && (
+            <Button variant="danger" type="button" onClick={onRemove} className="hover:text-red-500 px-2 py-1 h-auto" aria-label="Remove" disabled={isUploading}>
+              <X className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
       </div>
       {isImage ? (
         <img src={url} alt={label} className="mt-2 max-h-40 rounded-lg border border-slate-200 dark:border-slate-600 object-contain" />
       ) : (
-        <a href={url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
-          <Eye className="w-4 h-4" /> Preview PDF
-        </a>
+        <Button
+          type="button"
+          onClick={handleDownload}
+          disabled={downloading}
+        >
+          <Download className="w-4 h-4" />
+          {downloading ? "Downloading..." : "Download PDF"}
+        </Button>
       )}
     </div>
   );
@@ -133,8 +141,17 @@ const Verification = () => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     const rule = UPLOAD_RULES[field];
-    // Route PDFs to documents subfolder, images to photos subfolder
     const folder = rule.accept.includes("pdf") ? "documents" : "photos";
+    
+    if (rule.multi && rule.maxFiles) {
+      const currentCount = docs[field]?.length || 0;
+      if (currentCount + files.length > rule.maxFiles) {
+        toast.error(`You can upload a maximum of ${rule.maxFiles} files for ${rule.label}`);
+        e.target.value = "";
+        return;
+      }
+    }
+
     setUploadingField(field);
     try {
       if (rule.multi) {
@@ -144,7 +161,7 @@ const Verification = () => {
           urls.push(await uploadFile(file, folder));
         }
         if (urls.length) {
-          setDocs((d) => ({ ...d, certificates: [...d.certificates, ...urls] }));
+          setDocs((d) => ({ ...d, [field]: [...(d[field] || []), ...urls] }));
           toast.success("Uploaded");
         }
       } else {
@@ -162,10 +179,35 @@ const Verification = () => {
     e.target.value = "";
   };
 
+  const handleReplace = async (e, field, index) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const rule = UPLOAD_RULES[field];
+    const folder = rule.accept.includes("pdf") ? "documents" : "photos";
+    const file = files[0];
+    if (!validateFile(file, field)) return;
+
+    setUploadingField(`${field}-${index}`);
+    try {
+      const url = await uploadFile(file, folder);
+      setDocs((d) => {
+        const newArr = [...(d[field] || [])];
+        newArr[index] = url;
+        return { ...d, [field]: newArr };
+      });
+      toast.success("File replaced successfully");
+    } catch {
+      toast.error("Replacement failed");
+    } finally {
+      setUploadingField(null);
+    }
+    e.target.value = "";
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!docs.governmentId || !docs.idProof) {
-      toast.error("Government ID and ID proof are required");
+    if (!docs.governmentId || !docs.idProof || !docs.experienceDocuments) {
+      toast.error("Government ID, ID proof, and Experience Documents are required");
       return;
     }
     if (!selectedServices.length) {
@@ -248,6 +290,9 @@ const Verification = () => {
               url={url}
               label={`Certificate ${i + 1}`}
               onRemove={() => setDocs((d) => ({ ...d, certificates: d.certificates.filter((_, j) => j !== i) }))}
+              onReplace={(e) => handleReplace(e, key, i)}
+              replaceAccept={rule.accept}
+              isUploading={uploadingField === `${key}-${i}`}
             />
           ))}
         </div>

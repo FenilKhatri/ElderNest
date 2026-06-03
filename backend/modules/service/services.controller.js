@@ -13,7 +13,6 @@ const syncServiceCaregivers = async (serviceId, caregiverIds = []) => {
     );
 };
 
-// Get all services
 export const getAllServices = asyncHandler(async (req, res) => {
     const { category, isActive, search, featured, page = 1, limit = 50, drafts } = req.query;
 
@@ -57,7 +56,6 @@ export const getAllServices = asyncHandler(async (req, res) => {
     });
 });
 
-// Get service by ID or Slug
 export const getServiceByIdOrSlug = asyncHandler(async (req, res) => {
     const { idOrSlug } = req.params;
     let service;
@@ -97,13 +95,11 @@ export const getServiceByIdOrSlug = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Service fetched", { service });
 });
 
-// Create service (admin only)
 export const createService = asyncHandler(async (req, res) => {
     try {
         await Service.collection.dropIndex("name_1");
         console.log("Dropped obsolete index name_1");
     } catch (e) {
-        // Ignored
     }
 
     if (!req.body.isDraft) {
@@ -125,7 +121,6 @@ export const createService = asyncHandler(async (req, res) => {
     return successResponse(res, 201, "Service created", { service });
 });
 
-// Update service (admin only)
 export const updateService = asyncHandler(async (req, res) => {
     if (!req.body.isDraft) {
         const errors = validationResult(req);
@@ -150,7 +145,6 @@ export const updateService = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Service updated", { service });
 });
 
-// Delete service (admin only)
 export const deleteService = asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

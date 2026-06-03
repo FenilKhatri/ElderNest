@@ -4,6 +4,7 @@ import { ArrowLeft, Mail, Phone, Calendar, MapPin, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { getAllUsers } from "../api/admin.api";
+import Button from "../../../components/ui/Button";
 
 const UserDetails = () => {
   const { id } = useParams();
@@ -61,12 +62,12 @@ const UserDetails = () => {
     >
       {/* Header */}
       <div className="flex items-center gap-4">
-        <button
+        <Button
           onClick={() => navigate("/admin/users")}
           className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
         >
           <ArrowLeft size={20} className="text-slate-600 dark:text-slate-300" />
-        </button>
+        </Button>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           User Details
         </h1>

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { fadeUp } from "../../../animations/motionVariants";
 import { sections } from "../data/privacyPolicyData";
+import Button from "../../../components/ui/Button";
 
 const PrivacyPolicy = () => {
   const [activeSection, setActiveSection] = useState(sections[0].id);
@@ -64,7 +65,7 @@ const PrivacyPolicy = () => {
         <aside className="hidden lg:block w-64 shrink-0 sticky top-24 self-start">
           <nav className="space-y-1">
             {sections.map((section) => (
-              <button
+              <Button
                 key={section.id}
                 onClick={() => scrollToSection(section.id)}
                 className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 leading-snug
@@ -75,7 +76,7 @@ const PrivacyPolicy = () => {
                 }`}
               >
                 {section.title}
-              </button>
+              </Button>
             ))}
           </nav>
         </aside>

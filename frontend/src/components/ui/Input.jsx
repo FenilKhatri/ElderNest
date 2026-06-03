@@ -9,7 +9,7 @@ const Input = ({ icon: Icon, label, labelName, rightElement, ...props }) => {
           {labelName}
         </label>
       )}
-      <div className="relative flex items-center justify-start gap-3 px-4 py-2.5 bg-transparent border border-slate-300 rounded-xl shadow-sm transition-all duration-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/20 group">
+      <div className="relative flex items-center justify-start gap-3 px-4 py-2.5 bg-transparent border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm transition-all duration-200 focus-within:border-blue-500 dark:focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/20 group">
         {Icon && (
           <Icon
             size={18}

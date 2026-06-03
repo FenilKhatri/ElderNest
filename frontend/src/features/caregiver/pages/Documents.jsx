@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { FileText, Upload, CheckCircle, AlertCircle } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
+import Button from "../../../components/ui/Button";
 
 const Documents = () => {
   const { user } = useAuth();
@@ -53,10 +54,10 @@ const Documents = () => {
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 Upload your nursing or caregiving certifications
               </p>
-              <button className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+              <Button className="mt-3">
                 <Upload className="w-4 h-4" />
                 Upload Document
-              </button>
+              </Button>
             </div>
           </div>
         </div>

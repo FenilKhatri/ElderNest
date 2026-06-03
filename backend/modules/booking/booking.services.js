@@ -5,40 +5,21 @@ import User from "../user/user.model.js";
 import Patient from "../patient/patient.model.js";
 import { validateLocation } from "../../common/validators/location.validator.js";
 import { createNotification } from "../../common/services/notification.service.js";
-import { sendEmail } from "../../common/services/email.service.js";
+
 import { isSlotLocked } from "./slotLocking.service.js";
+import { isSlotAvailable } from "../../common/utils/slotGenerator.js";
+import CaregiverAvailability from "../caregiver/caregiverAvailability.model.js";
 
 // Check slot availability
 export const checkSlotAvailability = async (caregiverId, bookingDate, startTime, endTime) => {
+    // 1. Check if the slot is locked by someone else
     const date = new Date(bookingDate);
     date.setHours(0, 0, 0, 0);
-    
-    const nextDay = new Date(date);
-    nextDay.setDate(nextDay.getDate() + 1);
-
-    // Check for overlapping bookings
-    const existingBooking = await Booking.findOne({
-        caregiverId,
-        bookingDate: {
-            $gte: date,
-            $lt: nextDay,
-        },
-        status: { $in: ["pending", "accepted", "in-progress"] },
-        $or: [
-            {
-                "timeSlot.startTime": { $lt: endTime },
-                "timeSlot.endTime": { $gt: startTime },
-            },
-        ],
-    });
-
-    if (existingBooking) return false;
-
-    // Check if the slot is locked by someone else
     const locked = await isSlotLocked(caregiverId, date, startTime, endTime);
     if (locked) return false;
 
-    return true;
+    // 2. Check if the slot is actually available (falls in availability blocks & no overlap)
+    return await isSlotAvailable(caregiverId, bookingDate, startTime, endTime);
 };
 
 // Calculate duration and amount
@@ -60,7 +41,6 @@ export const calculateBookingDetails = async (serviceId, startTime, endTime) => 
     return { duration, totalAmount, service };
 };
 
-// Validate booking request before payment or creation
 export const validateBookingRequest = async (userId, bookingData) => {
     const {
         caregiverId,
@@ -71,7 +51,6 @@ export const validateBookingRequest = async (userId, bookingData) => {
         patientId
     } = bookingData;
 
-    // Validate caregiver exists and is approved
     const caregiver = await Caregiver.findById(caregiverId).populate("userId");
     if (!caregiver) {
         throw new Error("Caregiver not found");
@@ -82,7 +61,6 @@ export const validateBookingRequest = async (userId, bookingData) => {
         throw new Error("Caregiver is not available for booking");
     }
 
-    // Validate location
     const locationValidation = validateLocation(
         address.state,
         address.city,
@@ -92,19 +70,45 @@ export const validateBookingRequest = async (userId, bookingData) => {
         throw new Error(locationValidation.errors.join(", "));
     }
 
+    let calculatedEndTime = timeSlot.endTime;
+
+    if (!calculatedEndTime) {
+        // Find slot duration
+        const dateObj = new Date(bookingDate);
+        dateObj.setHours(0, 0, 0, 0);
+        const dayOfWeek = dateObj.getDay();
+        const block = await CaregiverAvailability.findOne({
+            caregiverId,
+            dayOfWeek,
+            isActive: true,
+            startTime: { $lte: timeSlot.startTime },
+            endTime: { $gt: timeSlot.startTime }
+        });
+        
+        if (!block) {
+            throw new Error("No availability found for this time");
+        }
+
+        const startArr = timeSlot.startTime.split(":").map(Number);
+        let endMins = startArr[0] * 60 + startArr[1] + block.slotDuration;
+        const h = String(Math.floor(endMins / 60)).padStart(2, "0");
+        const m = String(endMins % 60).padStart(2, "0");
+        calculatedEndTime = `${h}:${m}`;
+        timeSlot.endTime = calculatedEndTime;
+    }
+
     // Check slot availability
     const isAvailable = await checkSlotAvailability(
         caregiverId,
         bookingDate,
         timeSlot.startTime,
-        timeSlot.endTime
+        calculatedEndTime
     );
 
     if (!isAvailable) {
         throw new Error("Selected time slot is not available");
     }
 
-    // Verify caregiver is assigned to service
     const service = await Service.findById(serviceId);
     if (!service) {
         throw new Error("Service not found");
@@ -119,7 +123,6 @@ export const validateBookingRequest = async (userId, bookingData) => {
         throw new Error("This caregiver is not assigned to the selected service");
     }
 
-    // Validate patient if provided
     if (patientId) {
         const patient = await Patient.findOne({ _id: patientId, userId });
         if (!patient) {
@@ -127,10 +130,9 @@ export const validateBookingRequest = async (userId, bookingData) => {
         }
     }
 
-    return { caregiver, service };
+    return { caregiver, service, timeSlot };
 };
 
-// Create booking
 export const createBooking = async (userId, bookingData) => {
     const {
         caregiverId,
@@ -141,8 +143,7 @@ export const createBooking = async (userId, bookingData) => {
         ...otherData
     } = bookingData;
 
-    // Validate the request
-    const { caregiver, service } = await validateBookingRequest(userId, bookingData);
+    const { caregiver, service, timeSlot: finalTimeSlot } = await validateBookingRequest(userId, bookingData);
 
     // Load patient profile if provided
     let patientFields = {};
@@ -161,23 +162,30 @@ export const createBooking = async (userId, bookingData) => {
     // Calculate booking details
     const { duration, totalAmount } = await calculateBookingDetails(
         serviceId,
-        timeSlot.startTime,
-        timeSlot.endTime
+        finalTimeSlot.startTime,
+        finalTimeSlot.endTime
     );
 
-    // Create booking
-    const booking = await Booking.create({
-        userId,
-        caregiverId,
-        serviceId,
-        bookingDate,
-        timeSlot,
-        address,
-        duration,
-        totalAmount,
-        ...otherData,
-        ...patientFields,
-    });
+    let booking;
+    try {
+        booking = await Booking.create({
+            userId,
+            caregiverId,
+            serviceId,
+            bookingDate,
+            timeSlot: finalTimeSlot,
+            address,
+            duration,
+            totalAmount,
+            ...otherData,
+            ...patientFields,
+        });
+    } catch (error) {
+        if (error.code === 11000) {
+            throw new Error("This time slot has just been booked by someone else. Please select another slot.");
+        }
+        throw error;
+    }
 
     await Service.findByIdAndUpdate(serviceId, { $inc: { totalBookings: 1 } });
 
@@ -188,7 +196,6 @@ export const createBooking = async (userId, bookingData) => {
         { path: "serviceId", select: "title description price" },
     ]);
 
-    // Send notifications
     await createNotification(
         caregiver.userId._id,
         "booking_created",
@@ -207,7 +214,6 @@ export const createBooking = async (userId, bookingData) => {
         { bookingId: booking._id }
     );
 
-    // Notify admins
     const admins = await User.find({ role: "admin" });
     for (const admin of admins) {
         await createNotification(
@@ -219,36 +225,13 @@ export const createBooking = async (userId, bookingData) => {
         );
     }
 
-    // Send emails
-    const user = await User.findById(userId);
-    await sendEmail(
-        user.email,
-        "bookingConfirmationUser",
-        {
-            userName: user.name,
-            bookingId: booking.bookingId,
-            caregiverName: caregiver.userId.name,
-            date: new Date(bookingDate).toLocaleDateString(),
-            time: `${timeSlot.startTime} - ${timeSlot.endTime}`,
-        }
-    );
 
-    await sendEmail(
-        caregiver.userId.email,
-        "bookingNotificationCaregiver",
-        {
-            caregiverName: caregiver.userId.name,
-            bookingId: booking.bookingId,
-            patientName: booking.patientName,
-            date: new Date(bookingDate).toLocaleDateString(),
-            time: `${timeSlot.startTime} - ${timeSlot.endTime}`,
-        }
-    );
+
+
 
     return booking;
 };
 
-// Get user bookings
 export const getUserBookings = async (userId, status = null) => {
     const query = { userId };
     if (status) {
@@ -267,7 +250,6 @@ export const getUserBookings = async (userId, status = null) => {
     return bookings;
 };
 
-// Get caregiver bookings
 export const getCaregiverBookings = async (caregiverId, status = null) => {
     const query = { caregiverId };
     if (status) {
@@ -282,7 +264,6 @@ export const getCaregiverBookings = async (caregiverId, status = null) => {
     return bookings;
 };
 
-// Update booking status
 export const updateBookingStatus = async (bookingId, userId, userRole, status, reason = null) => {
     const booking = await Booking.findById(bookingId)
         .populate("userId", "name email")
@@ -295,7 +276,6 @@ export const updateBookingStatus = async (bookingId, userId, userRole, status, r
         throw new Error("Booking not found");
     }
 
-    // Authorization check
     if (userRole === "admin") {
         // Admin can override any status
     } else if (userRole === "caregiver" && booking.caregiverId.userId._id.toString() !== userId.toString()) {
@@ -304,7 +284,6 @@ export const updateBookingStatus = async (bookingId, userId, userRole, status, r
         throw new Error("Unauthorized");
     }
 
-    // Update status
     booking.status = status;
 
     if (status === "rejected") {
@@ -341,7 +320,6 @@ export const updateBookingStatus = async (bookingId, userId, userRole, status, r
         );
     }
 
-    // Send notifications
     if (status === "accepted") {
         await createNotification(
             booking.userId._id,
@@ -351,15 +329,7 @@ export const updateBookingStatus = async (bookingId, userId, userRole, status, r
             "/user/bookings"
         );
 
-        await sendEmail(
-            booking.userId.email,
-            "bookingAccepted",
-            {
-                userName: booking.userId.name,
-                bookingId: booking.bookingId,
-                caregiverName: booking.caregiverId.userId.name,
-            }
-        );
+
     }
 
     if (status === "rejected") {
@@ -371,15 +341,7 @@ export const updateBookingStatus = async (bookingId, userId, userRole, status, r
             "/user/bookings"
         );
 
-        await sendEmail(
-            booking.userId.email,
-            "bookingRejected",
-            {
-                userName: booking.userId.name,
-                bookingId: booking.bookingId,
-                reason: reason || "Not specified",
-            }
-        );
+
     }
 
     if (status === "completed") {
@@ -395,7 +357,6 @@ export const updateBookingStatus = async (bookingId, userId, userRole, status, r
     return booking;
 };
 
-// Get booking by ID
 export const getBookingById = async (bookingId) => {
     const booking = await Booking.findById(bookingId)
         .populate("userId", "name email phone profileImage")
@@ -412,7 +373,6 @@ export const getBookingById = async (bookingId) => {
     return booking;
 };
 
-// Get all bookings (admin)
 export const getAllBookings = async (filters = {}) => {
     const query = {};
     
@@ -439,7 +399,6 @@ export const getAllBookings = async (filters = {}) => {
     return bookings;
 };
 
-// Delete booking (admin)
 export const deleteBooking = async (bookingId) => {
     const booking = await Booking.findById(bookingId);
     if (!booking) {

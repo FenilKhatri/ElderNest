@@ -4,15 +4,9 @@ import { Lock } from "lucide-react";
 import { getOnboardingStatus } from "../../features/caregiver/api/caregiver.api";
 import { useAuth } from "../../context/AuthContext";
 import { apiStage } from "../../utils/apiHelpers";
+import { STAGE_ROUTE_ACCESS } from "@/constants";
 
-const STAGE_ROUTE_ACCESS = {
-  pending_account: ["/caregiver/profile", "/caregiver/settings", "/caregiver/pending-approval", "/caregiver/notifications"],
-  account_approved: ["/caregiver/profile", "/caregiver/settings", "/caregiver/verification", "/caregiver/notifications"],
-  verification_pending: ["/caregiver/profile", "/caregiver/settings", "/caregiver/verification", "/caregiver/notifications"],
-  verification_changes: ["/caregiver/profile", "/caregiver/settings", "/caregiver/verification", "/caregiver/notifications"],
-  active: ["*"],
-  rejected: ["/caregiver/rejected", "/caregiver/settings", "/caregiver/notifications"],
-};
+
 
 const canAccess = (stage, path) => {
   const allowed = STAGE_ROUTE_ACCESS[stage] || STAGE_ROUTE_ACCESS.pending_account;

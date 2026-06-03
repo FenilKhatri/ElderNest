@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ArrowLeft, Edit } from "lucide-react";
 import { getServiceById } from "../api/admin.api";
-import { SERVICE_CATEGORIES, SERVICE_MODES, WEEK_DAYS } from "../constants/serviceConstants";
+import { SERVICE_CATEGORIES, SERVICE_MODES, WEEK_DAYS } from "@/constants";
 import Button from "../../../components/ui/Button";
 import { formatCurrency, formatDateTime } from "../../../utils/helpers";
 
@@ -41,9 +41,9 @@ const ServiceDetailPage = () => {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <button type="button" onClick={() => navigate("/admin/services")} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          <Button type="button" onClick={() => navigate("/admin/services")} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
             <ArrowLeft className="w-5 h-5 dark:text-white cursor-pointer" />
-          </button>
+          </Button>
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{service.title}</h1>
             <p className="text-sm text-slate-500">/{service.slug}</p>

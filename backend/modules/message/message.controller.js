@@ -67,7 +67,6 @@ export const sendMessage = asyncHandler(async (req, res) => {
         content
     });
 
-    // Notify receiver
     await createNotification(
         receiverId,
         "new_message",

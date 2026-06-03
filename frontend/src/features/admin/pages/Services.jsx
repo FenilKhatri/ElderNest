@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { Plus, Edit, Trash2, Eye, LayoutGrid, List } from "lucide-react";
 import SearchFilterBar from "../../../components/filters/SearchFilterBar";
 import { getAllServices, deleteService } from "../api/admin.api";
-import { SERVICE_CATEGORIES } from "../constants/serviceConstants";
+import { SERVICE_CATEGORIES } from "@/constants";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
@@ -147,14 +147,14 @@ const Services = () => {
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-fit mt-4 ml-auto">
           <button
             onClick={() => setLayout("table")}
-            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-blue-600 text-white shadow-md" : "text-slate-600 dark:text-slate-400"}`}
             title="Table View"
           >
             <List className="w-4 h-4" />
           </button>
           <button
             onClick={() => setLayout("grid")}
-            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-blue-600 text-white shadow-md" : "text-slate-600 dark:text-slate-400"}`}
             title="Grid View"
           >
             <LayoutGrid className="w-4 h-4" />

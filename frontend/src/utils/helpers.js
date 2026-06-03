@@ -1,4 +1,4 @@
-import { STATUS_COLORS } from "./constants";
+import { STATUS_COLORS } from "@/constants";
 
 // Format date
 export const formatDate = (date) => {

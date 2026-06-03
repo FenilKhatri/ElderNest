@@ -1,329 +1,292 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import http from '../../../lib/axios';
-import { formatDate } from '../../../utils/helpers';
-import { getBlogImageUrl } from '../../../utils/blogImage';
-import { Calendar, User, ArrowLeft, Clock, Share2, Mail, List, Sparkles, ArrowRight } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
-import { fadeUp } from '../../../animations/motionVariants';
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { getBlogBySlug, getRelatedBlogs, addComment } from "../api/blog.api";
+import { motion } from "framer-motion";
+import { fadeUp } from "../../../animations/motionVariants";
+import GlobalLoader from "../../../components/ui/GlobalLoader";
+import { ArrowRight } from "lucide-react";
+import Textarea from "../../../components/ui/Textarea";
+import Input from "../../../components/ui/Input";
+import Button from "../../../components/ui/Button";
 
 const BlogDetails = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { slug } = useParams();
   const [blog, setBlog] = useState(null);
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeHeading, setActiveHeading] = useState("");
+  
+  const [commentData, setCommentData] = useState({ name: "", email: "", text: "" });
+  const [commentLoading, setCommentLoading] = useState(false);
 
   useEffect(() => {
-    const fetchBlog = async () => {
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const res = await http.get(`/blogs/${id}`);
-        setBlog(res.data?.blog);
+        const res = await getBlogBySlug(slug);
+        const fetchedBlog = res.data.blog;
+        setBlog(fetchedBlog);
 
-        const allBlogsRes = await http.get('/blogs');
-        const allB = allBlogsRes.data?.blogs || [];
-        setRelatedBlogs(allB.filter(b => b._id !== id).slice(0, 3));
-      } catch (error) {
-        console.error("Failed to fetch blog", error);
-        navigate("/blogs");
+        if (fetchedBlog) {
+          const relatedRes = await getRelatedBlogs(fetchedBlog.category, fetchedBlog._id);
+          setRelatedBlogs(relatedRes.data.blogs || []);
+        }
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchBlog();
-    window.scrollTo(0, 0);
-  }, [id, navigate]);
+    
+    fetchData();
+  }, [slug]);
 
-  // Extract headings from content for TOC
-  const headings = useMemo(() => {
-    if (!blog?.content) return [];
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(blog.content, "text/html");
-    const elements = doc.querySelectorAll("h1, h2, h3");
-    return Array.from(elements).map((el, i) => ({
-      id: `heading-${i}`,
-      text: el.textContent,
-      level: parseInt(el.tagName.charAt(1)),
-    }));
-  }, [blog?.content]);
-
-  // Inject IDs into headings for scroll targeting
-  const processedContent = useMemo(() => {
-    if (!blog?.content) return "";
-    let content = blog.content;
-    let idx = 0;
-    content = content.replace(/<(h[1-3])(.*?)>/gi, (match, tag, attrs) => {
-      const id = `heading-${idx}`;
-      idx++;
-      return `<${tag}${attrs} id="${id}">`;
-    });
-    return content;
-  }, [blog?.content]);
-
-  // Track active heading on scroll
   useEffect(() => {
-    if (headings.length === 0) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveHeading(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: "-80px 0px -60% 0px" }
-    );
+    if (!blog) return;
+    
+    // Update Title
+    const newTitle = blog.seo?.metaTitle || `${blog.title} | ElderNest`;
+    document.title = newTitle;
 
-    headings.forEach((h) => {
-      const el = document.getElementById(h.id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, [headings, processedContent]);
-
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
-  const [subscribing, setSubscribing] = useState(false);
-
-  const onSubmitNewsletter = async (data) => {
-    try {
-      setSubscribing(true);
-      await http.post('/newsletter/subscribe', { email: data.email });
-      toast.success('Successfully subscribed to newsletter!');
-      reset();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to subscribe');
-    } finally {
-      setSubscribing(false);
-    }
-  };
-
-  const handleShare = async () => {
-    const shareUrl = window.location.href;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: blog.title, text: blog.title, url: shareUrl });
-      } else if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success('Link copied to clipboard');
+    // Update Meta Description
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (blog.seo?.metaDescription) {
+      if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = "description";
+        document.head.appendChild(metaDesc);
       }
-    } catch (err) {
-      if (err?.name !== 'AbortError') toast.error('Could not share');
+      metaDesc.content = blog.seo.metaDescription;
+    }
+
+    // Update Meta Keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (blog.seo?.metaKeywords?.length > 0) {
+      if (!metaKeywords) {
+        metaKeywords = document.createElement('meta');
+        metaKeywords.name = "keywords";
+        document.head.appendChild(metaKeywords);
+      }
+      metaKeywords.content = blog.seo.metaKeywords.join(", ");
+    }
+
+    // Cleanup when component unmounts
+    return () => {
+      document.title = "ElderNest – Trusted Elder Care Services at Home";
+    };
+  }, [blog]);
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!commentData.name || !commentData.email || !commentData.text) return;
+    
+    setCommentLoading(true);
+    try {
+      const res = await addComment(blog._id, commentData);
+      setBlog(res.data.blog);
+      setCommentData({ name: "", email: "", text: "" });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setCommentLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-950 pt-24 pb-12 flex justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
-      </div>
-    );
-  }
-
-  if (!blog) return null;
-
-  const bannerImage = getBlogImageUrl(blog);
+  if (loading) return <GlobalLoader />;
+  if (!blog) return <div className="text-center py-20 dark:text-white">Blog not found.</div>;
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans">
-      
-      {/* Hero Header */}
-      <div className="relative w-full h-[480px] md:h-[540px] overflow-hidden">
-        {bannerImage ? (
-          <img src={bannerImage} alt={blog.title} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-slate-900 via-cyan-950/30 to-slate-950" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/30" />
+    <div className="bg-white dark:bg-[#0b1120] min-h-screen py-16 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-site-wide mx-auto">
         
-        <div className="absolute inset-0 flex items-end">
-          <div className="max-w-site-wide mx-auto w-full px-4 sm:px-6 lg:px-8 pb-12">
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <Link to="/blogs" className="inline-flex items-center text-sm font-semibold text-cyan-400 hover:text-cyan-300 mb-6 transition-colors">
-                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Articles
-              </Link>
-              
-              <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400 mb-4">
-                {blog.tags?.[0] && (
-                  <span className="px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-lg border border-cyan-500/20 font-semibold text-xs">
-                    {blog.category || blog.tags[0]}
-                  </span>
-                )}
-                <span className="flex items-center"><Calendar className="w-4 h-4 mr-1.5" /> {formatDate(blog.createdAt)}</span>
-                <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5" /> {blog.readingTime || 5} min read</span>
-              </div>
-              
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-[1.15] max-w-4xl">
-                {blog.title}
-              </h1>
+        {/* We use max-w-4xl for the reading content area so it's not too wide, but inside the max-w-site-wide container */}
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <header className="mb-10 text-center">
+            <div className="flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400 font-medium mb-4">
+              <span className="text-blue-600 dark:text-blue-400">{blog.category}</span>
+              <span>•</span>
+              <span>{blog.readTime || "5 min read"}</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-8 leading-tight">
+              {blog.title}
+            </h1>
 
-              <div className="flex items-center gap-4 mt-6">
-                <div className="w-12 h-12 rounded-full bg-white/10 overflow-hidden">
-                  <User className="w-full h-full p-2.5 text-cyan-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">{blog.author?.name || 'ElderNest Team'}</p>
-                  <p className="text-xs text-slate-400">Elder Care Specialist</p>
-                </div>
-                <button
-                  onClick={handleShare}
-                  className="ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-slate-300 text-sm font-semibold hover:bg-white/20 transition-colors backdrop-blur-md border border-white/10 cursor-pointer"
-                >
-                  <Share2 className="w-4 h-4" /> Share
-                </button>
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex-shrink-0">
+                <img src={`https://ui-avatars.com/api/?name=${blog.author?.name || 'Admin'}&background=random`} alt={blog.author?.name} />
               </div>
-            </motion.div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content + Sidebar */}
-      <div className="max-w-site-wide mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col lg:flex-row gap-12">
-          
-          {/* Main Content */}
-          <motion.div variants={fadeUp} initial="hidden" animate="show" className="w-full lg:w-2/3">
-            <article className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden">
-              <div className="p-8 md:p-12">
-                <div 
-                  className="prose prose-invert prose-lg max-w-none 
-                    prose-headings:text-white prose-headings:font-bold prose-headings:tracking-tight
-                    prose-p:text-slate-300 prose-p:leading-relaxed
-                    prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline
-                    prose-strong:text-white
-                    prose-blockquote:border-cyan-500 prose-blockquote:text-slate-400
-                    prose-code:text-cyan-300 prose-code:bg-white/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
-                    prose-pre:bg-slate-900 prose-pre:border prose-pre:border-white/10
-                    prose-img:rounded-xl
-                    prose-li:text-slate-300 prose-li:marker:text-cyan-500
-                    prose-table:border-white/10 prose-th:text-white prose-td:text-slate-300"
-                  dangerouslySetInnerHTML={{ __html: processedContent }}
-                />
-
-                {/* Tags Footer */}
-                {blog.tags && blog.tags.length > 0 && (
-                  <div className="mt-12 pt-8 border-t border-white/10 flex flex-wrap items-center gap-2">
-                    <span className="font-bold text-white mr-2">Topics:</span>
-                    {blog.tags.map((tag, idx) => (
-                      <span key={idx} className="px-3 py-1.5 bg-white/5 text-slate-300 text-sm font-medium rounded-lg border border-white/10">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </article>
-
-            {/* Author Card */}
-            <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 flex flex-col sm:flex-row gap-6 items-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0">
-                <User className="w-10 h-10 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white mb-1">{blog.author?.name || "ElderNest Team"}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  Our team of elder care experts shares insights, tips, and stories to help you provide the best care for your loved ones.
-                </p>
+              <div className="flex flex-col text-left">
+                <span className="text-sm font-semibold text-slate-900 dark:text-slate-200">{blog.author?.name || 'Admin'}</span>
+                <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                  {new Date(blog.publishedAt || blog.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </span>
               </div>
             </div>
-          </motion.div>
+          </header>
 
-          {/* Sidebar */}
-          <div className="w-full lg:w-1/3 space-y-8">
+          {/* Featured Image */}
+          <div className="w-full aspect-[2/1] rounded-2xl overflow-hidden mb-12 border border-slate-100 dark:border-slate-800">
+            <img 
+              src={blog.image || "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&w=1200"} 
+              alt={blog.title} 
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Excerpt */}
+          <div className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-medium mb-8">
+            {blog.excerpt}
+          </div>
+
+          {/* Main Content */}
+          <article 
+            className="prose prose-lg prose-slate dark:prose-invert max-w-none mb-12"
+            dangerouslySetInnerHTML={{ __html: blog.content }}
+          />
+
+          {/* Quote Box (If exists) */}
+          {blog.quote && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600 p-8 rounded-r-xl mb-12">
+              <p className="text-xl md:text-2xl font-semibold text-blue-900 dark:text-blue-100 italic">
+                "{blog.quote}"
+              </p>
+            </div>
+          )}
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 mb-12">
+            {blog.tags?.map(tag => (
+              <span key={tag} className="px-4 py-2 bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-lg">
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* CTA Banner */}
+          <div className="bg-blue-50 dark:bg-[#111827] rounded-2xl p-8 md:p-12 text-center mb-16 flex flex-col items-center border border-blue-100 dark:border-slate-800">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+              Need Professional Elderly Care at Home?
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-xl mx-auto">
+              Our vetted caregivers are ready to provide compassionate and professional assistance for your loved ones right at their home.
+            </p>
+            <Link to="/caregivers" className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 dark:hover:bg-blue-500 transition-colors">
+              Book Caregiver <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
+          </div>
+
+          {/* Comments Section */}
+          <div className="border-t border-slate-200 dark:border-slate-800 pt-12 mb-16">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">
+              Leave a Comment
+            </h3>
             
-            {/* Table of Contents */}
-            {headings.length > 0 && (
-              <div className="sticky top-24 space-y-8">
-                <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6">
-                  <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 uppercase tracking-wider">
-                    <List className="w-4 h-4 text-cyan-400" /> Table of Contents
-                  </h3>
-                  <nav className="space-y-1">
-                    {headings.map((h) => (
-                      <a
-                        key={h.id}
-                        href={`#${h.id}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          document.getElementById(h.id)?.scrollIntoView({ behavior: "smooth", block: "center" });
-                        }}
-                        className={`block text-sm py-1.5 transition-all duration-200 border-l-2 ${
-                          activeHeading === h.id
-                            ? "border-cyan-400 text-cyan-400 font-semibold"
-                            : "border-transparent text-slate-400 hover:text-slate-200 hover:border-white/20"
-                        }`}
-                        style={{ paddingLeft: `${(h.level - 1) * 12 + 12}px` }}
-                      >
-                        {h.text}
-                      </a>
-                    ))}
-                  </nav>
+            <form onSubmit={handleCommentSubmit} className="space-y-6 mb-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Name *</label>
+                  <Input 
+                    type="text" 
+                    required
+                    value={commentData.name}
+                    onChange={(e) => setCommentData({...commentData, name: e.target.value})}
+                    className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                  />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email *</label>
+                  <Input 
+                    type="email" 
+                    required
+                    value={commentData.email}
+                    onChange={(e) => setCommentData({...commentData, email: e.target.value})}
+                    className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Message *</label>
+                <Textarea 
+                  required
+                  rows={5}
+                  value={commentData.text}
+                  onChange={(e) => setCommentData({...commentData, text: e.target.value})}
+                  className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white resize-none"
+                ></Textarea>
+              </div>
+              <Button 
+                type="submit" 
+                disabled={commentLoading}
+                >
+                {commentLoading ? "Posting..." : "Post Comment"}
+              </Button>
+            </form>
 
-                {/* Related Articles */}
-                {relatedBlogs.length > 0 && (
-                  <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6">
-                    <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Related Articles</h3>
-                    <div className="space-y-4">
-                      {relatedBlogs.map(rb => (
-                        <Link to={`/blogs/${rb._id}`} key={rb._id} className="group flex gap-3 items-center">
-                          <div className="w-16 h-16 rounded-lg bg-white/5 overflow-hidden shrink-0 border border-white/10">
-                            {getBlogImageUrl(rb) ? (
-                              <img src={getBlogImageUrl(rb)} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center"><Sparkles className="w-4 h-4 text-slate-600" /></div>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-white text-sm line-clamp-2 group-hover:text-cyan-400 transition-colors mb-1">
-                              {rb.title}
-                            </h4>
-                            <span className="text-xs text-slate-500 flex items-center">
-                              <Calendar className="w-3 h-3 mr-1" /> {formatDate(rb.createdAt)}
-                            </span>
-                          </div>
-                        </Link>
-                      ))}
+            {/* Existing Comments */}
+            {blog.comments?.length > 0 && (
+              <div className="space-y-8">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">{blog.comments.length} Comments</h3>
+                {blog.comments.map((comment, idx) => (
+                  <div key={idx} className="flex gap-4">
+                    <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex-shrink-0">
+                      <img src={`https://ui-avatars.com/api/?name=${comment.name}&background=random`} alt={comment.name} />
+                    </div>
+                    <div className="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-2xl rounded-tl-none p-6 border border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{comment.name}</span>
+                        <span className="text-sm text-slate-400">•</span>
+                        <span className="text-sm text-slate-400">
+                          {new Date(comment.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-slate-600 dark:text-slate-300">{comment.text}</p>
                     </div>
                   </div>
-                )}
-
-                {/* Newsletter */}
-                <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 backdrop-blur-xl p-6 relative overflow-hidden">
-                  <div className="absolute -top-10 -right-10 w-28 h-28 bg-cyan-500/10 rounded-full blur-2xl" />
-                  <div className="relative z-10">
-                    <Mail className="w-8 h-8 text-cyan-400 mb-3" />
-                    <h3 className="text-lg font-bold text-white mb-2">Stay Updated</h3>
-                    <p className="text-slate-400 text-sm mb-4 leading-relaxed">
-                      Get expert elder care insights delivered to your inbox.
-                    </p>
-                    <form onSubmit={handleSubmit(onSubmitNewsletter)} className="space-y-3">
-                      <input
-                        type="email"
-                        {...register('email', { required: 'Email required' })}
-                        placeholder="Your email"
-                        className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 text-sm"
-                      />
-                      {errors.email && <span className="text-cyan-400 text-xs">{errors.email.message}</span>}
-                      <button
-                        type="submit"
-                        disabled={subscribing}
-                        className="w-full px-4 py-3 bg-cyan-500 text-slate-950 rounded-lg font-bold text-sm hover:bg-cyan-400 transition-colors"
-                      >
-                        {subscribing ? "Subscribing..." : "Subscribe"}
-                      </button>
-                    </form>
-                  </div>
-                </div>
+                ))}
               </div>
             )}
           </div>
-          
         </div>
+
+        {/* Related Articles */}
+        {relatedBlogs.length > 0 && (
+          <div className="border-t border-slate-200 dark:border-slate-800 pt-16">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">Related Articles</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {relatedBlogs.map((b) => (
+                <div key={b._id} className="bg-white dark:bg-[#111827] rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col h-full hover:shadow-lg transition-shadow">
+                  <div className="relative w-full aspect-[4/3] border-b border-slate-100 dark:border-slate-800">
+                    <img 
+                      src={b.image || "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&w=800"} 
+                      alt={b.title}
+                      className="w-full h-full object-cover"
+                    />
+                    {b.category && (
+                      <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 dark:bg-[#111827]/90 text-slate-900 dark:text-white text-xs font-bold rounded-md shadow-sm">
+                        {b.category}
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-2">
+                      <Link to={`/blogs/${b.slug}`}>{b.title}</Link>
+                    </h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">
+                      {b.excerpt}
+                    </p>
+                    <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-800/50">
+                      <Link to={`/blogs/${b.slug}`} className="text-sm font-semibold text-blue-600 dark:text-blue-400 flex items-center hover:underline">
+                        Read More <ArrowRight className="w-4 h-4 ml-1" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { lazy } from "react";
 import { Route } from "react-router-dom";
 import AuthPage from "../../../features/auth/forms/AuthPage";
-import { ROLES } from "../../../utils/constants";
+import { ROLES } from "@/constants";
 
 const Home = lazy(() => import("../../../features/public/pages/Home"));
 const About = lazy(() => import("../../../features/public/pages/About"));
@@ -31,7 +31,7 @@ const PublicRoutes = () => (
     <Route path="/about" element={<About />} />
     <Route path="/contact" element={<ContactUs />} />
     <Route path="/blogs" element={<Blog />} />
-    <Route path="/blogs/:id" element={<BlogDetails />} />
+    <Route path="/blogs/:slug" element={<BlogDetails />} />
     <Route path="/caregivers" element={<Caregivers />} />
     <Route path="/caregivers/:id" element={<CaregiverDetails />} />
     <Route path="/services" element={<Services />} />

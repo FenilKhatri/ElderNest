@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Home, ArrowLeft } from "lucide-react";
 import PageNotFoundImg from "../../../assets/images/other/pagenotfound.avif";
+import Button from "../../../components/ui/Button";
 
 const PageNotFound = () => {
   return (
@@ -33,13 +34,13 @@ const PageNotFound = () => {
               Go Home
             </Link>
 
-            <button
+            <Button
               onClick={() => window.history.back()}
               className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition duration-300 cursor-pointer"
             >
               <ArrowLeft size={18} />
               Go Back
-            </button>
+            </Button>
           </div>
         </div>
 

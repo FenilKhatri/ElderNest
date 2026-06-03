@@ -2,6 +2,8 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import Button from "../../../components/ui/Button";
 import { submitContact } from "../../contact/api/contact.api";
+import Textarea from "../../../components/ui/Textarea";
+import Input from "../../../components/ui/Input";
 
 const Form = () => {
   const [formData, setFormData] = useState({
@@ -72,7 +74,7 @@ const Form = () => {
             <label htmlFor="name" className={labelStyle}>
               Name <span className="text-red-500">*</span>
             </label>
-            <input
+            <Input
               type="text"
               name="name"
               value={formData.name}
@@ -88,7 +90,7 @@ const Form = () => {
             <label htmlFor="email" className={labelStyle}>
               Email <span className="text-red-500">*</span>
             </label>
-            <input
+            <Input
               type="email"
               name="email"
               value={formData.email}
@@ -107,7 +109,7 @@ const Form = () => {
             <label htmlFor="phone" className={labelStyle}>
               Phone
             </label>
-            <input
+            <Input
               type="tel"
               name="phone"
               value={formData.phone}
@@ -122,7 +124,7 @@ const Form = () => {
             <label htmlFor="subject" className={labelStyle}>
               Subject <span className="text-red-500">*</span>
             </label>
-            <input
+            <Input
               type="text"
               name="subject"
               value={formData.subject}
@@ -140,7 +142,7 @@ const Form = () => {
           <label htmlFor="message" className={labelStyle}>
             Message <span className="text-red-500">*</span>
           </label>
-          <textarea
+          <Textarea
             name="message"
             value={formData.message}
             onChange={handleChange}
@@ -149,7 +151,7 @@ const Form = () => {
             placeholder="Write your message here..."
             required
             className={`${inputStyle} resize-none`}
-          ></textarea>
+          ></Textarea>
         </div>
 
         {/* Submit Btn */}

@@ -6,11 +6,9 @@ import * as reviewController from "./review.controller.js";
 
 const router = express.Router();
 
-// Public routes
 router.get("/caregiver/:caregiverId", reviewController.getCaregiverReviews);
 router.get("/service/:serviceId", reviewController.getServiceReviews);
 
-// Protected routes
 router.use(protect);
 
 router.post("/", authorizeRoles(ROLES.USER), reviewController.createReview);

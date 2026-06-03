@@ -25,7 +25,7 @@ const getTokenFromRequest = (req) => {
 
 let cachedSettings = null;
 let lastFetchTime = 0;
-const CACHE_TTL = 60 * 1000; // 1 minute
+const CACHE_TTL = 60 * 1000; 
 
 /** Block non-admin API traffic when maintenance mode is on */
 export const maintenanceMiddleware = async (req, res, next) => {

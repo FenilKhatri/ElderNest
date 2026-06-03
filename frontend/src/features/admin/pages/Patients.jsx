@@ -135,14 +135,14 @@ const Patients = () => {
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg self-start">
           <button
             onClick={() => setLayout("grid")}
-            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-blue-600 text-white shadow-md" : "bg-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
             title="Grid View"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
           </button>
           <button
             onClick={() => setLayout("table")}
-            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-blue-600 text-white shadow-md" : "bg-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
             title="Table View"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
@@ -179,20 +179,20 @@ const Patients = () => {
                 key={p._id}
                 footer={
                   <div className="flex justify-end gap-2">
-                    <button
+                    <Button
                       onClick={() => handleEdit(p)}
                       className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
                       title="Edit Patient"
                     >
                       <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleDeleteClick(p._id)}
                       className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                       title="Delete Patient"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </div>
                 }
               >
@@ -267,20 +267,20 @@ const Patients = () => {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <button
+                          <Button
                             onClick={() => handleEdit(p)}
                             className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100"
                             title="Edit Patient"
                           >
                             <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => handleDeleteClick(p._id)}
                             className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100"
                             title="Delete Patient"
                           >
                             <Trash2 className="w-4 h-4" />
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>

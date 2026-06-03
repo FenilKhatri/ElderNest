@@ -5,6 +5,7 @@ import EmptyState from "../../../components/ui/EmptyState";
 import { formatDateTime } from "../../../utils/helpers";
 import { Link, useNavigate } from "react-router-dom";
 import UserPageLayout from "../../../layout/dashboard/UserPageLayout";
+import Button from "../../../components/ui/Button";
 
 const UserNotifications = () => {
   const navigate = useNavigate();
@@ -20,9 +21,9 @@ const UserNotifications = () => {
       description="Booking updates and care activity"
       action={
         notifications?.length > 0 ? (
-          <button type="button" onClick={markAllAsRead} className="text-sm font-medium text-blue-600 hover:underline">
+          <Button type="button" onClick={markAllAsRead} className="hover:underline">
             Mark all read
-          </button>
+          </Button>
         ) : null
       }
     >
@@ -64,9 +65,9 @@ const UserNotifications = () => {
                   </Link>
                 )}
                 {!n.isRead && (
-                  <button type="button" onClick={() => markAsRead(n._id)} className="text-xs text-slate-500 hover:underline">
+                  <Button type="button" onClick={() => markAsRead(n._id)} className="text-xs text-slate-500 hover:underline">
                     Mark read
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

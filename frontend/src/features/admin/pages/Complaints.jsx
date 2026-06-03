@@ -8,11 +8,9 @@ import { formatDateTime } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
-import {
-  COMPLAINT_STATUS_OPTIONS,
-  COMPLAINT_STATUS_TABS,
-  COMPLAINT_TYPE_FILTER,
-} from "../../../constants/adminConstants";
+import Select from "../../../components/ui/Select";
+import Textarea from "../../../components/ui/Textarea";
+import { COMPLAINT_STATUS_OPTIONS, COMPLAINT_STATUS_TABS, COMPLAINT_TYPE_FILTER } from "@/constants";
 
 const Complaints = () => {
   const [complaints, setComplaints] = useState([]);
@@ -67,17 +65,17 @@ const Complaints = () => {
         </div>
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg self-start">
           {COMPLAINT_TYPE_FILTER.map(t => (
-            <button
+            <Button
               key={t.id}
               onClick={() => setActiveType(t.id)}
               className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
                 activeType === t.id 
                   ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" 
-                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                  : "bg-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
               {t.label}
-            </button>
+            </Button>
           ))}
         </div>
       </motion.div>
@@ -85,7 +83,7 @@ const Complaints = () => {
       {/* Tabs */}
       <motion.div variants={fadeUp} className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
         {COMPLAINT_STATUS_TABS.map((tab) => (
-          <button
+          <Button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
@@ -95,7 +93,7 @@ const Complaints = () => {
             }`}
           >
             {tab.label}
-          </button>
+          </Button>
         ))}
       </motion.div>
 
@@ -133,9 +131,9 @@ const Complaints = () => {
                       <td className="px-4 py-3 text-sm text-slate-600">{formatDateTime(c.createdAt)}</td>
                       <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
                       <td className="px-4 py-3">
-                        <button type="button" onClick={() => openItem(c)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg">
+                        <Button type="button" onClick={() => openItem(c)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg">
                           <Eye className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))
@@ -164,19 +162,15 @@ const Complaints = () => {
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Update Status</label>
-                <select
+                <Select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm"
-                >
-                  {COMPLAINT_STATUS_OPTIONS.map((s) => (
-                    <option key={s.value} value={s.value}>{s.label}</option>
-                  ))}
-                </select>
+                  options={COMPLAINT_STATUS_OPTIONS}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Admin Notes</label>
-                <textarea
+                <Textarea
                   rows={3}
                   placeholder="Admin notes (Internal use only)"
                   value={adminNotes}

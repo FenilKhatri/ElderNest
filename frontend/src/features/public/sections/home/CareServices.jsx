@@ -19,7 +19,7 @@ const CareServices = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-site-wide mx-auto flex items-center justify-center flex-col space-y-5 md:space-y-15 p-5 overflow-x-hidden">
+    <div className="w-full max-w-site-wide mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center flex-col space-y-5 md:space-y-15 py-14 overflow-x-hidden">
       <motion.div
         variants={fadeUp}
         initial="hidden"

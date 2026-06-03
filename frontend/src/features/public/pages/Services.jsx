@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, HeartPulse, Star, MapPin, Clock, Filter, X } from "lucide-react";
 import { getAllServices } from "../../service/api/service.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
-import { SERVICE_CATEGORIES } from "../../../constants/serviceConstants";
+import { SERVICE_CATEGORIES } from "../../../constants";
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -91,7 +91,7 @@ const Services = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120] pt-24 pb-16 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-site-wide mx-auto">
         
         {/* Page Header */}
         <div className="mb-8 md:mb-10">
@@ -358,4 +358,4 @@ const Services = () => {
   );
 };
 
-export default Services;
+export default Services;

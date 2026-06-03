@@ -4,7 +4,6 @@ import Transaction from "./transaction.model.js";
 
 // @desc    Get all transactions (Admin)
 // @route   GET /api/transactions
-// @access  Private/Admin
 export const getAllTransactions = asyncHandler(async (req, res) => {
     const { type, status } = req.query;
     const query = {};
@@ -22,7 +21,6 @@ export const getAllTransactions = asyncHandler(async (req, res) => {
 
 // @desc    Get transaction by ID
 // @route   GET /api/transactions/:id
-// @access  Private/Admin
 export const getTransactionById = asyncHandler(async (req, res) => {
     const transaction = await Transaction.findById(req.params.id)
         .populate("userId", "name email phone")
@@ -38,7 +36,6 @@ export const getTransactionById = asyncHandler(async (req, res) => {
 
 // @desc    Update transaction status (Admin)
 // @route   PATCH /api/transactions/:id/status
-// @access  Private/Admin
 export const updateTransactionStatus = asyncHandler(async (req, res) => {
     const { status } = req.body;
     

@@ -150,13 +150,7 @@ const Profile = () => {
                   <span className="block text-xs text-slate-500 capitalize">{caregiver.status}</span>
                 </div>
               </li>
-              <li className="flex items-start">
-                <Clock className="w-5 h-5 text-blue-500 mr-3 shrink-0" />
-                <div>
-                  <span className="block text-sm font-medium text-slate-900 dark:text-white">Availability</span>
-                  <span className="block text-xs text-slate-500 capitalize">{caregiver.availableTiming || "Not specified"}</span>
-                </div>
-              </li>
+              {/* Availability removed */}
               {caregiver.languages && caregiver.languages.length > 0 && (
                 <li className="flex items-start">
                   <User className="w-5 h-5 text-purple-500 mr-3 shrink-0" />

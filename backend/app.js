@@ -17,11 +17,9 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 app.use(express.json());
 app.use(cookieParser());
 
-// CORS
 const allowedOrigin = [
     "http://localhost:5173",
-    "http://localhost:5174",
-    "https://elder-nest-care.vercel.app",
+    "https://elder-nest-care.vercel.app"
 ];
 
 app.use(
@@ -35,7 +33,6 @@ app.use(
 
 app.use(express.urlencoded({ extended: true }));
 
-// Disable caching
 app.set("etag", false);
 app.use((req, res, next) => {
     res.set("Cache-Control", "no-store");
@@ -50,7 +47,6 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api", routes);
 
-// Health check
 app.get("/api/health", (req, res) => {
     res.status(200).json({
         ok: true,

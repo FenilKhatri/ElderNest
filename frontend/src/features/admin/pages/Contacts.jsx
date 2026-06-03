@@ -8,7 +8,9 @@ import { formatDateTime } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
-import { CONTACT_STATUS_OPTIONS } from "../../../constants/adminConstants";
+import Select from "../../../components/ui/Select";
+import { CONTACT_STATUS_OPTIONS } from "@/constants";
+import Textarea from "../../../components/ui/Textarea";
 
 const Complaints = () => {
   const [contacts, setContacts] = useState([]);
@@ -56,14 +58,16 @@ const Complaints = () => {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Contact Inquiries</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Manage contact form submissions and inquiries</p>
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="">All Status</option>
-          {CONTACT_STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-        </select>
+        <div className="w-48">
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            options={[
+              { value: "", label: "All Status" },
+              ...CONTACT_STATUS_OPTIONS
+            ]}
+          />
+        </div>
       </motion.div>
 
       <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
@@ -94,13 +98,13 @@ const Complaints = () => {
                     <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDateTime(c.createdAt)}</td>
                     <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
                     <td className="px-4 py-3">
-                      <button
+                      <Button
                         onClick={() => openContact(c)}
                         className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
                         title="View & Respond"
                       >
                         <Eye className="w-4 h-4" />
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -153,17 +157,15 @@ const Complaints = () => {
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Update Status</label>
-                <select
+                <Select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {CONTACT_STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                </select>
+                  options={CONTACT_STATUS_OPTIONS}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Admin Notes</label>
-                <textarea
+                <Textarea
                   rows={3}
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}

@@ -4,7 +4,7 @@ import { ROLES, LOCK_TIME, MAX_FAILED_ATTEMPTS, CAREGIVER_STATUSES } from "../..
 import { AppError } from "../../common/utils/appError.js";
 import Caregiver from "../caregiver/caregiver.model.js";
 import { createNotification } from "../../common/services/notification.service.js";
-import { sendEmail } from "../../common/services/email.service.js";
+
 
 export const createUser = async (data) => {
     const { name, email, phone, password } = data;
@@ -144,14 +144,10 @@ export const createCaregiver = async (data) => {
             `${user.name} has registered as a caregiver and is waiting for approval.`,
             "/admin/caregivers"
         );
-        // Send email to admin
-        await sendEmail(admin.email, "adminCaregiverNotification", {
-            caregiverName: user.name,
-            caregiverEmail: user.email,
-        });
+
     }
 
-    await sendEmail(user.email, "caregiverRegistration", { name: user.name });
+
 
     return user;
 };

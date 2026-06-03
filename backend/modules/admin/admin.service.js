@@ -10,12 +10,11 @@ import Message from "../message/message.model.js";
 import Review from "../review/review.model.js";
 import CareNote from "../careNote/careNote.model.js";
 import { createNotification } from "../../common/services/notification.service.js";
-import { sendEmail } from "../../common/services/email.service.js";
+
 import { ONBOARDING_STAGES } from "../../common/utils/caregiverOnboarding.js";
 import mongoose from "mongoose";
 import { deleteFromCloudinary } from "../../config/cloudinary.js";
 
-// Get pending caregiver registrations
 export const getPendingCaregivers = async () => {
     const caregivers = await User.find({
         role: "caregiver",
@@ -26,9 +25,12 @@ export const getPendingCaregivers = async () => {
     return caregivers;
 };
 
-// Approve caregiver registration
 export const approveCaregiverRegistration = async (userId) => {
-    const user = await User.findById(userId);
+    const [user, caregiver] = await Promise.all([
+        User.findById(userId),
+        Caregiver.findOne({ userId })
+    ]);
+
     if (!user) {
         throw new Error("User not found");
     }
@@ -39,31 +41,33 @@ export const approveCaregiverRegistration = async (userId) => {
 
     user.isApproved = true;
     user.status = "approved";
-    await user.save();
 
-    const caregiver = await Caregiver.findOne({ userId: user._id });
+    const promises = [user.save()];
+
     if (caregiver) {
         caregiver.onboardingStage = ONBOARDING_STAGES.ACCOUNT_APPROVED;
-        await caregiver.save();
+        promises.push(caregiver.save());
     }
 
-    await createNotification(
+    await Promise.all(promises);
+
+    createNotification(
         userId,
         "caregiver_approved",
         "Account Approved!",
         "Your account has been approved. Please complete document verification.",
         "/caregiver/verification"
-    );
-
-    // Send email
-    await sendEmail(user.email, "caregiverApproval", { name: user.name });
+    ).catch(console.error);
 
     return user;
 };
 
-// Reject caregiver registration
 export const rejectCaregiverRegistration = async (userId, reason) => {
-    const user = await User.findById(userId);
+    const [user, caregiver] = await Promise.all([
+        User.findById(userId),
+        Caregiver.findOne({ userId })
+    ]);
+
     if (!user) {
         throw new Error("User not found");
     }
@@ -74,30 +78,28 @@ export const rejectCaregiverRegistration = async (userId, reason) => {
 
     user.status = "rejected";
     user.isApproved = false;
-    await user.save();
 
-    const caregiver = await Caregiver.findOne({ userId: user._id });
+    const promises = [user.save()];
+
     if (caregiver) {
         caregiver.onboardingStage = ONBOARDING_STAGES.REJECTED;
         caregiver.adminFeedback = reason;
-        await caregiver.save();
+        promises.push(caregiver.save());
     }
 
-    await createNotification(
+    await Promise.all(promises);
+
+    createNotification(
         userId,
         "caregiver_rejected",
         "Registration Rejected",
         reason || "Your caregiver registration was not approved.",
         "/caregiver/rejected"
-    );
-
-    // Send email
-    await sendEmail(user.email, "caregiverRejection", { name: user.name, reason });
+    ).catch(console.error);
 
     return user;
 };
 
-// Get pending caregiver profiles / verifications
 export const getPendingProfiles = async () => {
     const caregivers = await Caregiver.find({
         onboardingStage: ONBOARDING_STAGES.VERIFICATION_PENDING,
@@ -135,13 +137,13 @@ export const reviewCaregiverVerification = async (caregiverId, action, feedback 
         caregiver.adminFeedback = "";
         await caregiver.save();
 
-        await createNotification(
+        createNotification(
             userId,
             "caregiver_approved",
             "Verification Approved",
             "Your verification was approved. You are now a verified caregiver.",
             "/caregiver/dashboard"
-        );
+        ).catch(console.error);
     } else if (action === "reject") {
         caregiver.onboardingStage = ONBOARDING_STAGES.REJECTED;
         caregiver.profileApprovalStatus = "rejected";
@@ -149,13 +151,13 @@ export const reviewCaregiverVerification = async (caregiverId, action, feedback 
         caregiver.adminFeedback = feedback;
         await caregiver.save();
 
-        await createNotification(
+        createNotification(
             userId,
             "caregiver_rejected",
             "Verification Rejected",
             feedback || "Your verification was rejected.",
             "/caregiver/rejected"
-        );
+        ).catch(console.error);
     } else if (action === "changes") {
         caregiver.onboardingStage = ONBOARDING_STAGES.VERIFICATION_CHANGES;
         caregiver.profileApprovalStatus = "changes-required";
@@ -163,13 +165,13 @@ export const reviewCaregiverVerification = async (caregiverId, action, feedback 
         caregiver.adminFeedback = feedback;
         await caregiver.save();
 
-        await createNotification(
+        createNotification(
             userId,
             "profile_update_required",
             "Additional Information Required",
             feedback || "Please update your verification documents and resubmit.",
             "/caregiver/verification"
-        );
+        ).catch(console.error);
     } else {
         throw new Error("Invalid review action");
     }
@@ -177,7 +179,6 @@ export const reviewCaregiverVerification = async (caregiverId, action, feedback 
     return caregiver;
 };
 
-// Approve caregiver profile
 export const approveCaregiverProfile = async (caregiverId) => {
     const caregiver = await Caregiver.findById(caregiverId).populate("userId");
     if (!caregiver) {
@@ -187,24 +188,17 @@ export const approveCaregiverProfile = async (caregiverId) => {
     caregiver.profileApprovalStatus = "approved";
     await caregiver.save();
 
-    // Create notification
-    await createNotification(
+    createNotification(
         caregiver.userId._id,
         "caregiver_approved",
         "Profile Approved!",
         "Your profile is now live and visible to users.",
         "/caregiver/dashboard"
-    );
-
-    // Send email
-    await sendEmail(caregiver.userId.email, "caregiverProfileApproval", {
-        name: caregiver.userId.name,
-    });
+    ).catch(console.error);
 
     return caregiver;
 };
 
-// Reject caregiver profile
 export const rejectCaregiverProfile = async (caregiverId, feedback) => {
     const caregiver = await Caregiver.findById(caregiverId).populate("userId");
     if (!caregiver) {
@@ -215,19 +209,17 @@ export const rejectCaregiverProfile = async (caregiverId, feedback) => {
     caregiver.adminFeedback = feedback;
     await caregiver.save();
 
-    // Create notification
-    await createNotification(
+    createNotification(
         caregiver.userId._id,
         "general",
         "Profile Changes Required",
         "Admin has requested changes to your profile. Please review and update.",
         "/caregiver/profile/complete"
-    );
+    ).catch(console.error);
 
     return caregiver;
 };
 
-// Get all users
 export const getAllUsers = async (role = null) => {
     const query = {};
     if (role) {
@@ -238,7 +230,6 @@ export const getAllUsers = async (role = null) => {
     return users;
 };
 
-// Get dashboard stats
 export const getDashboardStats = async (timeframe) => {
     let dateFilter = {};
     const now = new Date();
@@ -322,7 +313,6 @@ export const getDashboardStats = async (timeframe) => {
     };
 };
 
-// Get all contacts
 export const getAllContacts = async (status = null) => {
     const query = {};
     if (status) {
@@ -336,7 +326,6 @@ export const getAllContacts = async (status = null) => {
     return contacts;
 };
 
-// Update contact status
 export const updateContactStatus = async (contactId, status, adminId, adminNotes = null) => {
     const contact = await Contact.findById(contactId);
     if (!contact) {
@@ -357,7 +346,6 @@ export const updateContactStatus = async (contactId, status, adminId, adminNotes
     return contact;
 };
 
-// Suspend caregiver
 export const suspendCaregiver = async (userId, suspend = true) => {
     const user = await User.findById(userId);
     if (!user || user.role !== "caregiver") {
@@ -392,7 +380,6 @@ export const suspendCaregiver = async (userId, suspend = true) => {
     return { user, caregiver };
 };
 
-// Analytics
 export const getAnalytics = async () => {
     const totalUsers = await User.countDocuments({ role: "user" });
     const totalPatients = await Patient.countDocuments({ isActive: true });
@@ -436,10 +423,11 @@ export const getAnalytics = async () => {
     };
 };
 
-// Delete user or caregiver (Cascade Delete)
 export const deleteUser = async (userId) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).session(session);
         if (!user) {
             throw new Error("User not found");
         }
@@ -449,9 +437,8 @@ export const deleteUser = async (userId) => {
         }
 
         if (user.role === "caregiver") {
-            const caregiver = await Caregiver.findOne({ userId });
+            const caregiver = await Caregiver.findOne({ userId }).session(session);
             if (caregiver) {
-                // Delete caregiver documents from Cloudinary
                 const docs = caregiver.documents || {};
                 if (docs.idProof && docs.idProof.includes("cloudinary.com")) await deleteFromCloudinary(docs.idProof);
                 if (docs.backgroundCheck && docs.backgroundCheck.includes("cloudinary.com")) await deleteFromCloudinary(docs.backgroundCheck);
@@ -461,30 +448,34 @@ export const deleteUser = async (userId) => {
                     }
                 }
 
-                await Booking.deleteMany({ caregiverId: caregiver._id });
-                await Review.deleteMany({ caregiverId: caregiver._id });
-                await CareNote.deleteMany({ caregiverId: caregiver._id });
+                await Booking.deleteMany({ caregiverId: caregiver._id }).session(session);
+                await Review.deleteMany({ caregiverId: caregiver._id }).session(session);
+                await CareNote.deleteMany({ caregiverId: caregiver._id }).session(session);
                 
-                await Caregiver.findByIdAndDelete(caregiver._id);
+                await Caregiver.findByIdAndDelete(caregiver._id).session(session);
             }
         } else {
-            await Booking.deleteMany({ userId });
-            await Patient.deleteMany({ userId });
-            await Review.deleteMany({ userId });
+            await Booking.deleteMany({ userId }).session(session);
+            await Patient.deleteMany({ userId }).session(session);
+            await Review.deleteMany({ userId }).session(session);
         }
 
-        await Notification.deleteMany({ userId });
-        await Complaint.deleteMany({ userId });
+        await Notification.deleteMany({ userId }).session(session);
+        await Complaint.deleteMany({ userId }).session(session);
         await Message.deleteMany({
             $or: [{ senderId: userId }, { receiverId: userId }]
-        });
+        }).session(session);
 
-        await User.findByIdAndDelete(userId);
+        await User.findByIdAndDelete(userId).session(session);
 
+        await session.commitTransaction();
         return true;
 
     } catch (error) {
+        await session.abortTransaction();
         console.error("Cascade Delete Error:", error);
         throw error;
+    } finally {
+        session.endSession();
     }
 };

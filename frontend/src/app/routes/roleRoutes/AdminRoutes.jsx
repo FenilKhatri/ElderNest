@@ -1,6 +1,6 @@
 import { lazy } from "react";
 import { Route } from "react-router-dom";
-import { ROLES } from "../../../utils/constants";
+import { ROLES } from "@/constants";
 import ProtectedRoute from "../ProtectedRoute";
 import RoleRoute from "../RoleRoutes";
 import DashboardLayout from "../../../layout/dashboard/DashboardLayout";

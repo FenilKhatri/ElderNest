@@ -4,9 +4,8 @@ import { validationResult } from "express-validator";
 import Contact from "./contact.model.js";
 import User from "../user/user.model.js";
 import { createNotification } from "../../common/services/notification.service.js";
-import { sendEmail } from "../../common/services/email.service.js";
 
-// Create contact inquiry
+
 export const createContact = asyncHandler(async (req, res) => {
     const { name, email, phone, subject, message } = req.body;
 
@@ -29,17 +28,10 @@ export const createContact = asyncHandler(async (req, res) => {
             "/admin/complaints/pending"
         );
 
-        // Send email to admin
-        await sendEmail(admin.email, "contactAdminNotification", {
-            name,
-            email,
-            subject,
-            message,
-        });
+
     }
 
-    // Send confirmation email to user
-    await sendEmail(email, "contactConfirmation", { name });
+
 
     return successResponse(res, 201, "Message sent successfully", { contact });
 });

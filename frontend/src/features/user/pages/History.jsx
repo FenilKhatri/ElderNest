@@ -11,6 +11,7 @@ import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
 import UserPageLayout from "../../../layout/dashboard/UserPageLayout";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
+import Textarea from "../../../components/ui/Textarea";
 
 const History = () => {
   const [bookings, setBookings] = useState([]);
@@ -93,7 +94,7 @@ const History = () => {
       {/* Filters */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2 hide-scrollbar">
         {filters.map(f => (
-          <button
+          <Button
             key={f.key}
             onClick={() => setFilter(f.key)}
             className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all ${
@@ -103,7 +104,7 @@ const History = () => {
             }`}
           >
             {f.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -248,7 +249,7 @@ const History = () => {
           <p className="text-sm text-slate-600 dark:text-slate-400">
             Please provide a detailed reason for requesting a refund. Our team will review your request.
           </p>
-          <textarea
+          <Textarea
             rows={4}
             placeholder="Why are you requesting a refund?"
             value={refundReason}

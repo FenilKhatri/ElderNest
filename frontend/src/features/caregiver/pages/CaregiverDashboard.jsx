@@ -18,6 +18,7 @@ import DashboardCard from "../components/DashboardCard";
 import UpcomingBookings from "../components/UpcomingBookings";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../../../utils/helpers";
+import Button from "../../../components/ui/Button";
 
 const CaregiverDashboard = () => {
   const { user } = useAuth();
@@ -132,12 +133,12 @@ const CaregiverDashboard = () => {
               <p className="text-sm text-amber-800 dark:text-amber-200 mt-1">
                 Complete your profile to start receiving booking requests from families.
               </p>
-              <button
+              <Button
                 onClick={() => navigate("/caregiver/complete-profile")}
                 className="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400 hover:underline"
               >
                 Complete Profile →
-              </button>
+              </Button>
             </div>
           </div>
         </motion.div>
@@ -241,7 +242,7 @@ const CaregiverDashboard = () => {
               Quick Actions
             </h3>
             <div className="space-y-3">
-              <button
+              <Button
                 onClick={() => navigate("/caregiver/availability")}
                 className="w-full text-left p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
@@ -251,8 +252,8 @@ const CaregiverDashboard = () => {
                 <div className="text-sm text-slate-600 dark:text-slate-400">
                   Update your schedule
                 </div>
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => navigate("/caregiver/profile")}
                 className="w-full text-left p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
@@ -262,7 +263,7 @@ const CaregiverDashboard = () => {
                 <div className="text-sm text-slate-600 dark:text-slate-400">
                   See how families see you
                 </div>
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>

@@ -110,7 +110,6 @@ export const statePincodeRanges = {
     "Delhi": { start: 110000, end: 110099 },
 };
 
-// Validate pincode for state
 export const validatePincode = (pincode, state) => {
     const range = statePincodeRanges[state];
     if (!range) return true; // Allow if state not in range map
@@ -119,7 +118,6 @@ export const validatePincode = (pincode, state) => {
     return pin >= range.start && pin <= range.end;
 };
 
-// Get cities by state
 export const getCitiesByState = (state) => {
     return stateCityMap[state] || [];
 };

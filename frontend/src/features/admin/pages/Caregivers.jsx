@@ -23,6 +23,7 @@ import { formatDate } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
+import Textarea from "../../../components/ui/Textarea";
 
 // Action Dropdown Component
 const ActionDropdown = ({ caregiver, onApprove, onReject, open, onToggle, onClose, isLoading }) => {
@@ -42,10 +43,10 @@ const ActionDropdown = ({ caregiver, onApprove, onReject, open, onToggle, onClos
   return (
     <div className="flex items-center space-x-2">
       <div className="relative" ref={dropdownRef}>
-        <button
+        <button type="button"
           onClick={(e) => { e.stopPropagation(); onToggle(); }}
           disabled={isLoading}
-          className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition-colors flex items-center disabled:opacity-50"
+          className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center disabled:opacity-50"
         >
           {isLoading ? (
             <Loader2 className="w-4 h-4 mr-1 animate-spin" />
@@ -62,15 +63,15 @@ const ActionDropdown = ({ caregiver, onApprove, onReject, open, onToggle, onClos
               exit={{ opacity: 0, y: 5 }}
               className="absolute right-0 mt-1 w-32 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 z-10 py-1"
             >
-              <button
+              <button type="button"
                 onClick={(e) => { e.stopPropagation(); onClose(); onApprove(caregiver); }}
-                className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center"
+                className="w-full text-left px-4 py-2 text-sm text-green-600 dark:text-green-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center"
               >
                 <CheckCircle className="w-4 h-4 mr-2" /> Approve
               </button>
-              <button
+              <button type="button"
                 onClick={(e) => { e.stopPropagation(); onClose(); onReject(caregiver); }}
-                className="w-full text-left px-4 py-2 text-sm text-amber-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center"
+                className="w-full text-left px-4 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center"
               >
                 <AlertCircle className="w-4 h-4 mr-2" /> Reject
               </button>
@@ -137,9 +138,15 @@ const Caregivers = () => {
     }
     try {
       setActionLoading(c._id);
-      await approveCaregiverRegistration(c._id);
+      await Promise.all([
+        approveCaregiverRegistration(c._id),
+        new Promise(resolve => setTimeout(resolve, 400)) // Min visual delay
+      ]);
       toast.success("Caregiver approved!");
-      fetchAll();
+      
+      // Optimistic Update
+      setCaregivers(prev => prev.map(user => user._id === c._id ? { ...user, status: "approved", isApproved: true } : user));
+      setPendingRegistrations(prev => prev.filter(user => user._id !== c._id));
     } catch (err) {
       toast.error(err.message || "Failed to approve");
     } finally {
@@ -163,10 +170,19 @@ const Caregivers = () => {
     if (!deleteModal.id) return;
     try {
       setActionLoading(deleteModal.id);
-      await deleteUser(deleteModal.id);
+      await Promise.all([
+        deleteUser(deleteModal.id),
+        new Promise(resolve => setTimeout(resolve, 400))
+      ]);
       toast.success("Caregiver deleted successfully");
+      
+      // Optimistic Update
+      const id = deleteModal.id;
+      setCaregivers(prev => prev.filter(u => u._id !== id));
+      setPendingRegistrations(prev => prev.filter(u => u._id !== id));
+      setPendingProfiles(prev => prev.filter(u => u.userId?._id !== id && u.userId !== id));
+      
       setDeleteModal({ open: false, id: null });
-      fetchAll();
     } catch (error) {
       toast.error(error?.message || "Failed to delete caregiver");
     } finally {
@@ -178,15 +194,27 @@ const Caregivers = () => {
     try {
       setActionLoading(rejectModal.id);
       if (rejectModal.type === "registration") {
-        await rejectCaregiverRegistration(rejectModal.id, rejectReason);
+        await Promise.all([
+          rejectCaregiverRegistration(rejectModal.id, rejectReason),
+          new Promise(resolve => setTimeout(resolve, 400))
+        ]);
         toast.success("Caregiver registration rejected");
+        
+        // Optimistic Update
+        setCaregivers(prev => prev.map(u => u._id === rejectModal.id ? { ...u, status: "rejected", isApproved: false } : u));
+        setPendingRegistrations(prev => prev.filter(u => u._id !== rejectModal.id));
       } else {
-        await rejectCaregiverProfile(rejectModal.id, rejectReason);
+        await Promise.all([
+          rejectCaregiverProfile(rejectModal.id, rejectReason),
+          new Promise(resolve => setTimeout(resolve, 400))
+        ]);
         toast.success("Profile changes requested");
+        
+        // Optimistic Update
+        setPendingProfiles(prev => prev.filter(p => p._id !== rejectModal.id));
       }
       setRejectModal({ open: false, id: null, type: null });
       setRejectReason("");
-      fetchAll();
     } catch (err) {
       toast.error(err.message || "Failed to reject");
     } finally {
@@ -197,9 +225,14 @@ const Caregivers = () => {
   const handleApproveProfile = async (caregiverId) => {
     try {
       setActionLoading(caregiverId);
-      await approveCaregiverProfile(caregiverId);
+      await Promise.all([
+        approveCaregiverProfile(caregiverId),
+        new Promise(resolve => setTimeout(resolve, 400))
+      ]);
       toast.success("Profile approved! Caregiver is now live.");
-      fetchAll();
+      
+      // Optimistic Update
+      setPendingProfiles(prev => prev.filter(p => p._id !== caregiverId));
     } catch (err) {
       toast.error(err.message || "Failed to approve profile");
     } finally {
@@ -244,6 +277,10 @@ const Caregivers = () => {
     { id: "profiles", label: "Pending Profiles",     count: filteredProfiles.length },
   ];
 
+  const handleView = (c) => {
+    navigate(`/admin/caregivers/${c._id}`);
+  };
+
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
       {/* Header */}
@@ -284,19 +321,19 @@ const Caregivers = () => {
       <motion.div variants={fadeUp} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-fit">
           {tabs.map((t) => (
-            <button
+            <button type="button"
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
                 tab === t.id
-                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm"
+                  ? "bg-blue-600 text-white shadow-md"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               {t.label}
               {t.count > 0 && (
                 <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
-                  tab === t.id ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                  tab === t.id ? "bg-white text-blue-600" : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
                 }`}>
                   {t.count}
                 </span>
@@ -307,16 +344,16 @@ const Caregivers = () => {
 
         {/* Layout Toggle */}
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-fit">
-          <button
+          <button type="button"
             onClick={() => setLayout("table")}
-            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-blue-600 text-white shadow-md" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700"}`}
             title="Table View"
           >
             <List className="w-4 h-4" />
           </button>
-          <button
+          <button type="button"
             onClick={() => setLayout("grid")}
-            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-blue-600 text-white shadow-md" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700"}`}
             title="Grid View"
           >
             <LayoutGrid className="w-4 h-4" />
@@ -370,9 +407,9 @@ const Caregivers = () => {
                       <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDate(c.createdAt)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center space-x-2">
-                          <button
+                          <button type="button"
                             onClick={() => navigate(`/admin/caregivers/${c._id}`)}
-                            className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition-colors"
+                            className="p-1.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                             title="View Details"
                           >
                             <Eye className="w-4 h-4" />
@@ -388,10 +425,10 @@ const Caregivers = () => {
                               isLoading={actionLoading === c._id}
                             />
                           )}
-                          <button
+                          <button type="button"
                             onClick={() => handleDeleteClick(c)}
                             disabled={actionLoading === c._id}
-                            className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors disabled:opacity-50"
+                            className="p-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors disabled:opacity-50"
                             title="Delete"
                           >
                             {actionLoading === c._id ? (
@@ -424,10 +461,10 @@ const Caregivers = () => {
                             isLoading={actionLoading === c._id}
                           />
                         )}
-                        <button
+                        <button type="button"
                           onClick={() => handleDeleteClick(c)}
                           disabled={actionLoading === c._id}
-                          className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors disabled:opacity-50"
+                          className="p-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors disabled:opacity-50"
                           title="Delete"
                         >
                           {actionLoading === c._id ? (
@@ -494,17 +531,17 @@ const Caregivers = () => {
                       <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDate(c.createdAt)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => { setActionLoading(c._id); approveCaregiverRegistration(c._id).then(() => { toast.success("Caregiver approved!"); fetchAll(); }).finally(() => setActionLoading(null)); }}
+                          <button type="button"
+                            onClick={() => handleApprove(c)}
                             disabled={actionLoading === c._id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50 cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-medium hover:bg-green-600 transition-colors disabled:opacity-50 cursor-pointer"
                           >
                             {actionLoading === c._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />} Approve
                           </button>
-                          <button
+                          <button type="button"
                             onClick={() => setRejectModal({ open: true, id: c._id, type: "registration" })}
                             disabled={actionLoading === c._id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors cursor-pointer disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-medium hover:bg-red-600 transition-colors cursor-pointer disabled:opacity-50"
                           >
                             <XCircle className="w-3.5 h-3.5" /> Reject
                           </button>
@@ -540,17 +577,17 @@ const Caregivers = () => {
                         </div>
                       </div>
                       <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center space-x-3">
-                        <button
-                          onClick={() => { setActionLoading(c._id); approveCaregiverRegistration(c._id).then(() => { toast.success("Caregiver approved!"); fetchAll(); }).finally(() => setActionLoading(null)); }}
+                        <button type="button"
+                          onClick={() => handleApprove(c)}
                           disabled={actionLoading === c._id}
-                          className="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50"
+                          className="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-green-500 text-white text-xs font-medium hover:bg-green-600 transition-colors disabled:opacity-50"
                         >
                           {actionLoading === c._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />} Approve
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => setRejectModal({ open: true, id: c._id, type: "registration" })}
                           disabled={actionLoading === c._id}
-                          className="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors disabled:opacity-50"
+                          className="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500 text-white text-xs font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
                         >
                           <XCircle className="w-3.5 h-3.5" /> Reject
                         </button>
@@ -595,23 +632,23 @@ const Caregivers = () => {
                       <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDate(c.updatedAt)}</td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap items-center gap-2">
-                          <button
+                          <button type="button"
                             onClick={() => navigate(`/admin/caregivers/${c._id}/verification`)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-900/40"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500 text-white text-xs font-medium hover:bg-blue-600"
                           >
                             <Eye className="w-3.5 h-3.5" /> View
                           </button>
-                          <button
+                          <button type="button"
                             onClick={() => handleApproveProfile(c._id)}
                             disabled={actionLoading === c._id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-medium hover:bg-green-600 transition-colors disabled:opacity-50"
                           >
                             {actionLoading === c._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserCheck className="w-3.5 h-3.5" />} Approve
                           </button>
-                          <button
+                          <button type="button"
                             onClick={() => setRejectModal({ open: true, id: c._id, type: "profile" })}
                             disabled={actionLoading === c._id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-medium hover:bg-amber-600 transition-colors disabled:opacity-50"
                           >
                             <AlertCircle className="w-3.5 h-3.5" /> Request Changes
                           </button>
@@ -651,23 +688,23 @@ const Caregivers = () => {
                         </div>
                       </div>
                       <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex flex-wrap items-center gap-2">
-                        <button
+                        <button type="button"
                           onClick={() => navigate(`/admin/caregivers/${c._id}/verification`)}
-                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-xs font-medium"
+                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-500 text-white text-xs font-medium hover:bg-blue-600 transition-colors"
                         >
                           <Eye className="w-3.5 h-3.5" /> View
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => handleApproveProfile(c._id)}
                           disabled={actionLoading === c._id}
-                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium disabled:opacity-50 transition-colors hover:bg-green-100 dark:hover:bg-green-900/40"
+                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-green-500 text-white text-xs font-medium disabled:opacity-50 transition-colors hover:bg-green-600"
                         >
                           {actionLoading === c._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserCheck className="w-3.5 h-3.5" />} Approve
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => setRejectModal({ open: true, id: c._id, type: "profile" })}
                           disabled={actionLoading === c._id}
-                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors disabled:opacity-50"
+                          className="flex-1 min-w-[100px] inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500 text-white text-xs font-medium hover:bg-amber-600 transition-colors disabled:opacity-50"
                         >
                           <AlertCircle className="w-3.5 h-3.5" /> Changes
                         </button>
@@ -694,7 +731,7 @@ const Caregivers = () => {
               ? "Provide feedback on what changes are needed:"
               : "Provide a reason for rejecting this registration:"}
           </p>
-          <textarea
+          <Textarea
             rows={4}
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
@@ -702,23 +739,20 @@ const Caregivers = () => {
             className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
           />
           <div className="flex justify-end space-x-3">
-            <Button variant="outline" size="sm" onClick={() => { setRejectModal({ open: false, id: null, type: null }); setRejectReason(""); }}>
+            <button type="button" className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm transition-colors" onClick={() => { setRejectModal({ open: false, id: null, type: null }); setRejectReason(""); }}>
               Cancel
-            </Button>
-            <Button
-              variant="danger"
-              size="sm"
+            </button>
+            <button type="button"
+              className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm transition-colors disabled:opacity-50"
               disabled={!rejectReason.trim() || actionLoading === rejectModal.id}
               onClick={executeReject}
             >
               {actionLoading === rejectModal.id ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...
-                </>
+                <div className="flex items-center"><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</div>
               ) : (
                 rejectModal.type === "profile" ? "Send Feedback" : "Reject"
               )}
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>
@@ -738,16 +772,14 @@ const Caregivers = () => {
             </p>
           </div>
           <div className="flex justify-end space-x-3 pt-2">
-            <Button variant="outline" size="sm" onClick={() => setDeleteModal({ open: false, id: null })}>
+            <button type="button" className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm transition-colors" onClick={() => setDeleteModal({ open: false, id: null })}>
               Cancel
-            </Button>
-            <Button variant="danger" size="sm" disabled={actionLoading === deleteModal.id} onClick={confirmDeleteCaregiver}>
+            </button>
+            <button type="button" className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm transition-colors disabled:opacity-50" disabled={actionLoading === deleteModal.id} onClick={confirmDeleteCaregiver}>
               {actionLoading === deleteModal.id ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Deleting...
-                </>
+                <div className="flex items-center"><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Deleting...</div>
               ) : "Delete"}
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>

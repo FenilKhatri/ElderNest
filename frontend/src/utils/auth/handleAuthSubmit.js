@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import { getRedirectByRole } from "./roleRedirect";
-import { ROLES } from "../constants";
+import { ROLES } from "@/constants";
 import { clearSessionOnRoleMismatch } from "./clearSessionOnRoleMismatch";
 
 export const handleAuthSubmit = async ({

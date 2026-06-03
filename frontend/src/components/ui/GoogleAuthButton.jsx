@@ -70,11 +70,11 @@ const GoogleAuthButton = ({ role = "user", allowedRoles = null }) => {
       disabled={loading}
       onClick={handleGoogleLogin}
       className={`mt-5 rounded-xl w-full flex items-center justify-center gap-3
-        border border-slate-800 py-2 transition dark:bg-white text-black
+        border border-slate-300 dark:border-slate-700 py-2 transition bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200
         ${
           loading
             ? "opacity-60 cursor-not-allowed"
-            : "hover:bg-slate-100 cursor-pointer hover:opacity-90"
+            : "hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer"
         }`}
     >
       <img src={Google} alt="Google auth" width={24} />

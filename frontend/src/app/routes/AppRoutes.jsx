@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-import { ROLES } from "../../utils/constants";
+import { ROLES } from "@/constants";
 
 import GlobalLoader from "../../components/ui/GlobalLoader";
 

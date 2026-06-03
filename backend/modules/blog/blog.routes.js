@@ -7,6 +7,9 @@ import { ROLES } from "../../common/utils/constants.js";
 const router = express.Router();
 
 router.get("/", blogController.getAllBlogs);
+router.get("/related", blogController.getRelatedBlogs);
+router.get("/slug/:slug", blogController.getBlogBySlug);
+router.post("/:id/comments", blogController.addComment);
 router.get("/:id", blogController.getBlogById);
 
 // Admin only routes

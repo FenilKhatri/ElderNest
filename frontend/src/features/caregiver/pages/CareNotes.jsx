@@ -88,9 +88,9 @@ const CareNotes = () => {
               {n.bookingId?.patientName && (
                 <p className="text-xs text-slate-500 mt-2">Patient: {n.bookingId.patientName}</p>
               )}
-              <button type="button" className="text-xs text-blue-600 mt-3 hover:underline" onClick={() => { setForm({ bookingId: n.bookingId?._id || n.bookingId, title: n.title, content: n.content, vitals: n.vitals || "", medications: n.medications || "", followUp: n.followUp || "" }); setModal({ open: true, editing: n._id }); }}>
+              <Button type="button" className="mt-3 hover:underline" onClick={() => { setForm({ bookingId: n.bookingId?._id || n.bookingId, title: n.title, content: n.content, vitals: n.vitals || "", medications: n.medications || "", followUp: n.followUp || "" }); setModal({ open: true, editing: n._id }); }}>
                 Edit
-              </button>
+              </Button>
             </div>
           ))}
         </div>

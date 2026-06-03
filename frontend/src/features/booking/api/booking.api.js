@@ -5,6 +5,11 @@ export const createBooking = (data) => {
   return http.post("/bookings/create", data);
 };
 
+// Get available slots
+export const getAvailableSlots = (caregiverId, date) => {
+  return http.get("/bookings/available-slots", { params: { caregiverId, date } });
+};
+
 // Get my bookings (user)
 export const getUserBookings = (status = null) => {
   const params = status ? { status } : {};

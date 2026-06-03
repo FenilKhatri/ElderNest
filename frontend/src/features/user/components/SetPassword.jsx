@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import Button from "../../../components/ui/Button";
 import { setPassword } from "../api/user.api";
+import Input from "../../../components/ui/Input";
 
 const SetPassword = () => {
   const [password, setPasswordState] = useState("");
@@ -38,7 +39,7 @@ const SetPassword = () => {
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             New Password
           </label>
-          <input
+          <Input
             type="password"
             value={password}
             onChange={(e) => setPasswordState(e.target.value)}

@@ -54,7 +54,8 @@ const Blogs = () => {
     }
 
     if (statusFilter !== "all") {
-      result = result.filter((b) => (b.status || "published") === statusFilter);
+      const isActive = statusFilter === "active";
+      result = result.filter((b) => b.isActive === isActive);
     }
 
     if (categoryFilter !== "all") {
@@ -106,8 +107,8 @@ const Blogs = () => {
               onChange: setStatusFilter,
               options: [
                 { value: "all", label: "All status" },
-                { value: "published", label: "Published" },
-                { value: "draft", label: "Drafts" },
+                { value: "active", label: "Active" },
+                { value: "inactive", label: "Inactive" },
               ],
             },
             {
@@ -135,13 +136,13 @@ const Blogs = () => {
         <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg shrink-0">
           <button 
             onClick={() => setViewMode("grid")}
-            className={`p-2 rounded-md transition-colors ${viewMode === "grid" ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+            className={`p-2 rounded-md transition-colors ${viewMode === "grid" ? "bg-blue-600 text-white shadow-md" : "bg-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
           >
             <Grid className="w-4 h-4" />
           </button>
           <button 
             onClick={() => setViewMode("list")}
-            className={`p-2 rounded-md transition-colors ${viewMode === "list" ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+            className={`p-2 rounded-md transition-colors ${viewMode === "list" ? "bg-blue-600 text-white shadow-md" : "bg-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
           >
             <List className="w-4 h-4" />
           </button>
@@ -196,9 +197,9 @@ const Blogs = () => {
                       <span className="px-2.5 py-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm text-xs font-semibold rounded-md shadow-sm">
                         {blog.category || "General"}
                       </span>
-                      {blog.status === "draft" && (
-                        <span className="px-2.5 py-1 bg-amber-500/90 text-white backdrop-blur-sm text-xs font-semibold rounded-md shadow-sm">
-                          Draft
+                      {!blog.isActive && (
+                        <span className="px-2.5 py-1 bg-slate-500/90 text-white backdrop-blur-sm text-xs font-semibold rounded-md shadow-sm">
+                          Inactive
                         </span>
                       )}
                     </div>
@@ -209,27 +210,27 @@ const Blogs = () => {
                       {blog.title}
                     </h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2 flex-1">
-                      {blog.shortDescription || blog.content?.replace(/<[^>]+>/g, '').substring(0, 100) + "..."}
+                      {blog.excerpt || blog.content?.replace(/<[^>]+>/g, '').substring(0, 100) + "..."}
                     </p>
                     
                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
                       <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 gap-3">
                         <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {new Date(blog.createdAt).toLocaleDateString()}</span>
-                        {blog.readingTime && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {blog.readingTime} min</span>}
+                        {blog.readTime && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {blog.readTime}</span>}
                       </div>
                       <div className="flex items-center gap-2">
-                        <button 
+                        <Button 
                           onClick={() => navigate(`/admin/blogs/edit/${blog._id}`)}
                           className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
                         >
                           <Edit className="w-4 h-4" />
-                        </button>
-                        <button 
+                        </Button>
+                        <Button 
                           onClick={() => setDeleteModal({ open: true, id: blog._id })}
                           className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -267,10 +268,10 @@ const Blogs = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {blog.status === "draft" ? (
-                          <span className="px-2.5 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-medium rounded-full">Draft</span>
+                        {!blog.isActive ? (
+                          <span className="px-2.5 py-1 bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400 text-xs font-medium rounded-full">Inactive</span>
                         ) : (
-                          <span className="px-2.5 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-medium rounded-full">Published</span>
+                          <span className="px-2.5 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-medium rounded-full">Active</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
@@ -281,18 +282,18 @@ const Blogs = () => {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <button 
+                          <Button 
                             onClick={() => navigate(`/admin/blogs/edit/${blog._id}`)}
                             className="p-2 text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
                           >
                             <Edit className="w-4 h-4" />
-                          </button>
-                          <button 
+                          </Button>
+                          <Button 
                             onClick={() => setDeleteModal({ open: true, id: blog._id })}
                             className="p-2 text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>

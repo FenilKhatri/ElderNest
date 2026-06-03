@@ -11,6 +11,8 @@ import http from "../../../lib/axios";
 import { useAuth } from "../../../context/AuthContext";
 import { toast } from "react-toastify";
 import { handleBookCaregiver } from "../../../utils/booking";
+import Textarea from "../../../components/ui/Textarea";
+import Button from "../../../components/ui/Button";
 
 const CaregiverDetails = () => {
   const { id } = useParams();
@@ -152,7 +154,7 @@ const CaregiverDetails = () => {
                     </div>
                     <div>
                       <p className="text-slate-500 dark:text-slate-400 mb-0.5">Availability</p>
-                      <p className="font-medium text-slate-900 dark:text-white capitalize">{caregiver.availableTiming || "Flexible"}</p>
+                      <p className="font-medium text-slate-900 dark:text-white capitalize">On Demand</p>
                     </div>
                     <div className="col-span-2 sm:col-span-3">
                       <p className="text-slate-500 dark:text-slate-400 mb-1">Languages</p>
@@ -238,20 +240,20 @@ const CaregiverDetails = () => {
                   <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-3 text-sm">Write a Review</h4>
                   <div className="flex gap-2 mb-3">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <button type="button" key={star} onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))} className="focus:outline-none">
+                      <Button type="button" key={star} onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))} className="focus:outline-none">
                         <Star className={`w-5 h-5 ${star <= reviewForm.rating ? "text-yellow-500 fill-yellow-500" : "text-slate-300"}`} />
-                      </button>
+                      </Button>
                     ))}
                   </div>
-                  <textarea
+                  <Textarea
                     value={reviewForm.comment}
                     onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
                     className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none resize-none mb-3"
                     rows="2" placeholder="Share your experience..." required
-                  ></textarea>
-                  <button type="submit" disabled={submittingReview} className="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg disabled:opacity-50">
+                  ></Textarea>
+                  <Button type="submit" disabled={submittingReview} >
                     {submittingReview ? "Submitting..." : "Submit Review"}
-                  </button>
+                  </Button>
                 </form>
               )}
 
@@ -281,9 +283,9 @@ const CaregiverDetails = () => {
                     </div>
                   ))}
                   {reviews.length > 5 && (
-                    <button className="w-full py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <Button variant="outline" className="w-full border-slate-200 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/50">
                       View All {reviews.length} Reviews
-                    </button>
+                    </Button>
                   )}
                 </div>
               )}
@@ -305,36 +307,15 @@ const CaregiverDetails = () => {
 
               <div className="mb-6">
                 <h4 className="font-bold text-slate-900 dark:text-white mb-3 text-sm flex items-center gap-2">
-                  <Calendar className="w-4 h-4" /> Weekly Availability
+                  <Calendar className="w-4 h-4" /> Real-time Booking
                 </h4>
-                {caregiver.availability?.length > 0 ? (
-                  <ul className="space-y-3 text-sm">
-                    {caregiver.availability.map((dayBlock) => (
-                      <li key={dayBlock.day} className="border border-slate-200 dark:border-slate-700 rounded-lg p-3">
-                        <p className="font-semibold text-slate-900 dark:text-white mb-1">{dayBlock.day}</p>
-                        {dayBlock.slots?.length > 0 ? (
-                          <div className="flex flex-wrap gap-2">
-                            {dayBlock.slots.map((slot, idx) => (
-                              <span key={idx} className="text-xs px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded">
-                                {slot.startTime} – {slot.endTime}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-slate-500 text-xs">No slots set</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-slate-500 capitalize">
-                    General timing: {caregiver.availableTiming || "Contact for schedule"}
-                  </p>
-                )}
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Select your preferred date and time during checkout. Live availability will be verified automatically.
+                </p>
               </div>
 
               <div className="space-y-3">
-                <button
+                <Button
                   type="button"
                   onClick={() =>
                     handleBookCaregiver({
@@ -347,12 +328,12 @@ const CaregiverDetails = () => {
                   className="w-full flex items-center justify-center py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm"
                 >
                   Book Caregiver
-                </button>
-                <button
-                  className="w-full py-3.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                </Button>
+                <Button variant="outline"
+                  className="w-full py-3.5 border-slate-200 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/50"
                 >
                   Request Callback
-                </button>
+                </Button>
               </div>
               <p className="text-center text-xs text-slate-500 mt-4">
                 You won't be charged yet. Payment is collected after confirmation.

@@ -1,6 +1,5 @@
 import Notification from "../../modules/notification/notification.model.js";
 
-// Create Notification
 export const createNotification = async (userId, type, title, message, link = null, metadata = {}) => {
     try {
         const notification = await Notification.create({
@@ -18,7 +17,6 @@ export const createNotification = async (userId, type, title, message, link = nu
     }
 };
 
-// Get User Notifications
 export const getUserNotifications = async (userId, limit = 50) => {
     try {
         const notifications = await Notification.find({ userId })
@@ -60,7 +58,6 @@ export const markAllAsRead = async (userId) => {
     }
 };
 
-// Get Unread Count
 export const getUnreadCount = async (userId) => {
     try {
         const count = await Notification.countDocuments({ userId, isRead: false });
@@ -71,7 +68,6 @@ export const getUnreadCount = async (userId) => {
     }
 };
 
-// Delete Notification
 export const deleteNotification = async (notificationId, userId) => {
     try {
         await Notification.findOneAndDelete({ _id: notificationId, userId });
@@ -82,7 +78,6 @@ export const deleteNotification = async (notificationId, userId) => {
     }
 };
 
-// Delete All Notifications
 export const deleteAllNotifications = async (userId) => {
     try {
         await Notification.deleteMany({ userId });
@@ -93,7 +88,6 @@ export const deleteAllNotifications = async (userId) => {
     }
 };
 
-// Notification Templates
 export const notificationTemplates = {
     caregiverApproved: {
         type: "caregiver_approved",

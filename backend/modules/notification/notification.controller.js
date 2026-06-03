@@ -2,7 +2,6 @@ import { asyncHandler } from "../../common/middlewares/async.helper.js";
 import { successResponse } from "../../common/utils/responseHandler.utils.js";
 import * as notificationService from "../../common/services/notification.service.js";
 
-// Get user notifications
 export const getNotifications = asyncHandler(async (req, res) => {
     const { limit } = req.query;
     const notifications = await notificationService.getUserNotifications(
@@ -25,20 +24,17 @@ export const markAllAsRead = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "All notifications marked as read");
 });
 
-// Get unread count
 export const getUnreadCount = asyncHandler(async (req, res) => {
     const count = await notificationService.getUnreadCount(req.user.id);
     return successResponse(res, 200, "Unread count fetched", { count });
 });
 
-// Delete notification
 export const deleteNotification = asyncHandler(async (req, res) => {
     const { id } = req.params;
     await notificationService.deleteNotification(id, req.user.id);
     return successResponse(res, 200, "Notification deleted successfully");
 });
 
-// Delete all notifications
 export const deleteAllNotifications = asyncHandler(async (req, res) => {
     await notificationService.deleteAllNotifications(req.user.id);
     return successResponse(res, 200, "All notifications deleted successfully");

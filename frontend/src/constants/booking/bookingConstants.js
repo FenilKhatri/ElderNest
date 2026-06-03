@@ -1,0 +1,1 @@
+export const DEFAULT_SLOT_DURATION = 60;

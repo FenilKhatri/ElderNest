@@ -1,31 +1,52 @@
+import {
+  indianStates,
+  getCitiesByState,
+  CARE_TYPES,
+  DURATION_TYPES,
+} from "@/constants";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Calendar, User, Phone, MapPin, FileText, CheckCircle, Clock, Shield, CreditCard } from "lucide-react";
-import { createBooking, createPaymentOrder, verifyPayment, getRazorpayKey } from "../../booking/api/booking.api";
+import {
+  Calendar,
+  User,
+  Phone,
+  MapPin,
+  FileText,
+  CheckCircle,
+  Clock,
+  Shield,
+  CreditCard,
+} from "lucide-react";
+import {
+  createBooking,
+  createPaymentOrder,
+  verifyPayment,
+  getRazorpayKey,
+  getAvailableSlots,
+} from "../../booking/api/booking.api";
 import { getMyPatients } from "../../patient/api/patient.api";
 import { getCaregiverById } from "../../caregiver/api/caregiver.api";
-import { indianStates, getCitiesByState } from "../../caregiver/data/locations";
+
 import { loadRazorpayScript } from "../../../utils/loadRazorpay";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
 import Textarea from "../../../components/ui/Textarea";
-import { CARE_TYPES, DURATION_TYPES } from "../../../constants/bookingConstants";
 
 const BookServices = () => {
   const navigate = useNavigate();
   const { caregiverId } = useParams();
   const [searchParams] = useSearchParams();
   const serviceIdParam = searchParams.get("serviceId");
-
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [patients, setPatients] = useState([]);
   const [caregiver, setCaregiver] = useState(null);
   const [cities, setCities] = useState([]);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
-
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
   const [form, setForm] = useState({
     caregiverId: caregiverId || "",
     serviceId: serviceIdParam || "",
@@ -43,28 +64,24 @@ const BookServices = () => {
     timeSlot: { startTime: "", endTime: "" },
     notes: "",
   });
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [patientsRes, caregiverRes] = await Promise.all([
           getMyPatients().catch(() => ({ data: { patients: [] } })),
-          getCaregiverById(caregiverId).catch(() => null)
+          getCaregiverById(caregiverId).catch(() => null),
         ]);
-        
         setPatients(patientsRes?.data?.patients || []);
-        
         if (caregiverRes?.data?.caregiver) {
           const cg = caregiverRes.data.caregiver;
           setCaregiver(cg);
-          
           // Auto-select service if passed, otherwise default to first service
           let selectedService = serviceIdParam;
           if (!selectedService && cg.servicesOffered?.length > 0) {
             selectedService = cg.servicesOffered[0]._id;
           }
           if (selectedService) {
-            setForm(prev => ({ ...prev, serviceId: selectedService }));
+            setForm((prev) => ({ ...prev, serviceId: selectedService }));
           }
         }
       } catch (err) {
@@ -75,10 +92,12 @@ const BookServices = () => {
     };
     fetchData();
   }, [caregiverId, serviceIdParam]);
-
   const setNested = (parent, field, value) => {
     setForm((prev) => {
-      const newState = { ...prev, [parent]: { ...prev[parent], [field]: value } };
+      const newState = {
+        ...prev,
+        [parent]: { ...prev[parent], [field]: value },
+      };
       if (parent === "address" && field === "state") {
         setCities(getCitiesByState(value).map((c) => ({ value: c, label: c })));
         newState.address.city = "";
@@ -86,7 +105,6 @@ const BookServices = () => {
       return newState;
     });
   };
-
   const onPatientSelect = (patientId) => {
     const p = patients.find((x) => x._id === patientId);
     setForm((prev) => ({
@@ -95,43 +113,42 @@ const BookServices = () => {
       patientName: p?.name || prev.patientName,
       patientAge: p?.age ? String(p.age) : prev.patientAge,
       disease: p?.medicalRequirements || prev.disease,
-      emergencyContact: p?.emergencyContact?.name ? p.emergencyContact : prev.emergencyContact,
+      emergencyContact: p?.emergencyContact?.name
+        ? p.emergencyContact
+        : prev.emergencyContact,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.caregiverId) return toast.error("Caregiver is required");
     if (!form.serviceId) return toast.error("Please select a service");
-
     try {
       setLoading(true);
       setPaymentProcessing(true);
       const payload = { ...form, patientAge: Number(form.patientAge) };
       if (!payload.patientId) delete payload.patientId;
       if (!payload.patientName) delete payload.patientName;
-
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        toast.error("Failed to load payment gateway. Please check your internet connection.");
+        toast.error(
+          "Failed to load payment gateway. Please check your internet connection.",
+        );
         return;
       }
-
       const keyRes = await getRazorpayKey();
       const razorpayKey = keyRes?.data?.key;
       if (!razorpayKey) {
-        toast.error("Payment gateway configuration error. Please try again later.");
+        toast.error(
+          "Payment gateway configuration error. Please try again later.",
+        );
         return;
       }
-
       const orderRes = await createPaymentOrder(payload);
       const { orderId, amount, currency } = orderRes?.data || {};
-
       if (!orderId) {
         toast.error("Failed to create payment order. Please try again.");
         return;
       }
-
       const options = {
         key: razorpayKey,
         amount,
@@ -158,7 +175,10 @@ const BookServices = () => {
             toast.success("Payment successful! Booking confirmed.");
             navigate("/user/bookings");
           } catch (verifyError) {
-            toast.error(verifyError?.message || "Payment verification failed. Please contact support.");
+            toast.error(
+              verifyError?.message ||
+                "Payment verification failed. Please contact support.",
+            );
           } finally {
             setPaymentProcessing(false);
           }
@@ -170,16 +190,20 @@ const BookServices = () => {
           },
         },
       };
-
       const razorpay = new window.Razorpay(options);
       razorpay.on("payment.failed", (response) => {
         setPaymentProcessing(false);
-        toast.error(`Payment failed: ${response.error?.description || "Unknown error"}`);
+        toast.error(
+          `Payment failed: ${response.error?.description || "Unknown error"}`,
+        );
       });
       razorpay.open();
     } catch (error) {
       if (error.validationErrors && error.validationErrors.length > 0) {
-        toast.error(error.validationErrors[0].msg || "Please fill all required fields correctly.");
+        toast.error(
+          error.validationErrors[0].msg ||
+            "Please fill all required fields correctly.",
+        );
       } else {
         toast.error(error.message || "Failed to initiate payment");
       }
@@ -188,7 +212,6 @@ const BookServices = () => {
       setLoading(false);
     }
   };
-
   if (initialLoading) {
     return (
       <div className="w-full max-w-6xl mx-auto px-4 py-12 flex justify-center">
@@ -196,84 +219,118 @@ const BookServices = () => {
       </div>
     );
   }
-
   if (!caregiver) {
     return (
       <div className="w-full max-w-4xl mx-auto px-4 py-12 text-center">
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Caregiver Not Found</h2>
-        <Button onClick={() => navigate("/caregivers")} className="mt-4">Browse Caregivers</Button>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+          Caregiver Not Found
+        </h2>
+        <Button onClick={() => navigate("/caregivers")} className="mt-4">
+          Browse Caregivers
+        </Button>
       </div>
     );
   }
-
-  const hasServices = caregiver.servicesOffered && caregiver.servicesOffered.length > 0;
-  const hasAvailability = caregiver.availability && caregiver.availability.length > 0;
-
-  if (!hasServices || !hasAvailability) {
+  const hasServices =
+    caregiver.servicesOffered && caregiver.servicesOffered.length > 0;
+  // Note: we no longer check caregiver.availability directly as it is now managed via CaregiverAvailability blocks on the backend.
+  if (!hasServices) {
     return (
       <div className="w-full max-w-4xl mx-auto px-4 py-12 text-center">
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Caregiver Unavailable</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+          Caregiver Unavailable
+        </h2>
         <p className="mt-2 text-slate-600 dark:text-slate-400">
-          This caregiver has not configured their services or availability schedule yet and cannot be booked at this time.
+          This caregiver has not configured their services yet and cannot be
+          booked at this time.
         </p>
-        <Button onClick={() => navigate("/caregivers")} className="mt-6">Browse Other Caregivers</Button>
+        <Button onClick={() => navigate("/caregivers")} className="mt-6">
+          Browse Other Caregivers
+        </Button>
       </div>
     );
   }
-
-  // Calculate available slots and care types based on selected date
-  const selectedDateObj = form.bookingDate ? new Date(form.bookingDate) : null;
-  const dayOfWeek = selectedDateObj ? selectedDateObj.toLocaleDateString("en-US", { weekday: "long" }) : "";
-  const dayAvailability = caregiver.availability?.find(a => a.day === dayOfWeek);
-  
-  const availableSlotsForDay = dayAvailability?.slots || [];
-  const availableCareTypesForDay = dayAvailability?.careTypes || [];
-  
-  const slotOptions = availableSlotsForDay.map(slot => ({
+  const handleDateChange = async (e) => {
+    const newDate = e.target.value;
+    setForm((prev) => ({
+      ...prev,
+      bookingDate: newDate,
+      timeSlot: { startTime: "", endTime: "" },
+    }));
+    if (newDate && form.caregiverId) {
+      setSlotsLoading(true);
+      try {
+        const res = await getAvailableSlots(form.caregiverId, newDate);
+        setAvailableSlots(res?.data?.slots || []);
+      } catch (error) {
+        toast.error("Failed to load available slots");
+        setAvailableSlots([]);
+      } finally {
+        setSlotsLoading(false);
+      }
+    } else {
+      setAvailableSlots([]);
+    }
+  };
+  const slotOptions = availableSlots.map((slot) => ({
     value: `${slot.startTime}-${slot.endTime}`,
-    label: `${slot.startTime} to ${slot.endTime} ${slot.isBooked ? '(Unavailable)' : ''}`,
-    disabled: slot.isBooked
+    label: `${slot.startTime} to ${slot.endTime} ${!slot.available ? "(Unavailable)" : ""}`,
+    disabled: !slot.available,
   }));
-
-  const availableCareTypeOptions = CARE_TYPES.filter(type => availableCareTypesForDay.includes(type.value));
-
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <div className="w-full max-w-site-wide mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Book Caregiver</h1>
-        <p className="text-slate-500 dark:text-slate-400">Complete the details below to request a booking.</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          Book Caregiver
+        </h1>
+        <p className="text-slate-500 dark:text-slate-400">
+          Complete the details below to request a booking.
+        </p>
       </div>
-
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Main Form Section */}
         <div className="w-full lg:w-2/3 space-y-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            
             {/* Service Selection */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 lg:p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-5 flex items-center">
                 <Shield className="w-5 h-5 mr-2 text-blue-600" /> Select Service
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <Select 
-                  label="Required Service *" 
-                  value={form.serviceId} 
-                  onChange={(e) => setForm({ ...form, serviceId: e.target.value })} 
-                  options={caregiver.servicesOffered?.map(s => ({ value: s._id, label: s.title || s.name })) || []} 
-                  required 
+                <Select
+                  label="Required Service *"
+                  value={form.serviceId}
+                  onChange={(e) =>
+                    setForm({ ...form, serviceId: e.target.value })
+                  }
+                  options={
+                    caregiver.servicesOffered?.map((s) => ({
+                      value: s._id,
+                      label: s.title || s.name,
+                    })) || []
+                  }
+                  required
                 />
-                <Select 
-                  label="Care Type *" 
-                  value={form.careType} 
-                  onChange={(e) => setForm({ ...form, careType: e.target.value })} 
-                  options={form.bookingDate ? availableCareTypeOptions : [{value: "", label: "Select Start Date first"}]} 
-                  disabled={!form.bookingDate || availableCareTypeOptions.length === 0}
-                  required 
+                <Select
+                  label="Care Type *"
+                  value={form.careType}
+                  onChange={(e) =>
+                    setForm({ ...form, careType: e.target.value })
+                  }
+                  options={CARE_TYPES}
+                  required
                 />
-                <Select label="Duration Type *" value={form.durationType} onChange={(e) => setForm({ ...form, durationType: e.target.value })} options={DURATION_TYPES} required />
+                <Select
+                  label="Duration Type *"
+                  value={form.durationType}
+                  onChange={(e) =>
+                    setForm({ ...form, durationType: e.target.value })
+                  }
+                  options={DURATION_TYPES}
+                  required
+                />
               </div>
             </div>
-
             {/* Patient Information */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 lg:p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-5 flex items-center">
@@ -285,154 +342,314 @@ const BookServices = () => {
                     label="Saved Patient"
                     value={form.patientId}
                     onChange={(e) => onPatientSelect(e.target.value)}
-                    options={[{ value: "", label: "Enter manually" }, ...patients.map((p) => ({ value: p._id, label: `${p.name} (${p.age}y)` }))]}
+                    options={[
+                      { value: "", label: "Enter manually" },
+                      ...patients.map((p) => ({
+                        value: p._id,
+                        label: `${p.name} (${p.age}y)`,
+                      })),
+                    ]}
                   />
                 )}
-                <Input labelName="Patient Name *" placeholder="e.g. Rahul Sharma" value={form.patientName} onChange={(e) => setForm({ ...form, patientName: e.target.value })} required disabled={!!form.patientId} />
-                <Input labelName="Patient Age *" placeholder="e.g. 65" type="number" min="1" max="150" value={form.patientAge} onChange={(e) => setForm({ ...form, patientAge: e.target.value })} required disabled={!!form.patientId} />
-                <Input labelName="Medical Condition *" placeholder="e.g. Diabetes, Arthritis" value={form.disease} onChange={(e) => setForm({ ...form, disease: e.target.value })} required />
+                <Input
+                  labelName="Patient Name *"
+                  placeholder="e.g. Rahul Sharma"
+                  value={form.patientName}
+                  onChange={(e) =>
+                    setForm({ ...form, patientName: e.target.value })
+                  }
+                  required
+                  disabled={!!form.patientId}
+                />
+                <Input
+                  labelName="Patient Age *"
+                  placeholder="e.g. 65"
+                  type="number"
+                  min="1"
+                  max="150"
+                  value={form.patientAge}
+                  onChange={(e) =>
+                    setForm({ ...form, patientAge: e.target.value })
+                  }
+                  required
+                  disabled={!!form.patientId}
+                />
+                <Input
+                  labelName="Medical Condition *"
+                  placeholder="e.g. Diabetes, Arthritis"
+                  value={form.disease}
+                  onChange={(e) =>
+                    setForm({ ...form, disease: e.target.value })
+                  }
+                  required
+                />
               </div>
-
-              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-6 mb-3">Emergency Contact *</h4>
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-6 mb-3">
+                Emergency Contact *
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <Input labelName="Name" placeholder="e.g. Aman Sharma" value={form.emergencyContact.name} onChange={(e) => setForm({ ...form, emergencyContact: { ...form.emergencyContact, name: e.target.value } })} required />
-                <Input labelName="Phone" placeholder="e.g. 9876543210" value={form.emergencyContact.phone} onChange={(e) => setForm({ ...form, emergencyContact: { ...form.emergencyContact, phone: e.target.value } })} required />
-                <Input labelName="Relation" placeholder="e.g. Son" value={form.emergencyContact.relation} onChange={(e) => setForm({ ...form, emergencyContact: { ...form.emergencyContact, relation: e.target.value } })} required />
+                <Input
+                  labelName="Name"
+                  placeholder="e.g. Aman Sharma"
+                  value={form.emergencyContact.name}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      emergencyContact: {
+                        ...form.emergencyContact,
+                        name: e.target.value,
+                      },
+                    })
+                  }
+                  required
+                />
+                <Input
+                  labelName="Phone"
+                  placeholder="e.g. 9876543210"
+                  value={form.emergencyContact.phone}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      emergencyContact: {
+                        ...form.emergencyContact,
+                        phone: e.target.value,
+                      },
+                    })
+                  }
+                  required
+                />
+                <Input
+                  labelName="Relation"
+                  placeholder="e.g. Son"
+                  value={form.emergencyContact.relation}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      emergencyContact: {
+                        ...form.emergencyContact,
+                        relation: e.target.value,
+                      },
+                    })
+                  }
+                  required
+                />
               </div>
             </div>
-
             {/* Location & Contact */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 lg:p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-5 flex items-center">
-                <MapPin className="w-5 h-5 mr-2 text-blue-600" /> Location & Contact
+                <MapPin className="w-5 h-5 mr-2 text-blue-600" /> Location &
+                Contact
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                <Input labelName="Your Contact Number *" placeholder="e.g. 9876543210" type="tel" value={form.contactNumber} onChange={(e) => setForm({ ...form, contactNumber: e.target.value })} required />
-                <Input labelName="Your Email *" placeholder="e.g. john@example.com" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-                <Select label="State *" searchable value={form.address.state} onChange={(e) => setNested("address", "state", e.target.value)} options={indianStates.map((s) => ({ value: s, label: s }))} required />
-                <Select label="City *" searchable value={form.address.city} onChange={(e) => setNested("address", "city", e.target.value)} options={cities} disabled={!form.address.state} required />
+                <Input
+                  labelName="Your Contact Number *"
+                  placeholder="e.g. 9876543210"
+                  type="tel"
+                  value={form.contactNumber}
+                  onChange={(e) =>
+                    setForm({ ...form, contactNumber: e.target.value })
+                  }
+                  required
+                />
+                <Input
+                  labelName="Your Email *"
+                  placeholder="e.g. john@example.com"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
+                />
+                <Select
+                  label="State *"
+                  searchable
+                  value={form.address.state}
+                  onChange={(e) =>
+                    setNested("address", "state", e.target.value)
+                  }
+                  options={indianStates.map((s) => ({ value: s, label: s }))}
+                  required
+                />
+                <Select
+                  label="City *"
+                  searchable
+                  value={form.address.city}
+                  onChange={(e) => setNested("address", "city", e.target.value)}
+                  options={cities}
+                  disabled={!form.address.state}
+                  required
+                />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="md:col-span-2">
-                  <Textarea label="Street Address *" placeholder="e.g. 123 Main St, Apartment 4B" rows={2} value={form.address.street} onChange={(e) => setNested("address", "street", e.target.value)} required />
+                  <Textarea
+                    label="Street Address *"
+                    placeholder="e.g. 123 Main St, Apartment 4B"
+                    rows={2}
+                    value={form.address.street}
+                    onChange={(e) =>
+                      setNested("address", "street", e.target.value)
+                    }
+                    required
+                  />
                 </div>
                 <div>
-                  <Input labelName="Pincode *" placeholder="e.g. 400001" maxLength={6} value={form.address.pincode} onChange={(e) => setNested("address", "pincode", e.target.value)} required />
+                  <Input
+                    labelName="Pincode *"
+                    placeholder="e.g. 400001"
+                    maxLength={6}
+                    value={form.address.pincode}
+                    onChange={(e) =>
+                      setNested("address", "pincode", e.target.value)
+                    }
+                    required
+                  />
                 </div>
               </div>
             </div>
-
             {/* Schedule */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 lg:p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-5 flex items-center">
                 <Calendar className="w-5 h-5 mr-2 text-blue-600" /> Schedule
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <Input 
-                  labelName="Start Date *" 
-                  type="date" 
-                  min={new Date().toISOString().split("T")[0]} 
-                  value={form.bookingDate} 
-                  onChange={(e) => {
-                    const newDate = e.target.value;
-                    const newDateObj = new Date(newDate);
-                    const newDayOfWeek = newDateObj.toLocaleDateString("en-US", { weekday: "long" });
-                    const newDayAv = caregiver.availability?.find(a => a.day === newDayOfWeek);
-                    const newCareTypes = newDayAv?.careTypes || [];
-                    
-                    setForm(prev => ({ 
-                      ...prev, 
-                      bookingDate: newDate, 
-                      timeSlot: { startTime: "", endTime: "" },
-                      careType: newCareTypes.includes(prev.careType) ? prev.careType : ""
-                    }));
-                  }} 
-                  required 
+                <Input
+                  labelName="Start Date *"
+                  type="date"
+                  min={new Date().toISOString().split("T")[0]}
+                  value={form.bookingDate}
+                  onChange={handleDateChange}
+                  required
                 />
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Time Slot *
-                  </label>
-                  <select
-                    className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    value={form.timeSlot.startTime ? `${form.timeSlot.startTime}-${form.timeSlot.endTime}` : ""}
+                  <Select
+                    label="Time Slot *"
+                    value={
+                      form.timeSlot.startTime
+                        ? `${form.timeSlot.startTime}-${form.timeSlot.endTime}`
+                        : ""
+                    }
                     onChange={(e) => {
                       if (!e.target.value) {
-                        setForm(prev => ({ ...prev, timeSlot: { startTime: "", endTime: "" } }));
+                        setForm((prev) => ({
+                          ...prev,
+                          timeSlot: { startTime: "", endTime: "" },
+                        }));
                         return;
                       }
                       const [start, end] = e.target.value.split("-");
-                      setForm(prev => ({ ...prev, timeSlot: { startTime: start, endTime: end } }));
+                      setForm((prev) => ({
+                        ...prev,
+                        timeSlot: { startTime: start, endTime: end },
+                      }));
                     }}
-                    disabled={!form.bookingDate || slotOptions.length === 0}
+                    options={[
+                      {
+                        value: "",
+                        label: !form.bookingDate
+                          ? "Select a date first"
+                          : slotsLoading
+                            ? "Loading slots..."
+                            : slotOptions.length === 0
+                              ? "No availability on this day"
+                              : "Select a time slot",
+                      },
+                      ...slotOptions.map((slot) => ({
+                        value: `${slot.startTime}-${slot.endTime}`,
+                        label: `${slot.startTime}-${slot.endTime}`,
+                      })),
+                    ]}
+                    disabled={
+                      !form.bookingDate ||
+                      slotsLoading ||
+                      slotOptions.length === 0
+                    }
                     required
-                  >
-                    <option value="">
-                      {!form.bookingDate ? "Select a date first" : slotOptions.length === 0 ? "No availability on this day" : "Select a time slot"}
-                    </option>
-                    {slotOptions.map(opt => (
-                      <option key={opt.value} value={opt.value} disabled={opt.disabled}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
             </div>
-
             {/* Notes */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 lg:p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-5 flex items-center">
-                <FileText className="w-5 h-5 mr-2 text-blue-600" /> Additional Notes
+                <FileText className="w-5 h-5 mr-2 text-blue-600" /> Additional
+                Notes
               </h3>
-              <Textarea rows={4} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Any specific requirements or instructions for the caregiver..." />
+              <Textarea
+                rows={4}
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                placeholder="Any specific requirements or instructions for the caregiver..."
+              />
             </div>
-
             <div className="pt-4 flex justify-end">
-              <Button type="submit" disabled={loading || paymentProcessing} className="px-10 py-3.5 text-lg font-bold w-full sm:w-auto shadow-md flex items-center justify-center gap-2">
+              <Button
+                type="submit"
+                disabled={loading || paymentProcessing}
+                className="px-10 py-3.5 text-lg font-bold w-full sm:w-auto shadow-md flex items-center justify-center gap-2"
+              >
                 <CreditCard className="w-5 h-5" />
-                {paymentProcessing ? "Processing Payment..." : loading ? "Preparing..." : "Pay & Confirm Booking"}
+                {paymentProcessing
+                  ? "Processing Payment..."
+                  : loading
+                    ? "Preparing..."
+                    : "Pay & Confirm Booking"}
               </Button>
             </div>
           </form>
         </div>
-
         {/* Sticky Sidebar */}
         <div className="w-full lg:w-1/3">
           <div className="sticky top-24 space-y-6">
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Selected Caregiver</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
+                Selected Caregiver
+              </h3>
               <div className="flex items-center gap-4 mb-4">
-                <img 
-                  src={caregiver.profileImage || caregiver.userId?.profileImage || `https://ui-avatars.com/api/?name=${caregiver.userId?.name}`} 
-                  alt={caregiver.userId?.name} 
+                <img
+                  src={
+                    caregiver.profileImage ||
+                    caregiver.userId?.profileImage ||
+                    `https://ui-avatars.com/api/?name=${caregiver.userId?.name}`
+                  }
+                  alt={caregiver.userId?.name}
                   className="w-16 h-16 rounded-full object-cover border-2 border-blue-100 dark:border-blue-900"
                 />
                 <div>
-                  <h4 className="font-bold text-slate-900 dark:text-white">{caregiver.userId?.name}</h4>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">{caregiver.gender} • {caregiver.experienceYears} Yrs Exp</p>
+                  <h4 className="font-bold text-slate-900 dark:text-white">
+                    {caregiver.userId?.name}
+                  </h4>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">
+                    {caregiver.gender} • {caregiver.experienceYears} Yrs Exp
+                  </p>
                 </div>
               </div>
               <div className="space-y-3 text-sm border-t border-slate-100 dark:border-slate-700 pt-4">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Location</span>
-                  <span className="font-medium text-slate-900 dark:text-white">{caregiver.location?.city}</span>
+                  <span className="font-medium text-slate-900 dark:text-white">
+                    {caregiver.location?.city}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Rating</span>
                   <span className="font-medium text-slate-900 dark:text-white flex items-center">
-                    {caregiver.rating || "New"} <span className="text-yellow-500 ml-1">★</span>
+                    {caregiver.rating || "New"}{" "}
+                    <span className="text-yellow-500 ml-1">★</span>
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Availability</span>
-                  <span className="font-medium text-slate-900 dark:text-white capitalize">{caregiver.availableTiming}</span>
+                  <span className="font-medium text-slate-900 dark:text-white capitalize">
+                    {caregiver.availableTiming}
+                  </span>
                 </div>
               </div>
             </div>
-
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800 p-6">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Booking Information</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">
+                Booking Information
+              </h3>
               <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
                 <li className="flex items-start">
                   <CheckCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2 shrink-0 mt-0.5" />
@@ -440,7 +657,9 @@ const BookServices = () => {
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2 shrink-0 mt-0.5" />
-                  <span>You can communicate with the caregiver before confirming.</span>
+                  <span>
+                    You can communicate with the caregiver before confirming.
+                  </span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2 shrink-0 mt-0.5" />
@@ -454,5 +673,4 @@ const BookServices = () => {
     </div>
   );
 };
-
 export default BookServices;

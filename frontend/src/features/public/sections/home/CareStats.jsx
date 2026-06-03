@@ -28,10 +28,10 @@ const CareStats = () => {
             : "—";
 
         setStats([
-          { icon: Users, number: String(serviceTotal > 0 ? serviceTotal * 150 : 2500) + "+", label: "Families Served", desc: "Trusted by families nationwide" },
-          { icon: ShieldCheck, number: String(caregivers.length || 150) + "+", label: "Verified Experts", desc: "Strictly vetted caregivers" },
-          { icon: HeartPulse, number: "50k+", label: "Care Hours", desc: "Dedicated compassionate care" },
-          { icon: Star, number: avgRating !== "—" ? `${avgRating}/5` : "4.9/5", label: "Satisfaction", desc: "Average user rating" },
+          { icon: Users, number: String(serviceTotal), label: "Families Served", desc: "Trusted by families nationwide" },
+          { icon: ShieldCheck, number: String(caregivers.length), label: "Verified Experts", desc: "Strictly vetted caregivers" },
+          { icon: HeartPulse, number: "0", label: "Care Hours", desc: "Dedicated compassionate care" },
+          { icon: Star, number: avgRating !== "—" ? `${avgRating}/5` : "0/5", label: "Satisfaction", desc: "Average user rating" },
         ]);
       })
       .catch(() => {});
@@ -45,7 +45,7 @@ const CareStats = () => {
         <div className="absolute top-[40%] -right-[10%] w-[40%] h-[60%] rounded-full bg-rose-50 dark:bg-rose-900/10 blur-[120px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-site-wide mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.span 
             initial={{ opacity: 0, y: 20 }}

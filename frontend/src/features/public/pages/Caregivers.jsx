@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Star, User, Filter, CheckCircle2 } from "lucide-react";
+import { Heart, Search, Filter, Star, MapPin, X, Loader2, CheckCircle, ShieldCheck } from "lucide-react";
+import Button from "../../../components/ui/Button";
+import Input from "../../../components/ui/Input";
+import Checkbox from "../../../components/ui/Checkbox";
 import { getAllCaregivers } from "../../caregiver/api/caregiver.api";
 import { getAllServices } from "../../service/api/service.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
@@ -14,6 +17,7 @@ const Caregivers = () => {
   const [filtered, setFiltered] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -134,14 +138,24 @@ const Caregivers = () => {
 
         <div className="flex flex-col lg:flex-row gap-8">
           
+          {/* Mobile Filter Toggle */}
+          <div className="lg:hidden flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+              <Filter className="w-5 h-5" /> Filters
+            </span>
+            <Button variant="outline" className="py-2" onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}>
+              {isMobileFilterOpen ? "Hide Filters" : "Show Filters"}
+            </Button>
+          </div>
+
           {/* Sidebar Filters (Left) */}
-          <div className="w-full lg:w-1/4 shrink-0">
+          <div className={`w-full lg:w-1/4 shrink-0 ${isMobileFilterOpen ? "block" : "hidden lg:block"}`}>
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sticky top-28 shadow-sm">
               
               {/* Search by Name */}
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Search Name</h3>
-                <input
+                <Input
                   type="text"
                   placeholder="e.g. Priya"
                   value={searchTerm}
@@ -153,7 +167,7 @@ const Caregivers = () => {
               {/* City Filter */}
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">City</h3>
-                <input
+                <Input
                   type="text"
                   placeholder="e.g. Mumbai"
                   value={searchCity}
@@ -165,24 +179,18 @@ const Caregivers = () => {
               {/* Experience Filter */}
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Experience</h3>
-                <div className="space-y-2.5">
+                <div className="flex flex-col space-y-2.5">
                   {[
                     { id: '5+', label: '5+ Years' },
                     { id: '3-5', label: '3 - 5 Years' },
                     { id: '1-3', label: '1 - 3 Years' }
                   ].map(option => (
-                    <label key={option.id} className="flex items-center cursor-pointer group" onClick={() => handleCheckboxChange(setSelectedExperience, option.id)}>
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 transition-colors ${
-                        selectedExperience.includes(option.id) 
-                          ? 'bg-blue-600 border-blue-600' 
-                          : 'border-slate-300 dark:border-slate-600 group-hover:border-blue-400'
-                      }`}>
-                        {selectedExperience.includes(option.id) && <CheckCircle2 className="w-3 h-3 text-white" />}
-                      </div>
-                      <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
-                        {option.label}
-                      </span>
-                    </label>
+                    <Checkbox
+                      key={option.id}
+                      label={option.label}
+                      checked={selectedExperience.includes(option.id)}
+                      onChange={() => handleCheckboxChange(setSelectedExperience, option.id)}
+                    />
                   ))}
                 </div>
               </div>
@@ -190,7 +198,7 @@ const Caregivers = () => {
               {/* Care Type Filter */}
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Care Type</h3>
-                <div className="space-y-2.5">
+                <div className="flex flex-col space-y-2.5">
                   {[
                     { id: 'hourly', label: 'Hourly' },
                     { id: 'part_time', label: 'Part Time' },
@@ -198,18 +206,12 @@ const Caregivers = () => {
                     { id: 'live_in', label: 'Live-In' },
                     { id: 'emergency', label: 'Emergency' }
                   ].map(option => (
-                    <label key={option.id} className="flex items-center cursor-pointer group" onClick={() => handleCheckboxChange(setSelectedCareType, option.id)}>
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 transition-colors ${
-                        selectedCareType.includes(option.id) 
-                          ? 'bg-blue-600 border-blue-600' 
-                          : 'border-slate-300 dark:border-slate-600 group-hover:border-blue-400'
-                      }`}>
-                        {selectedCareType.includes(option.id) && <CheckCircle2 className="w-3 h-3 text-white" />}
-                      </div>
-                      <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
-                        {option.label}
-                      </span>
-                    </label>
+                    <Checkbox
+                      key={option.id}
+                      label={option.label}
+                      checked={selectedCareType.includes(option.id)}
+                      onChange={() => handleCheckboxChange(setSelectedCareType, option.id)}
+                    />
                   ))}
                 </div>
               </div>
@@ -217,20 +219,14 @@ const Caregivers = () => {
               {/* Language Filter */}
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Language</h3>
-                <div className="space-y-2.5">
+                <div className="flex flex-col space-y-2.5">
                   {displayLanguages.map(lang => (
-                    <label key={lang} className="flex items-center cursor-pointer group" onClick={() => handleCheckboxChange(setSelectedLanguages, lang.toLowerCase())}>
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 transition-colors ${
-                        selectedLanguages.includes(lang.toLowerCase()) 
-                          ? 'bg-blue-600 border-blue-600' 
-                          : 'border-slate-300 dark:border-slate-600 group-hover:border-blue-400'
-                      }`}>
-                        {selectedLanguages.includes(lang.toLowerCase()) && <CheckCircle2 className="w-3 h-3 text-white" />}
-                      </div>
-                      <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors capitalize">
-                        {lang}
-                      </span>
-                    </label>
+                    <Checkbox
+                      key={lang}
+                      label={<span className="capitalize">{lang}</span>}
+                      checked={selectedLanguages.includes(lang.toLowerCase())}
+                      onChange={() => handleCheckboxChange(setSelectedLanguages, lang.toLowerCase())}
+                    />
                   ))}
                 </div>
               </div>
@@ -238,35 +234,29 @@ const Caregivers = () => {
               {/* Rating Filter */}
               <div className="mb-8">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Rating</h3>
-                <div className="space-y-2.5">
+                <div className="flex flex-col space-y-2.5">
                   {[
                     { id: '4.5+', label: '4.5 & above' },
                     { id: '4.0+', label: '4.0 & above' }
                   ].map(option => (
-                    <label key={option.id} className="flex items-center cursor-pointer group" onClick={() => handleCheckboxChange(setSelectedRatings, option.id)}>
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 transition-colors ${
-                        selectedRatings.includes(option.id) 
-                          ? 'bg-blue-600 border-blue-600' 
-                          : 'border-slate-300 dark:border-slate-600 group-hover:border-blue-400'
-                      }`}>
-                        {selectedRatings.includes(option.id) && <CheckCircle2 className="w-3 h-3 text-white" />}
-                      </div>
-                      <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
-                        {option.label}
-                      </span>
-                    </label>
+                    <Checkbox
+                      key={option.id}
+                      label={option.label}
+                      checked={selectedRatings.includes(option.id)}
+                      onChange={() => handleCheckboxChange(setSelectedRatings, option.id)}
+                    />
                   ))}
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <button 
+                <Button variant="outline" 
                   onClick={resetFilters}
-                  className="w-full py-2.5 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-semibold transition-colors"
+                  className="w-full border-slate-200 dark:border-slate-700 dark:hover:bg-slate-700/50 dark:text-slate-300"
                 >
                   Reset Filters
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -306,12 +296,12 @@ const Caregivers = () => {
                 <p className="text-slate-500 dark:text-slate-400 max-w-md">
                   Try adjusting your filters or search terms to find what you're looking for.
                 </p>
-                <button 
+                <Button 
                   onClick={resetFilters}
-                  className="mt-6 px-6 py-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                  className="mt-6 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                 >
                   Clear Filters
-                </button>
+                </Button>
               </div>
             ) : (
               <motion.div variants={stagger} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -329,8 +319,8 @@ const Caregivers = () => {
                       {/* Top: Image & Name */}
                       <div className="flex items-start gap-4 mb-5">
                         <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0 overflow-hidden ring-2 ring-white dark:ring-slate-800 shadow-sm">
-                          {caregiver.profilePicture ? (
-                            <img src={caregiver.profilePicture} alt={caregiver.userId?.name} className="w-full h-full object-cover" />
+                          {caregiver.profileImage ? (
+                            <img src={caregiver.profileImage} alt={caregiver.userId?.name} className="w-full h-full object-cover" />
                           ) : (
                             <User className="w-6 h-6 text-slate-400" />
                           )}
@@ -385,13 +375,13 @@ const Caregivers = () => {
                         >
                           View Profile
                         </Link>
-                        <button
+                        <Button
                           type="button"
                           onClick={() => handleBookCaregiver({ user, caregiverId: caregiver._id, navigate })}
                           className="flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm shadow-blue-600/20"
                         >
                           Book Now
-                        </button>
+                        </Button>
                       </div>
                     </motion.div>
                   ))}

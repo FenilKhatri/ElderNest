@@ -23,7 +23,7 @@ import { useNotifications } from "../../context/NotificationContext";
 import { getOnboardingStatus } from "../../features/caregiver/api/caregiver.api";
 import { fadeUp } from "../../animations/motionVariants";
 import Logo from "../../assets/logo.avif";
-import { CAREGIVER_STAGE_UNLOCK } from "../../constants/caregiverConstants";
+import { CAREGIVER_STAGE_UNLOCK } from "@/constants";
 
 const isUnlocked = (stage, href) => {
   const allowed = CAREGIVER_STAGE_UNLOCK[stage] || CAREGIVER_STAGE_UNLOCK.pending_account;

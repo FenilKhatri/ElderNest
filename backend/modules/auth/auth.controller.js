@@ -12,7 +12,6 @@ import { sanitizeUser, sanitizeCaregiver } from "../../common/utils/sanitizeUser
 
 import admin from "../../config/firebaseAdmin.js";
 
-// Register
 export const register = asyncHandler(async (req, res) => {
     const user = await createUser(req.body);
 
@@ -22,7 +21,6 @@ export const register = asyncHandler(async (req, res) => {
     return successResponse(res, 201, "User registered successfully!", { user: sanitizeUser(user) });
 });
 
-// login
 export const login = asyncHandler(async (req, res) => {
     const user = await existingUser(req.body);
 
@@ -36,7 +34,6 @@ export const login = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Login successful!", { user: sanitizeUser(user) });
 });
 
-// Admin login
 export const adminLogin = asyncHandler(async (req, res) => {
     const user = await loginAdmin(req.body);
 
@@ -46,7 +43,6 @@ export const adminLogin = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Admin login successful", { user: sanitizeUser(user) });
 });
 
-// Register caregiver
 export const registerCaregiver = asyncHandler(async (req, res) => {
     const user = await createCaregiver(req.body);
 
@@ -59,7 +55,6 @@ export const registerCaregiver = asyncHandler(async (req, res) => {
     });
 });
 
-// Login caregiver
 export const loginCaregiver = asyncHandler(async (req, res) => {
     const user = await existingCaregiver(req.body);
 
@@ -142,14 +137,12 @@ export const googleAuth = asyncHandler(async (req, res) => {
             newRole === ROLES.CAREGIVER ? CAREGIVER_STATUSES.PENDING : CAREGIVER_STATUSES.APPROVED,
     });
 
-    // Create caregiver profile if needed
     if (role === ROLES.CAREGIVER) {
         let caregiver = await Caregiver.findOne({ userId: user._id });
         if (!caregiver) {
             caregiver = await Caregiver.create({ userId: user._id });
         }
 
-        // Notify admin
         const admins = await User.find({ role: ROLES.ADMIN });
         for (const adminUser of admins) {
             await createNotification(
@@ -171,7 +164,6 @@ export const googleAuth = asyncHandler(async (req, res) => {
     });
 });
 
-// getME
 export const getMe = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id);
 
@@ -205,7 +197,6 @@ export const getMe = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "User fetched", { user: safeUser });
 });
 
-// Logout
 export const logout = (req, res) => {
     clearAuthCookie(res);
     return successResponse(res, 200, "Logout successful!");

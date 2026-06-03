@@ -1,3 +1,4 @@
+import { GENDER_OPTIONS, AVAILABLE_TIMINGS, LANGUAGES, COMPLETE_PROFILE_STEPS, PRICING_RATE_FIELDS, caregiverSchema as schema } from "@/constants";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, CheckCircle, Search, ChevronDown, X } from "lucide-react";
@@ -10,38 +11,18 @@ import { completeProfile, getMyProfile, updateProfile } from "../api/caregiver.a
 import { getAllServices } from "../../service/api/service.api";
 import { useAuth } from "../../../context/AuthContext";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
-import { indianStates, getCitiesByState } from "../data/locations";
-import { GENDER_OPTIONS, AVAILABLE_TIMINGS, LANGUAGES, COMPLETE_PROFILE_STEPS, PRICING_RATE_FIELDS } from "../../../constants/caregiverConstants";
+import { indianStates, getCitiesByState } from "@/constants";
+
 import Button from "../../../components/ui/Button";
 import Select from "../../../components/ui/Select";
+import Checkbox from "../../../components/ui/Checkbox";
 import Textarea from "../../../components/ui/Textarea";
+import Input from "../../../components/ui/Input";
+
 
 const steps = COMPLETE_PROFILE_STEPS;
 
-const schema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters").max(100),
-  email: z.string().email("Invalid email address"),
-  contactNumber: z.string().regex(/^[6-9]\d{9}$/, "Invalid Indian mobile number"),
-  alternateContact: z.union([z.string().regex(/^[6-9]\d{9}$/, "Invalid number"), z.string().length(0)]).optional().transform(e => e === "" ? undefined : e),
-  gender: z.enum(["male", "female", "other"], { errorMap: () => ({ message: "Please select a gender" }) }),
-  age: z.coerce.number({ invalid_type_error: "Age is required" }).min(18, "Age must be at least 18").max(80),
-  experienceYears: z.coerce.number({ invalid_type_error: "Experience is required" }).min(0).max(60),
-  bio: z.string().min(50, "Bio must be at least 50 characters").max(1000),
-  servicesOffered: z.array(z.string()).min(1, "Select at least 1 service").max(3, "Select up to 3 services"),
-  languages: z.array(z.string()).min(1, "Select at least one language"),
-  location: z.object({
-    state: z.string().min(1, "State is required"),
-    city: z.string().min(1, "City is required"),
-    pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
-    fullAddress: z.string().min(10, "Address must be at least 10 characters").max(300),
-  }),
-  availableTiming: z.enum(["morning", "afternoon", "evening", "night", "full-day", "flexible"], { errorMap: () => ({ message: "Please select availability" }) }),
-  pricing: z.object({
-    hourlyRate: z.coerce.number().min(0).optional().or(z.literal("")),
-    dailyRate: z.coerce.number().min(0).optional().or(z.literal("")),
-    monthlyRate: z.coerce.number().min(0).optional().or(z.literal("")),
-  }).optional(),
-});
+
 
 const ServiceDropdown = ({ field, services }) => {
   const [search, setSearch] = useState("");
@@ -62,7 +43,7 @@ const ServiceDropdown = ({ field, services }) => {
             selectedServices.map(s => (
               <span key={s._id} className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-1 rounded text-xs flex items-center gap-1">
                 {s.title}
-                <button
+                <Button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -71,7 +52,7 @@ const ServiceDropdown = ({ field, services }) => {
                   className="hover:text-blue-900 dark:hover:text-blue-200"
                 >
                   <X className="w-3 h-3" />
-                </button>
+                </Button>
               </span>
             ))
           )}
@@ -84,7 +65,7 @@ const ServiceDropdown = ({ field, services }) => {
           <div className="p-2 border-b border-slate-100 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800">
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-              <input
+              <Input
                 type="text"
                 className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-slate-100"
                 placeholder="Search services..."
@@ -169,7 +150,7 @@ const CompleteProfile = () => {
       servicesOffered: [],
       languages: [],
       location: { state: "", city: "", pincode: "", fullAddress: "" },
-      availableTiming: "",
+      // availableTiming removed
       pricing: { hourlyRate: "", dailyRate: "", monthlyRate: "" },
     },
     mode: "onTouched",
@@ -215,7 +196,7 @@ const CompleteProfile = () => {
             pincode: cg.location?.pincode || "",
             fullAddress: cg.location?.fullAddress || "",
           },
-          availableTiming: cg.availableTiming || "",
+          // availableTiming removed
           pricing: {
             hourlyRate: cg.pricing?.hourlyRate ?? "",
             dailyRate: cg.pricing?.dailyRate ?? "",
@@ -323,7 +304,7 @@ const CompleteProfile = () => {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                 Full Name <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 className={inputClass}
                 placeholder="Enter your full name"
                 {...register("fullName")}
@@ -336,7 +317,7 @@ const CompleteProfile = () => {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                   Email <span className="text-red-500">*</span>
                 </label>
-                <input
+                <Input
                   type="email"
                   className={inputClass}
                   placeholder="Enter your email"
@@ -348,7 +329,7 @@ const CompleteProfile = () => {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                   Contact Number <span className="text-red-500">*</span>
                 </label>
-                <input
+                <Input
                   type="tel"
                   className={inputClass}
                   placeholder="10-digit mobile number"
@@ -362,7 +343,7 @@ const CompleteProfile = () => {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                 Alternate Contact
               </label>
-              <input
+              <Input
                 type="tel"
                 className={inputClass}
                 placeholder="Optional alternate number"
@@ -389,7 +370,7 @@ const CompleteProfile = () => {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                   Age <span className="text-red-500">*</span>
                 </label>
-                <input
+                <Input
                   type="number"
                   className={inputClass}
                   placeholder="Your age"
@@ -408,7 +389,7 @@ const CompleteProfile = () => {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                 Years of Experience <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="number"
                 className={inputClass}
                 placeholder="e.g. 3"
@@ -479,21 +460,18 @@ const CompleteProfile = () => {
                     {LANGUAGES.map((lang) => {
                       const isChecked = field.value.includes(lang);
                       return (
-                        <label key={lang} className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                field.onChange([...field.value, lang]);
-                              } else {
-                                field.onChange(field.value.filter(l => l !== lang));
-                              }
-                            }}
-                            className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{lang}</span>
-                        </label>
+                        <Checkbox
+                          key={lang}
+                          label={lang}
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              field.onChange([...field.value, lang]);
+                            } else {
+                              field.onChange(field.value.filter(l => l !== lang));
+                            }
+                          }}
+                        />
                       );
                     })}
                   </div>
@@ -545,7 +523,7 @@ const CompleteProfile = () => {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                 Pincode <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="text"
                 maxLength={6}
                 className={inputClass}
@@ -574,19 +552,7 @@ const CompleteProfile = () => {
       case 5:
         return (
           <div className="space-y-6">
-            <Controller
-              name="availableTiming"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  label="Available Timing"
-                  options={AVAILABLE_TIMINGS}
-                  error={errors.availableTiming?.message}
-                  required
-                  {...field}
-                />
-              )}
-            />
+            {/* Available Timing removed */}
             <div>
               <h3 className="text-base font-medium text-slate-900 dark:text-white mb-4">
                 Pricing (Optional)
@@ -597,7 +563,7 @@ const CompleteProfile = () => {
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                       {label}
                     </label>
-                    <input
+                    <Input
                       type="number"
                       className={inputClass}
                       placeholder="0"

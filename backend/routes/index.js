@@ -25,7 +25,6 @@ import { maintenanceMiddleware } from "../common/middlewares/maintenance.middlew
 
 const router = express.Router();
 
-// router.use(maintenanceMiddleware);
 
 router.use("/auth", authRoutes);
 router.use("/caregivers", caregiverRoutes);

@@ -8,7 +8,8 @@ import { formatDateTime } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
-import { REFUND_STATUS_OPTIONS } from "../../../constants/bookingConstants";
+import { REFUND_STATUS_OPTIONS } from "@/constants";
+import Textarea from "../../../components/ui/Textarea";
 
 const PaymentsRefunds = () => {
   const [refunds, setRefunds] = useState([]);
@@ -83,8 +84,8 @@ const PaymentsRefunds = () => {
               onClick={() => setActiveStatus(t.id)}
               className={`px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
                 activeStatus === t.id 
-                  ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" 
-                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                  ? "bg-blue-600 text-white shadow-md" 
+                  : "bg-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
               {t.label}
@@ -137,9 +138,9 @@ const PaymentsRefunds = () => {
                       <td className="px-4 py-3"><StatusBadge status={r.status} /></td>
                       <td className="px-4 py-3 text-sm text-slate-600">{formatDateTime(r.createdAt)}</td>
                       <td className="px-4 py-3">
-                        <button type="button" onClick={() => setViewItem(r)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg">
+                        <Button type="button" onClick={() => setViewItem(r)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg">
                           <Eye className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))
@@ -216,7 +217,7 @@ const PaymentsRefunds = () => {
           </p>
           <div>
             <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Admin Notes (Required for rejection)</label>
-            <textarea
+            <Textarea
               rows={3}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
               placeholder="Internal notes..."

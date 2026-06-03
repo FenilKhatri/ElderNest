@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 const Checkbox = ({
   label,
   checked,
@@ -7,7 +9,8 @@ const Checkbox = ({
   id,
   description,
 }) => {
-  const inputId = id || `cb-${label?.replace(/\s/g, "-")}`;
+  const defaultId = useId();
+  const inputId = id || `cb-${defaultId}`;
 
   return (
     <label

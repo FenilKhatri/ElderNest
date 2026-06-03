@@ -6,7 +6,6 @@ import Caregiver from "../caregiver/caregiver.model.js";
 
 // @desc    Get all payouts (Admin)
 // @route   GET /api/payouts
-// @access  Private/Admin
 export const getAllPayouts = asyncHandler(async (req, res) => {
     const { status } = req.query;
     const query = {};
@@ -22,7 +21,6 @@ export const getAllPayouts = asyncHandler(async (req, res) => {
 
 // @desc    Get caregiver payouts
 // @route   GET /api/payouts/my-payouts
-// @access  Private/Caregiver
 export const getMyPayouts = asyncHandler(async (req, res) => {
     // We assume req.caregiver exists if they are caregiver, or we need to look it up
     // Just find by caregiverId. We need to lookup the Caregiver doc by req.user.id
@@ -39,7 +37,6 @@ export const getMyPayouts = asyncHandler(async (req, res) => {
 
 // @desc    Create a new payout request (Caregiver) or manual entry (Admin)
 // @route   POST /api/payouts
-// @access  Private
 export const createPayout = asyncHandler(async (req, res) => {
     const { caregiverId, amount, notes, periodStart, periodEnd } = req.body;
 
@@ -58,7 +55,6 @@ export const createPayout = asyncHandler(async (req, res) => {
 
 // @desc    Update payout status (Admin)
 // @route   PATCH /api/payouts/:id/status
-// @access  Private/Admin
 export const updatePayoutStatus = asyncHandler(async (req, res) => {
     const { status, referenceId, notes } = req.body;
 
@@ -77,7 +73,6 @@ export const updatePayoutStatus = asyncHandler(async (req, res) => {
 
     await payout.save();
 
-    // Create a transaction record when completed
     if (status === "completed") {
         const cg = await Caregiver.findById(payout.caregiverId);
 

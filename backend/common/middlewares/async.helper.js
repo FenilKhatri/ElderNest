@@ -6,7 +6,6 @@ export const asyncHandler = (fn) => (req, res, next) => {
         let message = err.message || "Something went wrong. Please try again.";
         let errors = null;
         
-        // Handle Mongoose Validation Error
         if (err.name === 'ValidationError') {
             message = "Validation failed";
             errors = Object.keys(err.errors).reduce((acc, key) => {

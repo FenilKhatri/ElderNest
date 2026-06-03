@@ -8,7 +8,9 @@ import { formatDateTime, formatDate } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
-import { PAYOUT_STATUS_OPTIONS } from "../../../constants/bookingConstants";
+import { PAYOUT_STATUS_OPTIONS } from "@/constants";
+import Textarea from "../../../components/ui/Textarea";
+import Input from "../../../components/ui/Input";
 
 const PaymentsPayouts = () => {
   const [payouts, setPayouts] = useState([]);
@@ -83,8 +85,8 @@ const PaymentsPayouts = () => {
               onClick={() => setActiveStatus(t.id)}
               className={`px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
                 activeStatus === t.id 
-                  ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400" 
-                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                  ? "bg-blue-600 text-white shadow-md" 
+                  : "bg-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
               {t.label}
@@ -137,9 +139,9 @@ const PaymentsPayouts = () => {
                       <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
                       <td className="px-4 py-3 text-sm text-slate-600">{formatDateTime(p.createdAt)}</td>
                       <td className="px-4 py-3">
-                        <button type="button" onClick={() => setViewItem(p)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg">
+                        <Button type="button" onClick={() => setViewItem(p)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg">
                           <Eye className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))
@@ -226,7 +228,7 @@ const PaymentsPayouts = () => {
           {processModal.status === "completed" && (
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Bank / Transfer Reference ID (Required)</label>
-              <input
+              <Input
                 type="text"
                 className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
                 placeholder="e.g. UTR Number, Txn ID..."
@@ -238,7 +240,7 @@ const PaymentsPayouts = () => {
 
           <div>
             <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Admin Notes (Optional)</label>
-            <textarea
+            <Textarea
               rows={3}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
               placeholder="Internal notes..."

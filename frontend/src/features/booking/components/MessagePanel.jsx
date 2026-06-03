@@ -3,6 +3,8 @@ import { toast } from "react-toastify";
 import { Send, Loader2 } from "lucide-react";
 import { getBookingMessages, sendBookingMessage } from "../api/booking.api";
 import { formatDate } from "../../../utils/helpers";
+import Input from "../../../components/ui/Input";
+import Button from "../../../components/ui/Button";
 
 const MessagePanel = ({ bookingId, currentUserId }) => {
   const [messages, setMessages] = useState([]);
@@ -96,20 +98,20 @@ const MessagePanel = ({ bookingId, currentUserId }) => {
 
       <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <form onSubmit={handleSend} className="flex gap-2">
-          <input
+          <Input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
             className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 border-transparent focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 rounded-lg text-slate-900 dark:text-white transition-colors text-sm"
           />
-          <button
+          <Button
             type="submit"
             disabled={!newMessage.trim() || sending}
-            className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors flex-shrink-0"
+            className="p-2 flex-shrink-0"
           >
             {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

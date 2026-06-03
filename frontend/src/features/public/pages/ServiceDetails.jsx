@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   CheckCircle2,
   HeartPulse,
   Star,
   User,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import { SERVICE_MODES, WEEK_DAYS } from "../../../constants/serviceConstants";
+import { SERVICE_MODES, WEEK_DAYS } from "@/constants";
 import { getServiceById } from "../../service/api/service.api";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
 import http from "../../../lib/axios";
 import { formatCurrency } from "../../../utils/helpers";
+import Button from "../../../components/ui/Button";
 
 const ServiceDetails = () => {
   const { idOrSlug } = useParams();
@@ -20,6 +24,43 @@ const ServiceDetails = () => {
   const [caregivers, setCaregivers] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Carousel State
+  const [isCarouselOpen, setIsCarouselOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const nextImage = () => {
+    if (service?.images) {
+      setCurrentImageIndex((prev) => (prev + 1) % service.images.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (service?.images) {
+      setCurrentImageIndex((prev) => (prev - 1 + service.images.length) % service.images.length);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isCarouselOpen) return;
+      if (e.key === "Escape") setIsCarouselOpen(false);
+      if (e.key === "ArrowRight") nextImage();
+      if (e.key === "ArrowLeft") prevImage();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isCarouselOpen, service]);
+
+  // Lock body scroll when carousel is open
+  useEffect(() => {
+    if (isCarouselOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [isCarouselOpen]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -170,14 +211,88 @@ const ServiceDetails = () => {
         </section>
       )}
 
-      {/* Gallery */}
+      {/* Visual Journey Gallery */}
       {service.images?.length > 0 && (
-        <section className="py-12 max-w-site-wide mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Gallery</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {service.images.map((url) => (
-              <img key={url} src={url} alt="" className="rounded-xl h-60 w-full object-cover" />
-            ))}
+        <section className="py-16 max-w-site-wide mx-auto px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900">
+          <div className="flex justify-between items-end mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Visual Journey</h2>
+              <p className="text-sm font-semibold tracking-widest text-slate-500 uppercase mt-2">
+                Glimpses of {service.title}
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                setCurrentImageIndex(0);
+                setIsCarouselOpen(true);
+              }}
+              className="hidden md:inline-flex px-6 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold tracking-widest uppercase rounded-full transition-colors"
+            >
+              View All Photos
+            </Button>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-4 h-[400px] sm:h-[500px] lg:h-[600px]">
+            {/* Hero Image - Left */}
+            <div
+              className="w-full lg:w-2/3 h-1/2 lg:h-full relative rounded-3xl overflow-hidden cursor-pointer group"
+              onClick={() => {
+                setCurrentImageIndex(0);
+                setIsCarouselOpen(true);
+              }}
+            >
+              <img
+                src={service.images[0]}
+                alt="Service hero"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+            </div>
+
+            {/* 2x2 Grid - Right */}
+            {service.images.length > 1 && (
+              <div className="w-full lg:w-1/3 h-1/2 lg:h-full grid grid-cols-2 grid-rows-2 gap-4">
+                {service.images.slice(1, 5).map((img, index) => (
+                  <div
+                    key={index}
+                    className="relative rounded-2xl overflow-hidden cursor-pointer group"
+                    onClick={() => {
+                      setCurrentImageIndex(index + 1);
+                      setIsCarouselOpen(true);
+                    }}
+                  >
+                    <img
+                      src={img}
+                      alt={`Service detail ${index + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+                    
+                    {/* +X Overlay for the last visible image if there are more */}
+                    {index === 3 && service.images.length > 5 && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <span className="text-white text-2xl font-bold">
+                          +{service.images.length - 5}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Mobile View All Button */}
+          <div className="mt-8 text-center md:hidden">
+            <Button
+              onClick={() => {
+                setCurrentImageIndex(0);
+                setIsCarouselOpen(true);
+              }}
+              className="inline-flex px-6 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold tracking-widest uppercase rounded-full transition-colors"
+            >
+              View All Photos
+            </Button>
           </div>
         </section>
       )}
@@ -271,6 +386,101 @@ const ServiceDetails = () => {
           </Link>
         </div>
       </section>
+
+      {/* 3D Coverflow Carousel Modal */}
+      <AnimatePresence>
+        {isCarouselOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm"
+          >
+            {/* Top Bar */}
+            <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-[110]">
+              <div className="text-white/80 font-medium tracking-wider text-sm">
+                {currentImageIndex + 1} / {service.images.length}
+              </div>
+              <Button
+                onClick={() => setIsCarouselOpen(false)}
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Navigation Buttons */}
+            <Button
+              onClick={(e) => { e.stopPropagation(); prevImage(); }}
+              className="absolute left-4 md:left-12 z-[110] w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </Button>
+
+            <Button
+              onClick={(e) => { e.stopPropagation(); nextImage(); }}
+              className="absolute right-4 md:right-12 z-[110] w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </Button>
+
+            {/* Carousel Container */}
+            <div 
+              className="relative w-full h-full flex items-center justify-center overflow-hidden" 
+              style={{ perspective: "1000px" }}
+              onClick={() => setIsCarouselOpen(false)}
+            >
+              {service.images.map((img, index) => {
+                const offset = index - currentImageIndex;
+                const isSelected = offset === 0;
+                
+                // Keep only a few visible for performance/aesthetics
+                if (Math.abs(offset) > 2) return null;
+
+                const sign = Math.sign(offset);
+                const absOffset = Math.abs(offset);
+
+                const x = offset * 250; // horizontal spacing
+                const z = -absOffset * 150; // push back
+                const rotateY = sign * -25; // angle
+
+                return (
+                  <motion.div
+                    key={index}
+                    initial={false}
+                    animate={{
+                      x: x,
+                      z: z,
+                      rotateY: rotateY,
+                      scale: isSelected ? 1 : 0.85,
+                      opacity: isSelected ? 1 : (1 - absOffset * 0.4),
+                      zIndex: 10 - absOffset
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30
+                    }}
+                    className={`absolute w-[80vw] md:w-[60vw] max-w-4xl aspect-video rounded-xl shadow-2xl overflow-hidden cursor-pointer ${
+                      !isSelected ? "pointer-events-auto" : ""
+                    }`}
+                    style={{ transformStyle: "preserve-3d" }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isSelected) setCurrentImageIndex(index);
+                    }}
+                  >
+                    <img src={img} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
+                    {!isSelected && (
+                      <div className="absolute inset-0 bg-black/40"></div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

@@ -7,6 +7,7 @@ import { stagger, fadeUp } from "../../../animations/motionVariants";
 import Button from "../../../components/ui/Button";
 import { resolveAssetUrl } from "../../../utils/blogImage";
 import { useAuth } from "../../../context/AuthContext";
+import Input from "../../../components/ui/Input";
 
 const Profile = () => {
   const { fetchUser } = useAuth();
@@ -131,62 +132,43 @@ const Profile = () => {
                 <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
               </label>
             </div>
-            <div className="flex-1 w-full text-center sm:text-left">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Profile Image URL</label>
-              <input
-                type="text"
-                name="profileImage"
-                value={formData.profileImage}
-                onChange={handleChange}
-                placeholder="https://example.com/image.jpg"
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-              />
-            </div>
+            
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input
+              <Input icon={User} 
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                />
-              </div>
+                  
+                 />
             </div>
 
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input
+              <Input icon={Mail} 
                   type="email"
                   name="email"
                   value={formData.email}
                   disabled
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed"
-                />
-              </div>
+                  
+                 />
               <p className="text-xs text-slate-500 mt-1">Email cannot be changed.</p>
             </div>
 
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number</label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input
+              <Input icon={Phone} 
                   type="text"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                />
-              </div>
+                  
+                 />
             </div>
           </div>
 

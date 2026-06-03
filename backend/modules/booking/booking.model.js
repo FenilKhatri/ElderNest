@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
     {
-        // References
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
@@ -25,7 +24,6 @@ const bookingSchema = new mongoose.Schema(
             ref: "Patient",
         },
 
-        // Patient Information
         patientName: {
             type: String,
             required: true,
@@ -48,7 +46,6 @@ const bookingSchema = new mongoose.Schema(
             enum: ["full-time", "part-time", "live-in", "hourly", "emergency"],
         },
 
-        // Contact Details
         contactNumber: {
             type: String,
             required: true,
@@ -65,7 +62,6 @@ const bookingSchema = new mongoose.Schema(
             trim: true,
         },
 
-        // Address
         address: {
             street: {
                 type: String,
@@ -93,7 +89,6 @@ const bookingSchema = new mongoose.Schema(
             },
         },
 
-        // Emergency Contact
         emergencyContact: {
             name: {
                 type: String,
@@ -112,7 +107,6 @@ const bookingSchema = new mongoose.Schema(
             },
         },
 
-        // Booking Schedule
         bookingDate: {
             type: Date,
             required: true,
@@ -129,7 +123,6 @@ const bookingSchema = new mongoose.Schema(
             },
         },
 
-        // Additional Information
         notes: {
             type: String,
             trim: true,
@@ -140,14 +133,13 @@ const bookingSchema = new mongoose.Schema(
             default: [],
         },
 
-        // Pricing
         totalAmount: {
             type: Number,
             required: true,
             min: 0,
         },
         duration: {
-            type: Number, // in hours
+            type: Number, 
             required: true,
         },
         durationType: {
@@ -156,7 +148,6 @@ const bookingSchema = new mongoose.Schema(
             default: "hourly",
         },
 
-        // Status Management
         status: {
             type: String,
             enum: ["pending", "accepted", "rejected", "in-progress", "completed", "cancelled"],
@@ -164,7 +155,6 @@ const bookingSchema = new mongoose.Schema(
             index: true,
         },
         
-        // Cancellation
         cancellationReason: {
             type: String,
             trim: true,
@@ -177,18 +167,15 @@ const bookingSchema = new mongoose.Schema(
             type: Date,
         },
 
-        // Rejection
         rejectionReason: {
             type: String,
             trim: true,
         },
 
-        // Completion
         completedAt: {
             type: Date,
         },
         
-        // Payment
         paymentStatus: {
             type: String,
             enum: ["pending", "paid", "refunded", "failed", "completed"],
@@ -228,7 +215,6 @@ const bookingSchema = new mongoose.Schema(
     }
 );
 
-// Generate unique booking ID before saving
 bookingSchema.pre("save", async function () {
     if (!this.bookingId) {
         const count = await mongoose.model("Booking").countDocuments();
@@ -241,9 +227,9 @@ bookingSchema.index({ userId: 1, status: 1 });
 bookingSchema.index({ caregiverId: 1, status: 1 });
 bookingSchema.index({ bookingDate: 1, status: 1 });
 
-// Compound unique index to prevent overlapping double bookings
+// Compound unique index to prevent overlapping double bookings for the same start time
 bookingSchema.index(
-    { caregiverId: 1, bookingDate: 1, "timeSlot.startTime": 1, "timeSlot.endTime": 1 },
+    { caregiverId: 1, bookingDate: 1, "timeSlot.startTime": 1 },
     { 
         unique: true,
         partialFilterExpression: { status: { $in: ["pending", "accepted", "in-progress"] } }

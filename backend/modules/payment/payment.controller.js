@@ -6,7 +6,7 @@ import * as bookingService from "../booking/booking.services.js";
 import { acquireSlotLock } from "../booking/slotLocking.service.js";
 import Booking from "../booking/booking.model.js";
 import { generateReceiptPdf, generateBookingPdf } from "../../common/utils/pdf/index.js";
-import { sendEmail } from "../../common/services/email.service.js";
+
 
 /**
  * POST /api/payments/create-order
@@ -124,20 +124,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         booking.bookingPdfUrl = bookingPdfUrl;
         await booking.save();
 
-        await sendEmail(
-            populatedBooking.userId.email,
-            "bookingPaymentConfirmation",
-            {
-                userName: populatedBooking.userId.name,
-                bookingId: booking.bookingId,
-                caregiverName: populatedBooking.caregiverId?.userId?.name || "Caregiver",
-                serviceName: populatedBooking.serviceId?.title || "Care Service",
-                amount: populatedBooking.totalAmount,
-                transactionId: razorpay_payment_id,
-                date: new Date(populatedBooking.bookingDate).toLocaleDateString(),
-                time: `${populatedBooking.timeSlot.startTime} - ${populatedBooking.timeSlot.endTime}`,
-            }
-        );
+
     } catch (pdfError) {
         console.error("PDF/Email generation failed (non-critical):", pdfError);
     }
@@ -148,10 +135,6 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     });
 });
 
-/**
- * GET /api/payments/key
- * Returns the Razorpay publishable key to the frontend.
- */
 export const getRazorpayKey = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Razorpay key", {
         key: process.env.RAZORPAY_KEY_ID,

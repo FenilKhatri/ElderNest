@@ -11,11 +11,9 @@ import {
 
 const router = express.Router();
 
-// Public routes
 router.get("/", serviceController.getAllServices);
 router.get("/:idOrSlug", serviceController.getServiceByIdOrSlug);
 
-// Admin routes
 router.use(protect, authorizeRoles(ROLES.ADMIN));
 router.post("/", createServiceValidator, serviceController.createService);
 router.patch("/:id", updateServiceValidator, serviceController.updateService);

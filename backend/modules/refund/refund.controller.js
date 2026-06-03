@@ -6,7 +6,6 @@ import Transaction from "../transaction/transaction.model.js";
 
 // @desc    Request a refund (User)
 // @route   POST /api/refunds
-// @access  Private
 export const createRefundRequest = asyncHandler(async (req, res) => {
     const { bookingId, reason } = req.body;
 
@@ -45,7 +44,6 @@ export const createRefundRequest = asyncHandler(async (req, res) => {
 
 // @desc    Get all refund requests (Admin)
 // @route   GET /api/refunds
-// @access  Private/Admin
 export const getAllRefunds = asyncHandler(async (req, res) => {
     const { status } = req.query;
     const query = {};
@@ -62,7 +60,6 @@ export const getAllRefunds = asyncHandler(async (req, res) => {
 
 // @desc    Update refund status (Admin)
 // @route   PATCH /api/refunds/:id/status
-// @access  Private/Admin
 export const updateRefundStatus = asyncHandler(async (req, res) => {
     const { status, adminNotes } = req.body;
 

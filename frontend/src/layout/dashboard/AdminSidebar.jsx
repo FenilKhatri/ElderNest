@@ -69,11 +69,11 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
         animate={{
           width: collapsed ? "5rem" : "16rem",
         }}
-        className={`fixed md:sticky md:top-0 z-50 h-screen flex flex-col  dark:bg-slate-900 bg-slate-900 border-r border-slate-800/50 shadow-2xl transition-all duration-300 ease-in-out ${mobileOpen ? "left-0" : "-left-72 md:left-0"
+        className={`fixed md:sticky md:top-0 z-50 h-screen flex flex-col  bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800/50 shadow-2xl transition-all duration-300 ease-in-out ${mobileOpen ? "left-0" : "-left-72 md:left-0"
           } ${collapsed ? "md:w-20" : "md:w-64"}`}
       >
         {/* Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800/50 shrink-0 bg-slate-900/50 backdrop-blur-xl">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800/50 shrink-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl">
           {!collapsed && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -82,7 +82,7 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
             >
               <img src={Logo} alt="ElderNest" className="w-10 h-10" />
               <div>
-                <h2 className="text-base font-bold text-white">ElderNest</h2>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">ElderNest</h2>
                 <p className="text-xs text-slate-400">Admin Panel</p>
               </div>
             </motion.div>
@@ -97,7 +97,7 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
             />
           )}
           <button
-            className="md:hidden text-slate-400 hover:text-white transition-colors"
+            className="md:hidden text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
             onClick={() => setMobileOpen(false)}
           >
             <X size={20} />
@@ -131,8 +131,8 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
                         collapsed ? "justify-center px-0" : "justify-between px-3"
                       } py-2.5 text-sm font-medium group ${
                         isAnySubActive
-                          ? "bg-blue-600/20 text-blue-400 shadow-lg shadow-blue-500/10"
-                          : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+                          ? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-600 dark:text-blue-400 shadow-lg shadow-blue-500/10"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -149,8 +149,8 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
                           size={20}
                           className={`${
                             isAnySubActive
-                              ? "text-blue-400"
-                              : "text-slate-400 group-hover:text-white"
+                              ? "text-blue-600 dark:text-blue-400"
+                              : "text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                           } transition-colors`}
                         />
                         {!collapsed && <span>{link.label}</span>}
@@ -182,7 +182,7 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
                               animate={{ height: "100%" }}
                               exit={{ height: 0 }}
                               transition={{ duration: 0.3 }}
-                              className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-slate-700 via-slate-600 to-slate-700"
+                              className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700"
                             />
 
                             {link.subLinks.map((sub, index) => {
@@ -198,15 +198,15 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
                                   className="relative"
                                 >
                                   {/* Connection dot */}
-                                  <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-700 border-2 border-slate-900" />
+                                  <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700 border-2 border-white dark:border-slate-900" />
 
                                   <NavLink
                                     to={sub.to}
                                     onClick={() => setMobileOpen(false)}
                                     className={`block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
                                       isSubActive
-                                        ? "bg-blue-600/20 text-blue-400 shadow-md"
-                                        : "text-slate-400 hover:bg-slate-800/50 hover:text-white hover:translate-x-1"
+                                        ? "bg-blue-600/20 text-blue-600 dark:text-blue-400 shadow-md"
+                                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white hover:translate-x-1"
                                     }`}
                                   >
                                     {sub.label}
@@ -251,8 +251,8 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
                         collapsed ? "justify-center px-0" : "gap-3 px-3"
                       } py-2.5 text-sm font-medium group ${
                         isActive
-                          ? "bg-blue-600/20 text-blue-400 shadow-lg shadow-blue-500/10"
-                          : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+                          ? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-600 dark:text-blue-400 shadow-lg shadow-blue-500/10"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
                       }`
                     }
                   >
@@ -271,8 +271,8 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
                           size={20}
                           className={`${
                             isActive
-                              ? "text-blue-400"
-                              : "text-slate-400 group-hover:text-white"
+                              ? "text-blue-600 dark:text-blue-400"
+                              : "text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                           } transition-colors`}
                         />
                         {!collapsed && <span>{link.label}</span>}
@@ -302,12 +302,12 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
         </nav>
 
         {/* Footer */}
-        <div className="p-3 border-t border-slate-800/50 shrink-0 bg-slate-900/50 backdrop-blur-xl">
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800/50 shrink-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl">
           {!collapsed && user && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mb-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50"
+              className="mb-3 p-3 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50"
             >
               <div className="flex items-center gap-3">
                 {user.profileImage ? (
@@ -318,7 +318,7 @@ const AdminSidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
                     {user.name}
                   </p>
                   <p className="text-xs text-slate-400 truncate">{user.email}</p>

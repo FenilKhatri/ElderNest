@@ -36,7 +36,6 @@ export const getCaregiverByUserIdAdmin = asyncHandler(async (req, res) => {
     }
 });
 
-// Get pending caregiver registrations
 export const getPendingCaregivers = asyncHandler(async (req, res) => {
     const caregivers = await adminService.getPendingCaregivers();
     return successResponse(res, 200, "Pending caregivers fetched", { caregivers });
@@ -57,7 +56,6 @@ export const rejectCaregiverRegistration = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Caregiver registration rejected", { user });
 });
 
-// Get pending caregiver profiles
 export const getPendingProfiles = asyncHandler(async (req, res) => {
     const caregivers = await adminService.getPendingProfiles();
     return successResponse(res, 200, "Pending profiles fetched", { caregivers });
@@ -90,28 +88,24 @@ export const reviewCaregiverVerification = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Verification reviewed", { caregiver });
 });
 
-// Get all users
 export const getAllUsers = asyncHandler(async (req, res) => {
     const { role } = req.query;
     const users = await adminService.getAllUsers(role);
     return successResponse(res, 200, "Users fetched successfully", { users });
 });
 
-// Get dashboard stats
 export const getDashboardStats = asyncHandler(async (req, res) => {
     const { timeframe } = req.query;
     const stats = await adminService.getDashboardStats(timeframe);
     return successResponse(res, 200, "Dashboard stats fetched", { stats });
 });
 
-// Get all contacts
 export const getAllContacts = asyncHandler(async (req, res) => {
     const { status } = req.query;
     const contacts = await adminService.getAllContacts(status);
     return successResponse(res, 200, "Contacts fetched successfully", { contacts });
 });
 
-// Update contact status
 export const updateContactStatus = asyncHandler(async (req, res) => {
     const { contactId } = req.params;
     const { status, adminNotes } = req.body;
@@ -150,7 +144,6 @@ export const suspendCaregiver = asyncHandler(async (req, res) => {
     return successResponse(res, 200, suspend !== false ? "Caregiver suspended" : "Caregiver reactivated", result);
 });
 
-// Delete user or caregiver
 export const deleteUser = asyncHandler(async (req, res) => {
     const { userId } = req.params;
     await adminService.deleteUser(userId);
@@ -158,7 +151,6 @@ export const deleteUser = asyncHandler(async (req, res) => {
 });
 
 
-// Get settings
 export const getSettings = asyncHandler(async (req, res) => {
     const settings = await Setting.find({});
     const formattedSettings = {};
@@ -166,7 +158,6 @@ export const getSettings = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Settings fetched", { settings: formattedSettings });
 });
 
-// Update settings
 export const updateSettings = asyncHandler(async (req, res) => {
     const updates = req.body;
     for (const key in updates) {

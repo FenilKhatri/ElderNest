@@ -7,7 +7,6 @@ import Service from "../service/service.model.js";
 import { createNotification } from "../../common/services/notification.service.js";
 import mongoose from "mongoose";
 
-// Create or add a review
 export const createReview = asyncHandler(async (req, res) => {
     const { bookingId, caregiverId, serviceId, rating, comment, suggestions } = req.body;
 
@@ -62,7 +61,6 @@ export const createReview = asyncHandler(async (req, res) => {
         isVerified
     });
 
-    // Update Caregiver rating if applicable
     if (caregiverId) {
         const caregiver = await Caregiver.findById(caregiverId).populate("userId");
         if (caregiver) {
@@ -86,7 +84,6 @@ export const createReview = asyncHandler(async (req, res) => {
         }
     }
 
-    // Update Service rating if applicable
     if (serviceId) {
         const service = await Service.findById(serviceId);
         if (service) {
@@ -115,7 +112,6 @@ export const updateReview = asyncHandler(async (req, res) => {
 
     await review.save();
 
-    // Recalculate ratings
     if (review.caregiverId) {
         const caregiver = await Caregiver.findById(review.caregiverId);
         if (caregiver) {
@@ -145,7 +141,6 @@ export const deleteReview = asyncHandler(async (req, res) => {
 
     await review.deleteOne();
 
-    // Recalculate ratings
     if (review.caregiverId) {
         const caregiver = await Caregiver.findById(review.caregiverId);
         if (caregiver) {

@@ -4,10 +4,23 @@ import { useAuth } from "../../../context/AuthContext";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
 import Button from "../../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
+import { getOnboardingStatus } from "../api/caregiver.api";
+import { useState, useEffect } from "react";
 
 const RejectedAccount = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [feedback, setFeedback] = useState("");
+
+  useEffect(() => {
+    getOnboardingStatus()
+      .then(res => {
+        if (res.data?.caregiver?.adminFeedback) {
+          setFeedback(res.data.caregiver.adminFeedback);
+        }
+      })
+      .catch(err => console.error("Failed to fetch rejection reason", err));
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -51,7 +64,7 @@ const RejectedAccount = () => {
               Reason for rejection:
             </h3>
             <p className="text-sm text-red-800 dark:text-red-200">
-              {user?.adminFeedback || "Your application did not meet our current requirements. Please contact support for more details."}
+              {feedback || "Your application did not meet our current requirements. Please contact support for more details."}
             </p>
           </motion.div>
 

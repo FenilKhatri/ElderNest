@@ -4,10 +4,12 @@ import { toast } from "react-toastify";
 import { ArrowLeft, Camera, X, Plus } from "lucide-react";
 import http from "../../../lib/axios";
 import { createService, updateService, getServiceById, getAllCaregivers } from "../api/admin.api";
-import { SERVICE_CATEGORIES, SERVICE_MODES, emptyServiceForm } from "../constants/serviceConstants";
+import { SERVICE_CATEGORIES, SERVICE_MODES, emptyServiceForm } from "@/constants";
 import Button from "../../../components/ui/Button";
 import Select from "../../../components/ui/Select";
-import Checkbox from "../../../components/ui/Checkbox"; // Unused now
+import Checkbox from "../../../components/ui/Checkbox";
+import Textarea from "../../../components/ui/Textarea";
+import Input from "../../../components/ui/Input";
 
 const ServiceFormPage = () => {
   const { id } = useParams();
@@ -122,9 +124,9 @@ const ServiceFormPage = () => {
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <button type="button" onClick={() => navigate(isEdit ? `/admin/services/${id}` : "/admin/services")} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Button type="button" onClick={() => navigate(isEdit ? `/admin/services/${id}` : "/admin/services")} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft className="w-5 h-5 dark:text-slate-100" />
-        </button>
+        </Button>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           {isEdit ? "Edit Service" : "Create Service"}
         </h1>
@@ -133,7 +135,7 @@ const ServiceFormPage = () => {
       <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field label="Title *">
-            <input className={inputCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+            <Input className={inputCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
           </Field>
           <Field label="Category *">
             <Select
@@ -152,13 +154,13 @@ const ServiceFormPage = () => {
             />
           </Field>
           <Field label="Duration (hours)">
-            <input type="number" min="0" step="0.5" className={inputCls} value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
+            <Input type="number" min="0" step="0.5" className={inputCls} value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
           </Field>
         </div>
 
         <Field label="Short Description">
           <div className="relative">
-            <textarea 
+            <Textarea 
               className={`${inputCls} resize-none pr-16`} 
               rows={3} 
               value={form.shortDescription} 
@@ -175,7 +177,7 @@ const ServiceFormPage = () => {
         </Field>
 
         <Field label="Description *">
-          <textarea className={`${inputCls} resize-none`} rows={10} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
+          <Textarea className={`${inputCls} resize-none`} rows={10} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
         </Field>
 
         <Field label="Cover Image">
@@ -184,14 +186,14 @@ const ServiceFormPage = () => {
 
         <Field label="Gallery Images">
           <div className="flex gap-2 mb-2">
-            <input className={inputCls} placeholder="Image URL" value={imageUrlInput} onChange={(e) => setImageUrlInput(e.target.value)} />
+            <Input className={inputCls} placeholder="Image URL" value={imageUrlInput} onChange={(e) => setImageUrlInput(e.target.value)} />
             <Button type="button" variant="outline" onClick={() => addListItem("images", imageUrlInput, setImageUrlInput)}>Add</Button>
           </div>
           <div className="flex flex-wrap gap-2">
             {form.images.map((url) => (
               <span key={url} className="inline-flex items-center gap-1 text-xs bg-slate-100 dark:bg-slate-800 dark:text-slate-100 px-2 py-1 rounded">
                 <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline">{url.slice(0, 30)}…</a>
-                <button type="button" onClick={() => setForm({ ...form, images: form.images.filter((u) => u !== url) })}><X className="w-3 h-3" /></button>
+                <Button type="button" onClick={() => setForm({ ...form, images: form.images.filter((u) => u !== url) })}><X className="w-3 h-3" /></Button>
               </span>
             ))}
           </div>
@@ -199,7 +201,7 @@ const ServiceFormPage = () => {
 
         <Field label="Features">
           <div className="flex gap-2 mb-2">
-            <input className={inputCls} value={featureInput} onChange={(e) => setFeatureInput(e.target.value)} placeholder="Add feature" />
+            <Input className={inputCls} value={featureInput} onChange={(e) => setFeatureInput(e.target.value)} placeholder="Add feature" />
             <Button type="button" variant="outline" onClick={() => addListItem("features", featureInput, setFeatureInput)}><Plus className="w-4 h-4" /></Button>
           </div>
           <TagList items={form.features} onRemove={(i) => setForm({ ...form, features: form.features.filter((_, idx) => idx !== i) })} />
@@ -207,7 +209,7 @@ const ServiceFormPage = () => {
 
         <Field label="Benefits">
           <div className="flex gap-2 mb-2">
-            <input className={inputCls} value={benefitInput} onChange={(e) => setBenefitInput(e.target.value)} placeholder="Add benefit" />
+            <Input className={inputCls} value={benefitInput} onChange={(e) => setBenefitInput(e.target.value)} placeholder="Add benefit" />
             <Button type="button" variant="outline" onClick={() => addListItem("benefits", benefitInput, setBenefitInput)}><Plus className="w-4 h-4" /></Button>
           </div>
           <TagList items={form.benefits} onRemove={(i) => setForm({ ...form, benefits: form.benefits.filter((_, idx) => idx !== i) })} />
@@ -215,10 +217,12 @@ const ServiceFormPage = () => {
 
 
         <div className="flex flex-wrap gap-6">
-          <label className="flex items-center space-x-2 mr-6">
-            <input type="checkbox" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 bg-white dark:bg-slate-800" />
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Featured service</span>
-          </label>
+          <Checkbox 
+            label="Featured service"
+            checked={form.isFeatured} 
+            onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} 
+            className="mr-6"
+          />
           <div className="flex items-center gap-3">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Status:</label>
             <Select
@@ -260,7 +264,7 @@ const ImageUpload = ({ url, uploading, onUpload, onClear }) => (
     {url ? (
       <>
         <img src={url} alt="" className="max-h-full object-contain" />
-        <button type="button" onClick={onClear} className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"><X className="w-4 h-4" /></button>
+        <Button variant="danger" type="button" onClick={onClear} className="absolute top-2 right-2 p-1"><X className="w-4 h-4" /></Button>
       </>
     ) : (
       <label className="cursor-pointer flex flex-col items-center text-slate-500">
@@ -277,7 +281,7 @@ const TagList = ({ items, onRemove }) => (
     {items.map((item, i) => (
       <span key={`${item}-${i}`} className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-800 dark:text-slate-100 rounded text-xs">
         {item}
-        <button type="button" onClick={() => onRemove(i)}><X className="w-3 h-3" /></button>
+        <Button type="button" onClick={() => onRemove(i)}><X className="w-3 h-3" /></Button>
       </span>
     ))}
   </div>

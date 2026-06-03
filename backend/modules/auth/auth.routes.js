@@ -19,7 +19,6 @@ import { authLimiter } from "../../common/middlewares/limiter.js";
 
 const router = express.Router();
 
-// Public Routes
 router.post("/register", validateRegister, register);
 router.post("/login", authLimiter, validateLogin, login);
 router.post("/admin-login", authLimiter, validateLogin, adminLogin);
@@ -27,7 +26,6 @@ router.post("/caregiver-register", validateRegister, registerCaregiver);
 router.post("/caregiver-login", authLimiter, validateLogin, loginCaregiver);
 router.post("/google", googleAuth);
 
-// Protected Routes
 router.use(protect);
 router.get("/me", getMe);
 

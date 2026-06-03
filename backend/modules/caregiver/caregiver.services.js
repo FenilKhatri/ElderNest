@@ -2,6 +2,7 @@ import Caregiver from "./caregiver.model.js";
 import User from "../user/user.model.js";
 import Service from "../service/service.model.js";
 import Booking from "../booking/booking.model.js";
+import CaregiverAvailability from "./caregiverAvailability.model.js";
 import { validateLocation } from "../../common/validators/location.validator.js";
 import { createNotification } from "../../common/services/notification.service.js";
 import { AppError } from "../../common/utils/appError.js";
@@ -30,7 +31,6 @@ const notifySafely = async (fn) => {
     }
 };
 
-// Get all approved caregivers (public)
 export const getAllCaregivers = async (filters = {}) => {
     const query = {
         isActive: true,
@@ -106,7 +106,6 @@ export const getAllCaregivers = async (filters = {}) => {
     return caregivers;
 };
 
-// Get caregiver by ID
 export const getCaregiverById = async (id) => {
     const caregiver = await Caregiver.findById(id)
         .populate("userId", "name email profileImage phone")
@@ -114,10 +113,6 @@ export const getCaregiverById = async (id) => {
 
     if (!caregiver) {
         throw new Error("Caregiver not found");
-    }
-
-    if (!isCaregiverBookable(caregiver)) {
-        throw new AppError("Caregiver is not available for booking", 404);
     }
 
     return caregiver;
@@ -248,7 +243,6 @@ export const completeProfile = async (userId, profileData) => {
     return caregiver;
 };
 
-// Update caregiver profile (edit mode)
 export const updateProfile = async (userId, profileData) => {
     const caregiver = await Caregiver.findOne({ userId });
     if (!caregiver) {
@@ -337,8 +331,12 @@ export const submitVerification = async (userId, payload) => {
         languages,
     } = payload;
 
-    if (!documents?.governmentId || !documents?.idProof) {
-        throw new AppError("Government ID and ID proof are required", 400);
+    if (!documents?.governmentId || !documents?.idProof || !documents?.experienceDocuments) {
+        throw new AppError("Government ID, ID Proof, and Experience Documents are required", 400);
+    }
+
+    if (documents?.certificates && Array.isArray(documents.certificates) && documents.certificates.length > 5) {
+        throw new AppError("You can upload a maximum of 5 certificates", 400);
     }
 
     if (!Array.isArray(servicesOffered) || servicesOffered.length === 0) {
@@ -432,8 +430,17 @@ export const getOnboardingStatus = async (userId) => {
     return { user, caregiver, stage: caregiver.onboardingStage };
 };
 
-// Update availability
-export const updateAvailability = async (userId, availability) => {
+export const getMyAvailability = async (userId) => {
+    const caregiver = await Caregiver.findOne({ userId });
+    if (!caregiver) {
+        throw new AppError("Caregiver profile not found", 404);
+    }
+    
+    const blocks = await CaregiverAvailability.find({ caregiverId: caregiver._id }).sort({ dayOfWeek: 1, startTime: 1 });
+    return blocks;
+};
+
+export const updateAvailability = async (userId, blocks) => {
     const caregiver = await Caregiver.findOne({ userId });
     if (!caregiver) {
         throw new AppError("Caregiver profile not found", 404);
@@ -443,10 +450,26 @@ export const updateAvailability = async (userId, availability) => {
         throw new AppError("Complete verification before setting availability", 403);
     }
 
-    caregiver.availability = availability;
+    // Replace all existing blocks with new ones
+    await CaregiverAvailability.deleteMany({ caregiverId: caregiver._id });
+    
+    if (blocks && blocks.length > 0) {
+        const newBlocks = blocks.map(b => ({
+            caregiverId: caregiver._id,
+            dayOfWeek: b.dayOfWeek,
+            startTime: b.startTime,
+            endTime: b.endTime,
+            slotDuration: b.slotDuration,
+            isActive: true
+        }));
+        await CaregiverAvailability.insertMany(newBlocks);
+    }
+
+    // Still updating Caregiver model to bump timestamps or trigger updates if needed
+    caregiver.markModified('availability');
     await caregiver.save();
 
-    return caregiver;
+    return blocks;
 };
 
 export const getCaregiverDashboardStats = async (userId) => {
@@ -483,7 +506,6 @@ export const getCaregiverDashboardStats = async (userId) => {
     };
 };
 
-// Get caregiver profile by userId
 export const getCaregiverByUserId = async (userId) => {
     const caregiver = await Caregiver.findOne({ userId })
         .populate("userId", "name email profileImage phone")

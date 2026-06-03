@@ -13,7 +13,8 @@ import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout"
 import EntityCard from "../../../components/cards/EntityCard";
 import Select from "../../../components/ui/Select";
 import ConfirmModal from "../../../components/ui/ConfirmModal";
-import { BOOKING_STATUS_OPTIONS } from "../../../constants/bookingConstants";
+import { BOOKING_STATUS_OPTIONS } from "@/constants";
+import Textarea from "../../../components/ui/Textarea";
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -159,14 +160,14 @@ const Bookings = () => {
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-fit mt-4 ml-auto">
           <button
             onClick={() => setLayout("table")}
-            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+            className={`p-2 rounded-md transition-all ${layout === "table" ? "bg-blue-600 text-white shadow-md" : "text-slate-600 dark:text-slate-400"}`}
             title="Table View"
           >
             <List className="w-4 h-4" />
           </button>
           <button
             onClick={() => setLayout("grid")}
-            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+            className={`p-2 rounded-md transition-all ${layout === "grid" ? "bg-blue-600 text-white shadow-md" : "text-slate-600 dark:text-slate-400"}`}
             title="Grid View"
           >
             <LayoutGrid className="w-4 h-4" />
@@ -195,30 +196,30 @@ const Bookings = () => {
                   key={booking._id}
                   footer={
                     <div className="flex justify-end gap-2">
-                      <button
+                      <Button
                         type="button"
                         onClick={() => setViewModal({ open: true, booking })}
                         className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600"
                         title="View"
                       >
                         <Eye className="w-4 h-4" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
                         onClick={() => openStatusModal(booking)}
                         className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600"
                         title="Update status"
                       >
                         <Filter className="w-4 h-4" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
                         onClick={() => setDeleteModal({ open: true, bookingId: booking._id })}
                         className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600"
                         title="Delete booking"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </button>
+                      </Button>
                     </div>
                   }
                 >
@@ -265,9 +266,9 @@ const Bookings = () => {
                         </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => setViewModal({ open: true, booking })} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded dark:text-blue-400 dark:hover:bg-blue-900/20" title="View"><Eye size={16} /></button>
-                            <button onClick={() => openStatusModal(booking)} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded dark:text-amber-400 dark:hover:bg-amber-900/20" title="Update Status"><Filter size={16} /></button>
-                            <button onClick={() => setDeleteModal({ open: true, bookingId: booking._id })} className="p-1.5 text-red-600 hover:bg-red-50 rounded dark:text-red-400 dark:hover:bg-red-900/20" title="Delete"><Trash2 size={16} /></button>
+                            <Button onClick={() => setViewModal({ open: true, booking })} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded dark:text-blue-400 dark:hover:bg-blue-900/20" title="View"><Eye size={16} /></Button>
+                            <Button onClick={() => openStatusModal(booking)} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded dark:text-amber-400 dark:hover:bg-amber-900/20" title="Update Status"><Filter size={16} /></Button>
+                            <Button onClick={() => setDeleteModal({ open: true, bookingId: booking._id })} className="p-1.5 text-red-600 hover:bg-red-50 rounded dark:text-red-400 dark:hover:bg-red-900/20" title="Delete"><Trash2 size={16} /></Button>
                           </div>
                         </td>
                       </tr>
@@ -429,7 +430,7 @@ const Bookings = () => {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Reason *
               </label>
-              <textarea
+              <Textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}

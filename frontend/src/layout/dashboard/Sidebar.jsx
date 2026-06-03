@@ -2,7 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { X, ChevronDown, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { sidebarConfig } from "./sidebar.config";
+import { sidebarConfig } from "@/constants";
 import { useAuth } from "../../context/AuthContext";
 import LogoutButton from "../../components/ui/LogoutButton";
 import { motion, AnimatePresence } from "framer-motion";

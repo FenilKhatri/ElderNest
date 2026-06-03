@@ -4,7 +4,6 @@ import * as notificationController from "./notification.controller.js";
 
 const router = express.Router();
 
-// Protected routes
 router.use(protect);
 
 router.get("/", notificationController.getNotifications);

@@ -8,6 +8,7 @@ import { fadeUp } from "../../../animations/motionVariants.js"
 import UserAuthBackground from "../../auth/components/UserAuthBackground";
 import CaregiverAuthBackground from "../../auth/components/CaregiverAuthBackground";
 import H2 from "../../../components/ui/H2"
+import Button from "../../../components/ui/Button";
 
 const AuthPage = ({ role = "user", initialMode = "login" }) => {
   const [isLogin, setIsLogin] = useState(initialMode === "login");
@@ -24,8 +25,8 @@ const AuthPage = ({ role = "user", initialMode = "login" }) => {
       {isCaregiver ? <CaregiverAuthBackground /> : <UserAuthBackground />}
 
       {/* Right Side */}
-      <div className="w-full md:w-1/2 flex items-center justify-center dark:bg-linear-to-br from-slate-900 to-slate-800 p-6">
-        <div className="w-full max-w-md text-white">
+      <div className="w-full md:w-1/2 flex items-center justify-center bg-white dark:bg-slate-900 p-6">
+        <div className="w-full max-w-md text-slate-900 dark:text-white">
           {/* Heading */}
           <motion.div
             key={isLogin ? "login-title" : "register-title"}
@@ -34,13 +35,13 @@ const AuthPage = ({ role = "user", initialMode = "login" }) => {
             animate="show"
             className="mb-6"
           >
-            <H2 className="text-2xl font-bold text-slate-900">
+            <H2 className="text-2xl font-bold text-slate-900 dark:text-white">
               {isLogin
                 ? `Welcome back ${isCaregiver ? "Caregiver" : isAdmin ? "Admin" : ""}`
                 : `Create your ${isCaregiver ? "Caregiver" : isAdmin ? "Admin" : ""} account`}
             </H2>
 
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-600 dark:text-slate-400 text-sm">
               {isCaregiver
                 ? isLogin
                   ? "Login to manage your caregiving services."
@@ -57,27 +58,25 @@ const AuthPage = ({ role = "user", initialMode = "login" }) => {
 
           {/* Toggle */}
           <div className="flex mb-6 bg-slate-200 dark:bg-slate-800 rounded-lg p-1">
-            <button
-              onClick={() => setIsLogin(true)}
-              className={`w-1/2 py-2 rounded-md text-sm font-semibold ${
-                isLogin
-                  ? "bg-slate-100 text-slate-800 shadow"
-                  : "text-slate-500"
-              }`}
-            >
-              Login
-            </button>
+            {[
+              { label: "Login", value: true },
+              { label: "Signup", value: false },
+            ].map((tab) => {
+              const isActive = isLogin === tab.value;
 
-            <button
-              onClick={() => setIsLogin(false)}
-              className={`w-1/2 py-2 rounded-md text-sm font-semibold ${
-                !isLogin
-                  ? "bg-slate-100 text-slate-800 shadow"
-                  : "text-slate-500"
-              }`}
-            >
-              Signup
-            </button>
+              return (
+                <button
+                  key={tab.label}
+                  onClick={() => setIsLogin(tab.value)}
+                  className={`w-1/2 py-2 rounded-md text-sm font-semibold transition-all ${isActive
+                    ? "bg-white text-slate-900 shadow-sm dark:bg-slate-100 dark:text-slate-900"
+                    : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white cursor-pointer"
+                    }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Forms */}

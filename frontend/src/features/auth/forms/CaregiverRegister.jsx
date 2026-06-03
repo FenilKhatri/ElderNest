@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import FormFields from "../../../components/ui/FormFields";
 import GoogleAuthButton from "../../../components/ui/GoogleAuthButton";
-import { ROLES } from "../../../utils/constants";
+import { ROLES } from "@/constants";
 import { registerCaregiver } from "../api/auth.api";
 import { caregiverRegisterFields } from "./data/inputFields";
 import { stagger, fadeUp } from "../../../animations/motionVariants";

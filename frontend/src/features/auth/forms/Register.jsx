@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import FormFields from "../../../components/ui/FormFields";
 import GoogleAuthButton from "../../../components/ui/GoogleAuthButton";
-import { ROLES } from "../../../utils/constants";
+import { ROLES } from "@/constants";
 import { getRedirectByRole } from "../../../utils/auth/roleRedirect";
 import { register } from "../../auth/api/auth.api";
 import { registerFields } from "./data/inputFields";

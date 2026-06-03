@@ -7,6 +7,7 @@ import { formatDate } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
+import Select from "../../../components/ui/Select";
 import MessagePanel from "../../booking/components/MessagePanel";
 import { MessageSquare, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -80,19 +81,19 @@ const Bookings = () => {
         
         <div className="flex items-center space-x-3">
           <Filter className="w-5 h-5 text-slate-400" />
-          <select
+          <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending Requests</option>
-            <option value="accepted">Accepted (Upcoming)</option>
-            <option value="in-progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="rejected">Rejected</option>
-          </select>
+            options={[
+              { value: "all", label: "All Status" },
+              { value: "pending", label: "Pending Requests" },
+              { value: "accepted", label: "Accepted (Upcoming)" },
+              { value: "in-progress", label: "In Progress" },
+              { value: "completed", label: "Completed" },
+              { value: "cancelled", label: "Cancelled" },
+              { value: "rejected", label: "Rejected" },
+            ]}
+          />
         </div>
       </div>
 

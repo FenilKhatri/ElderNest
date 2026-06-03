@@ -13,10 +13,10 @@ import {
 import Sidebar from "./Sidebar";
 import AdminSidebar from "./AdminSidebar";
 import NotificationBell from "../../components/ui/NotificationBell";
-import { sidebarConfig } from "./sidebar.config";
+import { sidebarConfig, ROLES } from "@/constants";
 import { useAuth } from "../../context/AuthContext";
 import { useNotifications } from "../../context/NotificationContext";
-import { ROLES } from "../../utils/constants";
+
 
 const DashboardLayout = ({ theme, toggleTheme }) => {
   const [collapsed, setCollapsed] = useState(false);

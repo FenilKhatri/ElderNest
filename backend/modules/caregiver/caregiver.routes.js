@@ -34,6 +34,7 @@ router.get("/profile/me", protectCaregiver, caregiverController.getMyProfile);
 router.patch("/profile", protectCaregiver, caregiverController.updateProfile);
 router.post("/profile/complete", protectCaregiver, completeProfileValidator, validateRequest, caregiverController.completeProfile);
 router.post("/verification/submit", protectCaregiver, caregiverController.submitVerification);
+router.get("/availability", protectCaregiver, requirePublishedCaregiver, caregiverController.getMyAvailability);
 router.patch("/availability", protectCaregiver, requirePublishedCaregiver, updateAvailabilityValidator, validateRequest, caregiverController.updateAvailability);
 router.get("/dashboard", protectCaregiver, requirePublishedCaregiver, caregiverController.caregiverDashboard);
 
