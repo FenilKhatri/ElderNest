@@ -109,6 +109,18 @@ export const googleAuth = asyncHandler(async (req, res) => {
             );
         }
 
+        // Upgrade authProvider to "both" if user originally signed up with form
+        if (user.authProvider === "local") {
+            user.authProvider = "both";
+        }
+
+        // Fill in profile image from Google if not already set
+        if (!user.profileImage && picture) {
+            user.profileImage = picture;
+        }
+
+        await user.save();
+
         const jwtToken = generateToken(user);
         setAuthCookie(res, jwtToken);
 

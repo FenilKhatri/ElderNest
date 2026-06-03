@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { fadeUp } from "../../../animations/motionVariants";
 import { sections } from "../data/termsOfServiceData";
-import Button from "../../../components/ui/Button";
 
 const TermsOfService = () => {
   const [activeSection, setActiveSection] = useState(sections[0].id);
@@ -60,7 +59,7 @@ const TermsOfService = () => {
         <aside className="hidden lg:block w-64 shrink-0 sticky top-24 self-start">
           <nav className="space-y-1">
             {sections.map((section) => (
-              <Button
+              <button
                 key={section.id}
                 onClick={() => scrollToSection(section.id)}
                 className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 leading-snug
@@ -71,7 +70,7 @@ const TermsOfService = () => {
                   }`}
               >
                 {section.title}
-              </Button>
+              </button>
             ))}
           </nav>
         </aside>

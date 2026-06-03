@@ -106,7 +106,7 @@ const Profile = () => {
         variants={stagger}
         initial="hidden"
         animate="show"
-        className="max-w-4xl space-y-8"
+        className="w-full space-y-8"
       >
         {/* ─── Profile Header ─── */}
         <motion.div variants={fadeUp} className="relative rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
@@ -179,59 +179,44 @@ const Profile = () => {
               </div>
 
               <form onSubmit={handleSubmit(onSubmit)} className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                  <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <User className="w-4.5 h-4.5 text-slate-400" />
-                      </div>
-                      <Input
-                        type="text"
-                        {...register("name")}
-                        className={`w-full pl-10 ${errors.name ? "border-red-500 focus:ring-red-500" : ""}`}
-                        placeholder="John Doe"
-                      />
-                    </div>
-                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+                    <Input
+                      icon={User}
+                      type="text"
+                      {...register("name")}
+                      placeholder="John Doe"
+                    />
+                    {errors.name && <p className="text-red-500 text-xs mt-0.5">{errors.name.message}</p>}
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Mail className="w-4.5 h-4.5 text-slate-400" />
-                      </div>
-                      <Input
-                        type="email"
-                        {...register("email")}
-                        className={`w-full pl-10 ${errors.email ? "border-red-500 focus:ring-red-500" : ""}`}
-                        placeholder="john@example.com"
-                      />
-                    </div>
-                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+                    <Input
+                      icon={Mail}
+                      type="email"
+                      {...register("email")}
+                      placeholder="john@example.com"
+                    />
+                    {errors.email && <p className="text-red-500 text-xs mt-0.5">{errors.email.message}</p>}
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Phone className="w-4.5 h-4.5 text-slate-400" />
-                      </div>
-                      <Input
-                        type="tel"
-                        {...register("phone")}
-                        className={`w-full pl-10 ${errors.phone ? "border-red-500 focus:ring-red-500" : ""}`}
-                        placeholder="9876543210"
-                      />
-                    </div>
-                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
+                    <Input
+                      icon={Phone}
+                      type="tel"
+                      {...register("phone")}
+                      placeholder="9876543210"
+                    />
+                    {errors.phone && <p className="text-red-500 text-xs mt-0.5">{errors.phone.message}</p>}
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Auth Provider</label>
                     <div className="relative">
-                      <div className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 cursor-not-allowed">
+                      <div className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 cursor-not-allowed">
                         <BadgeCheck className={`w-5 h-5 ${user?.authProvider === 'google' ? 'text-red-500' : 'text-blue-500'}`} />
                         <span className="capitalize font-medium">{user?.authProvider || "Local"}</span>
                       </div>
@@ -249,7 +234,7 @@ const Profile = () => {
             </motion.div>
 
             {/* Security Card */}
-            {user?.authProvider === "google" && (
+            {(user?.authProvider === "google" || user?.authProvider === "both") && (
               <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                 <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">

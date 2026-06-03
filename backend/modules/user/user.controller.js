@@ -47,6 +47,12 @@ export const setPassword = asyncHandler(async (req, res) => {
     const bcrypt = await import("bcrypt");
     const hashedPassword = await bcrypt.default.hash(password, 10);
     user.password = hashedPassword;
+
+    // Upgrade authProvider to "both" since user now has both Google and password
+    if (user.authProvider === "google") {
+        user.authProvider = "both";
+    }
+
     await user.save();
     return successResponse(res, 200, "Password set successfully");
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
@@ -11,11 +11,11 @@ import Textarea from "../../../components/ui/Textarea";
 import Input from "../../../components/ui/Input";
 import { INITIAL_STATE, BLOG_CATEGORIES } from "@/constants";
 
-
-
-
-
 const BlogForm = () => {
+  const categoryOptions = useMemo(() => [
+    { value: "", label: "Select Category" },
+    ...(BLOG_CATEGORIES || []).filter(c => c !== "All Categories").map(c => ({ value: c, label: c }))
+  ], []);
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
@@ -134,9 +134,11 @@ const BlogForm = () => {
     }
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-    if (!formData.title || !formData.content) {
+  const handleSave = async (e, overrideStatus = null) => {
+    if (e) e.preventDefault();
+    const payload = overrideStatus ? { ...formData, status: overrideStatus } : formData;
+
+    if (!payload.title || !payload.content) {
       toast.error("Title and Content are required");
       return;
     }
@@ -144,10 +146,10 @@ const BlogForm = () => {
     try {
       setSaving(true);
       if (isEdit) {
-        await updateBlog(id, formData);
+        await updateBlog(id, payload);
         toast.success("Blog updated successfully");
       } else {
-        await createBlog(formData);
+        await createBlog(payload);
         toast.success("Blog created successfully");
         navigate("/admin/blogs");
       }
@@ -189,14 +191,14 @@ const BlogForm = () => {
           <Button 
             variant="outline" 
             type="button"
-            onClick={(e) => { setFormData(prev => ({...prev, status: "draft"})); handleSave(e); }} 
+            onClick={(e) => handleSave(e, "draft")} 
             disabled={saving}
           >
             Save as Draft
           </Button>
           <Button 
             type="button" 
-            onClick={(e) => { setFormData(prev => ({...prev, status: "published"})); handleSave(e); }} 
+            onClick={(e) => handleSave(e, "published")} 
             disabled={saving}
           >
             <CheckCircle className="w-4 h-4 mr-2" /> 
@@ -362,11 +364,11 @@ const BlogForm = () => {
                   onKeyDown={addKeyword}
                   className="w-full px-4 py-2 mb-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 />
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mt-4">
                   {(formData.seo?.metaKeywords || []).map((kw, idx) => (
-                    <span key={idx} className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-md text-xs flex items-center gap-1">
+                    <span key={idx} className="px-3 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-md text-xs flex items-center gap-2">
                       {kw}
-                      <Button type="button" onClick={() => removeKeyword(kw)} className="hover:text-red-500"><X className="w-3 h-3" /></Button>
+                      <button type="button" onClick={() => removeKeyword(kw)} className="hover:text-red-500 cursor-pointer ml-2">X</button>
                     </span>
                   ))}
                 </div>
@@ -417,10 +419,10 @@ const BlogForm = () => {
                 className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               />
               <div className="flex flex-wrap gap-2">
-                {formData.tags.map((tag, idx) => (
+                {(formData.tags || []).map((tag, idx) => (
                   <span key={idx} className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-sm flex items-center gap-1">
                     {tag}
-                    <Button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500"><X className="w-3 h-3" /></Button>
+                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 cursot-pointer"><X className="w-3 h-3" /></button>
                   </span>
                 ))}
               </div>

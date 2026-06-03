@@ -79,3 +79,44 @@ export const stateCityMap = {
 export const getCitiesByState = (state) => {
   return stateCityMap[state] || [];
 };
+
+// Pincode validation ranges (simplified)
+export const statePincodeRanges = {
+    "Andhra Pradesh": { start: 500000, end: 535999 },
+    "Arunachal Pradesh": { start: 790000, end: 792999 },
+    "Assam": { start: 781000, end: 788999 },
+    "Bihar": { start: 800000, end: 855999 },
+    "Chhattisgarh": { start: 490000, end: 497999 },
+    "Goa": { start: 403000, end: 403999 },
+    "Gujarat": { start: 360000, end: 396999 },
+    "Haryana": { start: 121000, end: 136999 },
+    "Himachal Pradesh": { start: 171000, end: 177999 },
+    "Jharkhand": { start: 813000, end: 835999 },
+    "Karnataka": { start: 560000, end: 591999 },
+    "Kerala": { start: 670000, end: 695999 },
+    "Madhya Pradesh": { start: 450000, end: 488999 },
+    "Maharashtra": { start: 400000, end: 445999 },
+    "Manipur": { start: 795000, end: 795999 },
+    "Meghalaya": { start: 793000, end: 794999 },
+    "Mizoram": { start: 796000, end: 796999 },
+    "Nagaland": { start: 797000, end: 798999 },
+    "Odisha": { start: 750000, end: 770999 },
+    "Punjab": { start: 140000, end: 160999 },
+    "Rajasthan": { start: 300000, end: 345999 },
+    "Sikkim": { start: 737000, end: 737999 },
+    "Tamil Nadu": { start: 600000, end: 643999 },
+    "Telangana": { start: 500000, end: 509999 },
+    "Tripura": { start: 799000, end: 799999 },
+    "Uttar Pradesh": { start: 200000, end: 285999 },
+    "Uttarakhand": { start: 244000, end: 263999 },
+    "West Bengal": { start: 700000, end: 743999 },
+    "Delhi": { start: 110000, end: 110099 },
+};
+
+export const validatePincode = (pincode, state) => {
+    const range = statePincodeRanges[state];
+    if (!range) return true; // Allow if state not in range map
+    
+    const pin = parseInt(pincode);
+    return pin >= range.start && pin <= range.end;
+};

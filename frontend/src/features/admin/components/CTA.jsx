@@ -38,15 +38,6 @@ const CTA = ({ Title, Description, SubDescription }) => {
                   Book a Caregiver
                 </Button>
               </NavLink>
-
-              <NavLink to="/contact" className="w-full sm:w-fit">
-                <Button
-                  variant="outline"
-                  className="w-full sm:w-auto px-7 py-4 dark:text-slate-100"
-                >
-                  Request a Call Back
-                </Button>
-              </NavLink>
             </motion.div>
           </motion.div>
         </div>

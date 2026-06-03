@@ -52,9 +52,9 @@ export const existingUser = async (data) => {
         throw new AppError("Account is locked. Try again later!", 403);
     }
 
-    // Check if password exists (for OAuth users)
+    // Check if password exists (for OAuth users who haven't set a password)
     if (!user.password || typeof user.password !== "string") {
-        throw new AppError("Please login with Google", 400);
+        throw new AppError("No password set for this account. Please login with Google or set a password from your profile.", 400);
     }
 
     if (!password || typeof password !== "string") {
@@ -84,6 +84,11 @@ export const existingUser = async (data) => {
     // Reset login attempts on success
     user.failedLoginAttempts = 0;
     user.lockUntil = null;
+
+    // Upgrade authProvider to "both" if user originally signed up with Google
+    if (user.authProvider === "google") {
+        user.authProvider = "both";
+    }
 
     await user.save();
 
@@ -168,9 +173,9 @@ export const existingCaregiver = async (data) => {
         throw error;
     }
 
-    // Check if password exists (for OAuth users)
+    // Check if password exists (for OAuth users who haven't set a password)
     if (!user.password || typeof user.password !== "string") {
-        throw new AppError("Please login with Google", 400);
+        throw new AppError("No password set for this account. Please login with Google or set a password from your profile.", 400);
     }
 
     if (!password || typeof password !== "string") {
@@ -197,6 +202,12 @@ export const existingCaregiver = async (data) => {
 
     user.failedLoginAttempts = 0;
     user.lockUntil = null;
+
+    // Upgrade authProvider to "both" if user originally signed up with Google
+    if (user.authProvider === "google") {
+        user.authProvider = "both";
+    }
+
     await user.save();
 
     user.password = undefined;

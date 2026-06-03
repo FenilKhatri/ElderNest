@@ -13,7 +13,7 @@ const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "F
 
 
 const Switch = ({ checked, onChange }) => (
-  <Button
+  <button
     type="button"
     onClick={onChange}
     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
@@ -25,7 +25,7 @@ const Switch = ({ checked, onChange }) => (
         checked ? "translate-x-6" : "translate-x-1"
       }`}
     />
-  </Button>
+  </button>
 );
 
 const Availability = () => {
@@ -275,13 +275,13 @@ const Availability = () => {
                         ))}
                       </div>
 
-                      <Button
+                      <button
                         type="button"
                         onClick={() => addBlock(dayIndex)}
                         className="mt-4 text-[13px] font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1.5 hover:underline"
                       >
                         <Plus className="w-4 h-4" /> Add another block
-                      </Button>
+                      </button>
 
                     </div>
                   </div>

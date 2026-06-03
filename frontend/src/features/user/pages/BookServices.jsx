@@ -71,7 +71,7 @@ const BookServices = () => {
           getMyPatients().catch(() => ({ data: { patients: [] } })),
           getCaregiverById(caregiverId).catch(() => null),
         ]);
-        setPatients(patientsRes?.data?.patients || []);
+        setPatients(patientsRes?.data?.patients?.filter(p => p.status !== "draft") || []);
         if (caregiverRes?.data?.caregiver) {
           const cg = caregiverRes.data.caregiver;
           setCaregiver(cg);
@@ -107,16 +107,46 @@ const BookServices = () => {
   };
   const onPatientSelect = (patientId) => {
     const p = patients.find((x) => x._id === patientId);
-    setForm((prev) => ({
-      ...prev,
-      patientId,
-      patientName: p?.name || prev.patientName,
-      patientAge: p?.age ? String(p.age) : prev.patientAge,
-      disease: p?.medicalRequirements || prev.disease,
-      emergencyContact: p?.emergencyContact?.name
-        ? p.emergencyContact
-        : prev.emergencyContact,
-    }));
+    if (!p) return;
+
+    if (p?.address?.state) {
+      setCities(getCitiesByState(p.address.state).map((c) => ({ value: c, label: c })));
+    }
+
+    setForm((prev) => {
+      let age = prev.patientAge;
+      if (p?.dob) {
+        const birthDate = new Date(p.dob);
+        const today = new Date();
+        let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            calculatedAge--;
+        }
+        age = String(calculatedAge);
+      } else if (p?.age) {
+        age = String(p.age);
+      }
+
+      return {
+        ...prev,
+        patientId,
+        patientName: p?.name || prev.patientName,
+        patientAge: age,
+        disease: p?.medicalConditions?.length ? p.medicalConditions.join(", ") : prev.disease,
+        emergencyContact: {
+          name: p?.emergencyContact?.contactName || prev.emergencyContact.name,
+          phone: p?.emergencyContact?.primaryPhone || prev.emergencyContact.phone,
+          relation: p?.emergencyContact?.relationship || prev.emergencyContact.relation,
+        },
+        address: {
+          street: p?.address?.street || prev.address.street || "",
+          city: p?.address?.city || prev.address.city || "",
+          state: p?.address?.state || prev.address.state || "",
+          pincode: p?.address?.pincode || prev.address.pincode || ""
+        }
+      };
+    });
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -543,22 +573,16 @@ const BookServices = () => {
                         timeSlot: { startTime: start, endTime: end },
                       }));
                     }}
-                    options={[
-                      {
-                        value: "",
-                        label: !form.bookingDate
-                          ? "Select a date first"
-                          : slotsLoading
-                            ? "Loading slots..."
-                            : slotOptions.length === 0
-                              ? "No availability on this day"
-                              : "Select a time slot",
-                      },
-                      ...slotOptions.map((slot) => ({
-                        value: `${slot.startTime}-${slot.endTime}`,
-                        label: `${slot.startTime}-${slot.endTime}`,
-                      })),
-                    ]}
+                    placeholder={
+                      !form.bookingDate
+                        ? "Select a date first"
+                        : slotsLoading
+                          ? "Loading slots..."
+                          : slotOptions.length === 0
+                            ? "No availability on this day"
+                            : "Select a time slot"
+                    }
+                    options={slotOptions}
                     disabled={
                       !form.bookingDate ||
                       slotsLoading ||

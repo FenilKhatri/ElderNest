@@ -10,17 +10,17 @@ const patientSchema = new mongoose.Schema(
         },
         name: {
             type: String,
-            required: true,
+            required: function () { return this.status === "published"; },
             trim: true,
         },
         dob: {
             type: Date,
-            required: true,
+            required: function () { return this.status === "published"; },
         },
         gender: {
             type: String,
-            enum: ["male", "female", "other"],
-            required: true,
+            enum: ["male", "female", "other", "", null],
+            required: function () { return this.status === "published"; },
         },
         bloodGroup: {
             type: String,
@@ -41,7 +41,7 @@ const patientSchema = new mongoose.Schema(
         relationship: {
             type: String,
             trim: true,
-            required: true,
+            required: function () { return this.status === "published"; },
         },
         address: {
             street: { type: String, trim: true },
@@ -99,9 +99,9 @@ const patientSchema = new mongoose.Schema(
             trim: true,
         },
         emergencyContact: {
-            contactName: { type: String, trim: true, required: true },
-            relationship: { type: String, trim: true, required: true },
-            primaryPhone: { type: String, trim: true, required: true },
+            contactName: { type: String, trim: true, required: function () { return this.status === "published"; } },
+            relationship: { type: String, trim: true, required: function () { return this.status === "published"; } },
+            primaryPhone: { type: String, trim: true, required: function () { return this.status === "published"; } },
             alternatePhone: { type: String, trim: true },
             email: { type: String, trim: true },
             address: { type: String, trim: true },
@@ -109,6 +109,11 @@ const patientSchema = new mongoose.Schema(
         isActive: {
             type: Boolean,
             default: true,
+        },
+        status: {
+            type: String,
+            enum: ["draft", "published"],
+            default: "published",
         },
     },
     { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }

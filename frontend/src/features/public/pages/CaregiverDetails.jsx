@@ -91,13 +91,6 @@ const CaregiverDetails = () => {
     );
   }
 
-  // Calculate pricing for sticky box
-  const shiftPrice = caregiver.pricing?.hourlyRate
-    ? formatCurrency(caregiver.pricing.hourlyRate * 12)
-    : caregiver.pricing?.dailyRate
-      ? formatCurrency(caregiver.pricing.dailyRate)
-      : null;
-
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-16 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-site mx-auto">
@@ -240,9 +233,9 @@ const CaregiverDetails = () => {
                   <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-3 text-sm">Write a Review</h4>
                   <div className="flex gap-2 mb-3">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <Button type="button" key={star} onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))} className="focus:outline-none">
+                      <button type="button" key={star} onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))} className="focus:outline-none">
                         <Star className={`w-5 h-5 ${star <= reviewForm.rating ? "text-yellow-500 fill-yellow-500" : "text-slate-300"}`} />
-                      </Button>
+                      </button>
                     ))}
                   </div>
                   <Textarea
@@ -296,14 +289,29 @@ const CaregiverDetails = () => {
           {/* Sticky Booking Box (Right) */}
           <div className="w-full lg:w-1/3">
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sticky top-28 shadow-[0_2px_20px_-3px_rgba(0,0,0,0.08)]">
-              {shiftPrice && (
-                <div className="flex items-baseline gap-2 mb-6 border-b border-slate-100 dark:border-slate-700 pb-6">
-                  <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white">{shiftPrice}</h3>
-                  <span className="text-slate-500 font-medium text-sm">
-                    {caregiver.pricing?.hourlyRate ? "/ 12 hr shift" : "/ day"}
-                  </span>
+              <div className="mb-6 border-b border-slate-100 dark:border-slate-700 pb-6">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Pricing</h3>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-1 font-medium">Hourly Rate</p>
+                    <p className="font-bold text-slate-900 dark:text-white text-sm">
+                      {caregiver.pricing?.hourlyRate ? formatCurrency(caregiver.pricing.hourlyRate) : "N/A"}<span className="text-xs font-normal text-slate-500">/hr</span>
+                    </p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-1 font-medium">Daily Rate</p>
+                    <p className="font-bold text-slate-900 dark:text-white text-sm">
+                      {caregiver.pricing?.dailyRate ? formatCurrency(caregiver.pricing.dailyRate) : "N/A"}<span className="text-xs font-normal text-slate-500">/day</span>
+                    </p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-1 font-medium">Monthly Rate</p>
+                    <p className="font-bold text-slate-900 dark:text-white text-sm">
+                      {caregiver.pricing?.monthlyRate ? formatCurrency(caregiver.pricing.monthlyRate) : "N/A"}<span className="text-xs font-normal text-slate-500">/mo</span>
+                    </p>
+                  </div>
                 </div>
-              )}
+              </div>
 
               <div className="mb-6">
                 <h4 className="font-bold text-slate-900 dark:text-white mb-3 text-sm flex items-center gap-2">
@@ -328,11 +336,6 @@ const CaregiverDetails = () => {
                   className="w-full flex items-center justify-center py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm"
                 >
                   Book Caregiver
-                </Button>
-                <Button variant="outline"
-                  className="w-full py-3.5 border-slate-200 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/50"
-                >
-                  Request Callback
                 </Button>
               </div>
               <p className="text-center text-xs text-slate-500 mt-4">

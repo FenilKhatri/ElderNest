@@ -10,11 +10,11 @@ const CaregiverHeader = ({ onMenuClick, theme, toggleTheme }) => {
   const navigate = useNavigate();
 
   return (
-    <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3">
+    <header className="sticky top-0 z-50 bg-white/75 dark:bg-slate-900/75 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 supports-[backdrop-filter]:dark:bg-slate-900/60 border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm px-4 lg:px-8 py-3">
       <div className="flex items-center justify-between">
         {/* Left — mobile menu + title */}
         <div className="flex items-center space-x-3">
-          <button 
+          <button
             onClick={onMenuClick}
             className="lg:hidden p-2 dark:hover:bg-slate-800"
           >

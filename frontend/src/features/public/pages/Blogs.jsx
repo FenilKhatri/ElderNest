@@ -5,7 +5,6 @@ import { Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import GlobalLoader from "../../../components/ui/GlobalLoader";
-import Button from "../../../components/ui/Button";
 import { categoryNames, popularTags } from "../../../constants";
 
 const Blogs = () => {
@@ -59,12 +58,12 @@ const Blogs = () => {
               <ul className="flex flex-col gap-2">
                 {categories.map((cat, idx) => (
                   <li key={idx}>
-                    <Button
+                    <button
                       onClick={() => setActiveCategory(cat.name)}
                       className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                         activeCategory === cat.name
                           ? "bg-blue-600 text-white"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
                       }`}
                     >
                       <span>{cat.name}</span>
@@ -75,7 +74,7 @@ const Blogs = () => {
                       }`}>
                         {cat.count}
                       </span>
-                    </Button>
+                    </button>
                   </li>
                 ))}
               </ul>

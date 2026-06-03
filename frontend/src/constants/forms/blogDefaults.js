@@ -8,5 +8,6 @@ export const INITIAL_STATE = {
   image: "",
   author: { name: "", role: "Admin", avatar: "" },
   status: "draft",
+  tags: [],
   seo: { metaTitle: "", metaDescription: "", metaKeywords: [] },
 };

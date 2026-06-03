@@ -5,7 +5,6 @@ import { Clock, History as HistoryIcon, Download, FileText, CreditCard, Receipt,
 import http from "../../../lib/axios";
 import { getUserBookings } from "../../booking/api/booking.api";
 import { formatDate, formatCurrency } from "../../../utils/helpers";
-import { generateBookingReceipt } from "../../../utils/pdfGenerator";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
@@ -56,7 +55,7 @@ const History = () => {
     if (booking.paymentReceiptUrl) {
       window.open(`http://localhost:8000${booking.paymentReceiptUrl}`, "_blank");
     } else {
-      generateBookingReceipt(booking);
+      toast.info("Payment receipt is not available for this booking.");
     }
   };
 

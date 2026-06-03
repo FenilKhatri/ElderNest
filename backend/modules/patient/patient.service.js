@@ -1,6 +1,14 @@
 import Patient from "./patient.model.js";
+import { validateLocation } from "../../common/validators/location.validator.js";
 
 export const createPatient = async (userId, data) => {
+    if (data.status === "published" && data.address) {
+        const { state, city, pincode } = data.address;
+        const locationValidation = validateLocation(state, city, pincode);
+        if (!locationValidation.isValid) {
+            throw new Error(locationValidation.errors.join(", "));
+        }
+    }
     return Patient.create({ ...data, userId });
 };
 
@@ -17,6 +25,14 @@ export const getPatientById = async (patientId, userId) => {
 };
 
 export const updatePatient = async (patientId, userId, data) => {
+    if (data.status === "published" && data.address) {
+        const { state, city, pincode } = data.address;
+        const locationValidation = validateLocation(state, city, pincode);
+        if (!locationValidation.isValid) {
+            throw new Error(locationValidation.errors.join(", "));
+        }
+    }
+    
     const filter = { _id: patientId };
     if (userId) filter.userId = userId;
     

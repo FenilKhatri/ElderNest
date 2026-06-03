@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-import { 
-  Edit, Trash2, Plus, Filter, 
+import {
+  Edit, Trash2, Plus, Filter,
   Grid, List, Eye, Clock, Calendar, CheckCircle
 } from "lucide-react";
 import SearchFilterBar from "../../../components/filters/SearchFilterBar";
@@ -54,8 +54,8 @@ const Blogs = () => {
     }
 
     if (statusFilter !== "all") {
-      const isActive = statusFilter === "active";
-      result = result.filter((b) => b.isActive === isActive);
+      const isPublished = statusFilter === "active";
+      result = result.filter((b) => (b.status === "published") === isPublished);
     }
 
     if (categoryFilter !== "all") {
@@ -197,9 +197,9 @@ const Blogs = () => {
                       <span className="px-2.5 py-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm text-xs font-semibold rounded-md shadow-sm">
                         {blog.category || "General"}
                       </span>
-                      {!blog.isActive && (
+                      {blog.status !== "published" && (
                         <span className="px-2.5 py-1 bg-slate-500/90 text-white backdrop-blur-sm text-xs font-semibold rounded-md shadow-sm">
-                          Inactive
+                          Draft
                         </span>
                       )}
                     </div>
@@ -268,10 +268,10 @@ const Blogs = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {!blog.isActive ? (
-                          <span className="px-2.5 py-1 bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400 text-xs font-medium rounded-full">Inactive</span>
+                        {blog.status !== "published" ? (
+                          <span className="px-2.5 py-1 bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400 text-xs font-medium rounded-full">Draft</span>
                         ) : (
-                          <span className="px-2.5 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-medium rounded-full">Active</span>
+                          <span className="px-2.5 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-medium rounded-full">Published</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
