@@ -11,8 +11,6 @@ export const emptyServiceForm = () => ({
   coverImage: "",
   image: "",
   images: [],
-  duration: 1,
-  price: 0,
   serviceMode: "home-visit",
   features: [],
   benefits: [],

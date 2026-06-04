@@ -30,9 +30,9 @@ export const createOrder = asyncHandler(async (req, res) => {
 
     // Calculate the amount using existing booking service logic
     const { totalAmount } = await bookingService.calculateBookingDetails(
-        bookingData.serviceId,
-        bookingData.timeSlot?.startTime,
-        bookingData.timeSlot?.endTime
+        bookingData.caregiverId,
+        bookingData.billingType,
+        bookingData.quantity
     );
 
     // Acquire slot lock to prevent double booking race conditions
@@ -61,15 +61,34 @@ export const createOrder = asyncHandler(async (req, res) => {
         },
     };
 
-    const razorpayInstance = getRazorpayInstance();
-    const order = await razorpayInstance.orders.create(options);
+    console.log("KEY:", process.env.RAZORPAY_KEY_ID);
+    console.log("SECRET EXISTS:", !!process.env.RAZORPAY_KEY_SECRET);
+    console.log("ORDER OPTIONS:", options);
 
-    return successResponse(res, 200, "Razorpay order created", {
-        orderId: order.id,
-        amount: order.amount,
-        currency: order.currency,
-        bookingData,
-    });
+    const razorpayInstance = getRazorpayInstance();
+    try {
+        const order = await razorpayInstance.orders.create(options);
+
+        return successResponse(res, 200, "Razorpay order created", {
+            orderId: order.id,
+            amount: order.amount,
+            currency: order.currency,
+            bookingData,
+        });
+    } catch (error) {
+        console.error("CREATE ORDER ERROR:");
+        console.error(error);
+        console.error(error.stack);
+
+        return res.status(400).json({
+            success: false,
+            message: error.error?.description || error.message || "Failed to create Razorpay order",
+            errorName: error.name,
+            stack: process.env.NODE_ENV === "development"
+                ? error.stack
+                : undefined
+        });
+    }
 });
 
 /**

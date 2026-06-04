@@ -1,9 +1,11 @@
 export const asyncHandler = (fn) => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch((err) => {
         console.error("ERROR:", err);
+        if (err.stack) console.error(err.stack);
 
         const isOperational = err?.isOperational === true;
-        let message = err.message || "Something went wrong. Please try again.";
+        // Check for nested Razorpay error descriptions
+        let message = err.error?.description || err.message || "Something went wrong. Please try again.";
         let errors = null;
         
         if (err.name === 'ValidationError') {
@@ -14,14 +16,15 @@ export const asyncHandler = (fn) => (req, res, next) => {
             }, {});
         } else if (!isOperational && process.env.NODE_ENV === 'production') {
             // Allow error messages to pass through for standard Error throws in services
-            message = err.message || "Something went wrong. Please try again.";
+            message = err.error?.description || err.message || "Something went wrong. Please try again.";
         }
 
         return res.status(err?.statusCode || (err.name === 'ValidationError' ? 400 : 500)).json({
             success: false,
             message,
             errors,
-            error: process.env.NODE_ENV !== 'production' ? err : undefined
+            errorName: err.name,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
         });
     });
 };

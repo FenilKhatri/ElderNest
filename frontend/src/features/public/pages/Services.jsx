@@ -317,18 +317,6 @@ const Services = () => {
                         {service.shortDescription || service.description}
                       </p>
 
-                      {/* Info Row */}
-                      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-6">
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="w-4 h-4" />
-                          <span>{service.duration || 1} Hour{service.duration !== 1 ? 's' : ''}</span>
-                        </div>
-                        {service.price > 0 && (
-                          <div className="font-semibold text-slate-900 dark:text-slate-200">
-                            ₹{service.price} / session
-                          </div>
-                        )}
-                      </div>
 
                       {/* Action Buttons */}
                       <div className="grid grid-cols-2 gap-3 mt-auto">

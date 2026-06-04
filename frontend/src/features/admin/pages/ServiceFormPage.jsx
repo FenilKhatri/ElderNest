@@ -37,7 +37,6 @@ const ServiceFormPage = () => {
           coverImage: s.coverImage || s.image || "",
           image: s.image || s.coverImage || "",
           images: s.images || [],
-          duration: s.duration ?? 1,
           serviceMode: s.serviceMode || "home-visit",
           features: s.features || [],
           benefits: s.benefits || [],
@@ -85,7 +84,6 @@ const ServiceFormPage = () => {
     ...form,
     isDraft: form.status === "draft",
     isActive: form.status === "published",
-    duration: Number(form.duration) || 0,
     image: form.coverImage || form.image,
     coverImage: form.coverImage || form.image,
   });
@@ -153,9 +151,7 @@ const ServiceFormPage = () => {
               options={SERVICE_MODES}
             />
           </Field>
-          <Field label="Duration (hours)">
-            <Input type="number" min="0" step="0.5" className={inputCls} value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
-          </Field>
+
         </div>
 
         <Field label="Short Description">

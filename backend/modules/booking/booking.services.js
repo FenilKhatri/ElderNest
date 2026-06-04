@@ -22,23 +22,29 @@ export const checkSlotAvailability = async (caregiverId, bookingDate, startTime,
     return await isSlotAvailable(caregiverId, bookingDate, startTime, endTime);
 };
 
-// Calculate duration and amount
-export const calculateBookingDetails = async (serviceId, startTime, endTime) => {
-    const service = await Service.findById(serviceId);
-    if (!service) {
-        throw new Error("Service not found");
+// Calculate amount based on caregiver pricing
+export const calculateBookingDetails = async (caregiverId, billingType, quantity) => {
+    const caregiver = await Caregiver.findById(caregiverId);
+    if (!caregiver) {
+        throw new Error("Caregiver not found");
     }
 
-    const start = startTime.split(":").map(Number);
-    const end = endTime.split(":").map(Number);
-    const startMinutes = start[0] * 60 + start[1];
-    const endMinutes = end[0] * 60 + end[1];
-    const duration = (endMinutes - startMinutes) / 60;
+    let unitRate = 0;
+    if (billingType === "hourly") {
+        unitRate = caregiver.pricing?.hourlyRate || 0;
+    } else if (billingType === "daily") {
+        unitRate = caregiver.pricing?.dailyRate || 0;
+    } else if (billingType === "monthly") {
+        unitRate = caregiver.pricing?.monthlyRate || 0;
+    }
 
-    const hourlyRate = service.price || 0;
-    const totalAmount = hourlyRate * duration;
+    if (unitRate === 0) {
+        throw new Error(`Caregiver has not set a ${billingType} rate`);
+    }
 
-    return { duration, totalAmount, service };
+    const totalAmount = unitRate * quantity;
+
+    return { unitRate, quantity, totalAmount };
 };
 
 export const validateBookingRequest = async (userId, bookingData) => {
@@ -141,6 +147,9 @@ export const createBooking = async (userId, bookingData) => {
         bookingDate,
         timeSlot,
         address,
+        serviceType,
+        billingType,
+        quantity,
         ...otherData
     } = bookingData;
 
@@ -161,10 +170,10 @@ export const createBooking = async (userId, bookingData) => {
     }
 
     // Calculate booking details
-    const { duration, totalAmount } = await calculateBookingDetails(
-        serviceId,
-        finalTimeSlot.startTime,
-        finalTimeSlot.endTime
+    const { unitRate, totalAmount } = await calculateBookingDetails(
+        caregiverId,
+        billingType,
+        quantity
     );
 
     let booking;
@@ -176,7 +185,10 @@ export const createBooking = async (userId, bookingData) => {
             bookingDate,
             timeSlot: finalTimeSlot,
             address,
-            duration,
+            serviceType,
+            billingType,
+            quantity,
+            unitRate,
             totalAmount,
             ...otherData,
             ...patientFields,

@@ -61,8 +61,6 @@ const ServiceDetailPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Info label="Category" value={categoryLabel} />
         <Info label="Service Mode" value={modeLabel} />
-        <Info label="Price" value={formatCurrency(service.price || 0)} />
-        <Info label="Duration (hours)" value={service.duration ?? "—"} />
         <Info label="Rating" value={`${service.rating || 0} (${service.totalReviews || 0} reviews)`} />
         <Info label="Total Bookings" value={service.totalBookings || 0} />
         <Info label="Featured" value={service.isFeatured ? "Yes" : "No"} />

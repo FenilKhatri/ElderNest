@@ -50,16 +50,7 @@ const serviceSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
-        duration: {
-            type: Number,
-            default: 1,
-            min: 0,
-        },
-        price: {
-            type: Number,
-            default: 0,
-            min: 0,
-        },
+
         serviceMode: {
             type: String,
             enum: ["home-visit", "online", "both"],

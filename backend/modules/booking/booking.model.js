@@ -40,10 +40,15 @@ const bookingSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
-        careType: {
+        serviceType: {
             type: String,
             required: true,
-            enum: ["full-time", "part-time", "live-in", "hourly", "emergency"],
+            enum: ["hourly", "part-time", "full-time", "live-in", "emergency"],
+        },
+        billingType: {
+            type: String,
+            required: true,
+            enum: ["hourly", "daily", "monthly"],
         },
 
         contactNumber: {
@@ -138,14 +143,15 @@ const bookingSchema = new mongoose.Schema(
             required: true,
             min: 0,
         },
-        duration: {
+        quantity: {
             type: Number, 
             required: true,
+            min: 1,
         },
-        durationType: {
-            type: String,
-            enum: ["hourly", "daily", "long-term"],
-            default: "hourly",
+        unitRate: {
+            type: Number,
+            required: true,
+            min: 0,
         },
 
         status: {

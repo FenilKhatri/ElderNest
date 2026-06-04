@@ -1,8 +1,5 @@
-import {
   indianStates,
   getCitiesByState,
-  CARE_TYPES,
-  DURATION_TYPES,
 } from "@/constants";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -54,8 +51,9 @@ const BookServices = () => {
     patientName: "",
     patientAge: "",
     disease: "",
-    careType: "hourly",
-    durationType: "hourly",
+    serviceType: "hourly",
+    billingType: "hourly",
+    quantity: 1,
     contactNumber: "",
     email: "",
     emergencyContact: { name: "", phone: "", relation: "" },
@@ -183,7 +181,7 @@ const BookServices = () => {
         amount,
         currency,
         name: "ElderNest",
-        description: `Booking — ${form.careType} Care Service`,
+        description: `Booking — ${form.serviceType} Care Service`,
         order_id: orderId,
         prefill: {
           name: form.patientName,
@@ -234,7 +232,11 @@ const BookServices = () => {
             "Please fill all required fields correctly.",
         );
       } else {
-        toast.error(error.message || "Failed to initiate payment");
+        toast.error(
+          error?.response?.data?.message ||
+          error?.message ||
+          "Unknown error"
+        );
       }
       setPaymentProcessing(false);
     } finally {
@@ -301,6 +303,42 @@ const BookServices = () => {
       setAvailableSlots([]);
     }
   };
+  
+  const handleServiceTypeChange = (e) => {
+    const val = e.target.value;
+    let billing = "hourly";
+    if (val === "part-time" || val === "full-time") billing = "daily";
+    else if (val === "live-in") billing = "monthly";
+    else billing = "hourly";
+    
+    setForm({ ...form, serviceType: val, billingType: billing, quantity: 1 });
+  };
+
+  const getPricingDetails = () => {
+    if (!caregiver || !caregiver.pricing) return { rate: 0, label: "Rate", quantityLabel: "Quantity", total: 0 };
+    
+    let rate = 0;
+    let label = "Rate";
+    let quantityLabel = "Quantity";
+    
+    if (form.billingType === "hourly") {
+      rate = caregiver.pricing.hourlyRate || 0;
+      label = "Hourly Rate";
+      quantityLabel = "Hours";
+    } else if (form.billingType === "daily") {
+      rate = caregiver.pricing.dailyRate || 0;
+      label = "Daily Rate";
+      quantityLabel = "Days";
+    } else if (form.billingType === "monthly") {
+      rate = caregiver.pricing.monthlyRate || 0;
+      label = "Monthly Rate";
+      quantityLabel = "Months";
+    }
+    
+    return { rate, label, quantityLabel, total: rate * (form.quantity || 1) };
+  };
+
+  const pricing = getPricingDetails();
   const slotOptions = availableSlots.map((slot) => ({
     value: `${slot.startTime}-${slot.endTime}`,
     label: `${slot.startTime} to ${slot.endTime} ${!slot.available ? "(Unavailable)" : ""}`,
@@ -341,23 +379,36 @@ const BookServices = () => {
                   required
                 />
                 <Select
-                  label="Care Type *"
-                  value={form.careType}
-                  onChange={(e) =>
-                    setForm({ ...form, careType: e.target.value })
-                  }
-                  options={CARE_TYPES}
+                  label="Care Mode *"
+                  value={form.serviceType}
+                  onChange={handleServiceTypeChange}
+                  options={[
+                    { value: "hourly", label: "Hourly Care" },
+                    { value: "part-time", label: "Part-Time Care" },
+                    { value: "full-time", label: "Full-Time Care" },
+                    { value: "live-in", label: "Live-In Care" },
+                    { value: "emergency", label: "Emergency Care" }
+                  ]}
                   required
                 />
-                <Select
-                  label="Duration Type *"
-                  value={form.durationType}
-                  onChange={(e) =>
-                    setForm({ ...form, durationType: e.target.value })
-                  }
-                  options={DURATION_TYPES}
+                <Input
+                  labelName={pricing.quantityLabel + " *"}
+                  type="number"
+                  min="1"
+                  value={form.quantity}
+                  onChange={(e) => setForm({ ...form, quantity: Number(e.target.value) })}
                   required
                 />
+              </div>
+              <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-slate-600 dark:text-slate-300 font-medium">{pricing.label}:</span>
+                  <span className="text-slate-900 dark:text-white font-bold">₹{pricing.rate}</span>
+                </div>
+                <div className="flex justify-between items-center border-t border-blue-200 dark:border-blue-700/50 pt-2 mt-2">
+                  <span className="text-slate-800 dark:text-slate-200 font-bold text-lg">Total Amount:</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-bold text-xl">₹{pricing.total}</span>
+                </div>
               </div>
             </div>
             {/* Patient Information */}
