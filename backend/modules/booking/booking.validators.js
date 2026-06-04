@@ -38,16 +38,23 @@ export const createBookingValidator = [
         .isMongoId()
         .withMessage("Invalid patient ID"),
 
-    body("durationType")
-        .optional()
-        .isIn(["hourly", "daily", "long-term"])
-        .withMessage("Invalid duration type"),
-
-    body("careType")
+    body("billingType")
         .notEmpty()
-        .withMessage("Care type is required")
+        .withMessage("Billing type is required")
+        .isIn(["hourly", "daily", "monthly"])
+        .withMessage("Invalid billing type"),
+
+    body("serviceType")
+        .notEmpty()
+        .withMessage("Service type is required")
         .isIn(["full-time", "part-time", "live-in", "hourly", "emergency"])
-        .withMessage("Invalid care type"),
+        .withMessage("Invalid service type"),
+
+    body("quantity")
+        .notEmpty()
+        .withMessage("Quantity is required")
+        .isInt({ min: 1 })
+        .withMessage("Quantity must be at least 1"),
     
     body("contactNumber")
         .notEmpty()

@@ -29,7 +29,7 @@ const Caregivers = () => {
   
   const [searchCity, setSearchCity] = useState(searchParams.get('city') || "");
   const [selectedExperience, setSelectedExperience] = useState(searchParams.get('experience') ? searchParams.get('experience').split(',') : []);
-  const [selectedLanguages, setSelectedLanguages] = useState([]); // Kept client-side or we can add to backend if needed
+  const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [selectedRatings, setSelectedRatings] = useState(searchParams.get('rating') ? [searchParams.get('rating') + '+'] : []);
   const [selectedCareType, setSelectedCareType] = useState(searchParams.get('careType') ? searchParams.get('careType').split(',') : []);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
@@ -59,8 +59,6 @@ const Caregivers = () => {
     return () => clearTimeout(handler);
   }, [searchCity, searchTerm, selectedExperience, selectedRatings, selectedCareType, initialService, navigate]);
 
-  // applyFilters function is removed as it's now handled by the useEffect above
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -87,7 +85,6 @@ const Caregivers = () => {
   useEffect(() => {
     let result = caregivers;
 
-    // Filter by Language (Client Side, since backend doesn't explicitly filter language yet or we didn't add it)
     if (selectedLanguages.length > 0) {
       result = result.filter(c => 
         c.languages?.some(lang => selectedLanguages.includes(lang.toLowerCase()))
