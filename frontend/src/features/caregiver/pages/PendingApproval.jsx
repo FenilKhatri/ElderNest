@@ -98,7 +98,13 @@ const PendingApproval = () => {
 
           <div className="relative pl-4 sm:pl-6 space-y-10">
             {/* Continuous Line */}
-            <div className="absolute left-[27px] sm:left-[35px] top-6 bottom-6 w-0.5 bg-slate-200 dark:bg-slate-700" />
+            <div className="absolute left-9 sm:left-11 top-6 bottom-6 w-0.5 bg-slate-200 dark:bg-slate-700 overflow-hidden">
+              <motion.div
+                className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-b from-transparent via-blue-500 to-transparent"
+                animate={{ top: ["-25%", "100%"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+              />
+            </div>
 
             {bookingSteps.map((step, index) => {
               const Icon = step.icon;
@@ -133,7 +139,7 @@ const PendingApproval = () => {
                       <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg inline-flex items-start gap-2">
                         <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
                         <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                          We will notify you via email as soon as your account status changes.
+                          We will notify you as soon as your account status changes.
                         </span>
                       </div>
                     )}
