@@ -65,13 +65,12 @@ const ServiceFormPage = () => {
         }));
         toast.success("Image uploaded");
       }
-    } catch {
-      toast.error("Upload failed");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || "Upload failed");
     } finally {
       setUploadingCover(false);
     }
   };
-
 
   const addListItem = (key, value, clear) => {
     const v = value.trim();

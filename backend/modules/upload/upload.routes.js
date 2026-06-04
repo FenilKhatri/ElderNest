@@ -6,15 +6,6 @@ import getCloudinary from "../../config/cloudinary.js";
 
 const router = express.Router();
 
-/**
- * Determine the Cloudinary sub-folder inside "Eldernest" based on the
- * uploaded file's mimetype or an explicit `folder` field in the request body.
- *
- * Folder hierarchy on Cloudinary:
- *   Eldernest/
- *     photos/       ← images (profile pics, blog images, service covers, etc.)
- *     documents/    ← PDFs, certificates, experience letters, etc.
- */
 const resolveFolder = (req, file) => {
     if (!req.user) {
         return "Eldernest/public";
@@ -33,12 +24,6 @@ const resolveFolder = (req, file) => {
     
     return `${baseFolder}/photos`;
 };
-
-/**
- * Build a fresh multer instance on each request so that:
- *   1. Cloudinary is configured lazily (after dotenv has loaded).
- *   2. The folder is resolved per-request based on the file being uploaded.
- */
 const getUploadMiddleware = () => {
     const cloudinary = getCloudinary();
 
@@ -53,7 +38,7 @@ const getUploadMiddleware = () => {
 
     return multer({
         storage,
-        limits: { fileSize: 5 * 1024 * 1024 }, 
+        limits: { fileSize: 5 * 1024 * 1024 }
     });
 };
 
