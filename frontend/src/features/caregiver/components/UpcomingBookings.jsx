@@ -7,7 +7,7 @@ import Button from "../../../components/ui/Button";
 import EmptyState from "../../../components/ui/EmptyState";
 import { BOOKING_STATUS } from "../../../constants/statusConstants";
 
-const UpcomingBookings = ({ bookings = [], loading = false, onViewAll }) => {
+const UpcomingBookings = ({ bookings = [], loading = false, onViewAll, onAccept, onReject, processingId = null }) => {
   if (loading) {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
@@ -95,10 +95,21 @@ const UpcomingBookings = ({ bookings = [], loading = false, onViewAll }) => {
 
               {booking.status === BOOKING_STATUS.PENDING && (
                 <div className="flex space-x-2 mt-4">
-                  <Button size="sm" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => onAccept && onAccept(booking._id)}
+                    disabled={processingId === booking._id}
+                  >
                     Accept
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => onReject && onReject(booking._id)}
+                    disabled={processingId === booking._id}
+                  >
                     Decline
                   </Button>
                 </div>

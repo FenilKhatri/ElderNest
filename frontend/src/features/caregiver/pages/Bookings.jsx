@@ -20,6 +20,8 @@ const Bookings = () => {
   const [processingId, setProcessingId] = useState(null);
   const [activeMessageBooking, setActiveMessageBooking] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [rejectingBooking, setRejectingBooking] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   useEffect(() => {
     fetchBookings();
@@ -45,7 +47,7 @@ const Bookings = () => {
     }
   };
 
-  const handleStatusUpdate = async (id, newStatus) => {
+  const handleStatusUpdate = async (id, newStatus, extraData = {}) => {
     if (processingId) return;
 
     try {
@@ -56,7 +58,7 @@ const Bookings = () => {
         prev.map(b => b._id === id ? { ...b, status: newStatus } : b)
       );
 
-      await updateBookingStatus(id, { status: newStatus });
+      await updateBookingStatus(id, { status: newStatus, ...extraData });
       toast.success(`Booking ${newStatus} successfully`);
       fetchBookings();
     } catch (error) {
@@ -156,7 +158,7 @@ const Bookings = () => {
                   <div className="flex justify-end gap-3 flex-1">
                     {booking.status === BOOKING_STATUS.PENDING && (
                       <>
-                        <Button variant="outline" onClick={() => handleStatusUpdate(booking._id, BOOKING_STATUS.REJECTED)} disabled={processingId === booking._id}>
+                        <Button variant="outline" onClick={() => setRejectingBooking(booking._id)} disabled={processingId === booking._id}>
                           {processingId === booking._id ? "Processing..." : "Reject"}
                         </Button>
                         <Button onClick={() => handleStatusUpdate(booking._id, BOOKING_STATUS.ACCEPTED)} disabled={processingId === booking._id}>
@@ -207,6 +209,37 @@ const Bookings = () => {
             currentUserId={currentUserId} 
           />
         )}
+      </Modal>
+
+      {/* Reject Modal */}
+      <Modal
+        isOpen={!!rejectingBooking}
+        onClose={() => { setRejectingBooking(null); setRejectionReason(""); }}
+        title="Reject Booking"
+      >
+        <div className="p-6">
+          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">Please provide a reason for rejecting this booking (10-500 characters).</p>
+          <Textarea
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="Reason for rejection..."
+            rows={4}
+          />
+          <div className="flex justify-end gap-3 mt-6">
+            <Button variant="outline" onClick={() => { setRejectingBooking(null); setRejectionReason(""); }}>Cancel</Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={rejectionReason.length < 10 || processingId === rejectingBooking}
+              onClick={() => {
+                handleStatusUpdate(rejectingBooking, BOOKING_STATUS.REJECTED, { rejectionReason });
+                setRejectingBooking(null);
+                setRejectionReason("");
+              }}
+            >
+              {processingId === rejectingBooking ? "Rejecting..." : "Reject Booking"}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

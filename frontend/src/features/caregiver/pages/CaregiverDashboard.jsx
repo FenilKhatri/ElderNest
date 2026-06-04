@@ -12,8 +12,11 @@ import {
 import { useAuth } from "../../../context/AuthContext";
 import { useNotifications } from "../../../context/NotificationContext";
 import { getMyProfile } from "../api/caregiver.api";
-import { getCaregiverBookings } from "../../booking/api/booking.api";
+import { getCaregiverBookings, updateBookingStatus } from "../../booking/api/booking.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
+import { toast } from "react-toastify";
+import Modal from "../../../components/ui/Modal";
+import Textarea from "../../../components/ui/Textarea";
 import DashboardCard from "../components/DashboardCard";
 import UpcomingBookings from "../components/UpcomingBookings";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +37,9 @@ const CaregiverDashboard = () => {
     rating: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState(null);
+  const [rejectingBooking, setRejectingBooking] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   useEffect(() => {
     fetchDashboardData();
@@ -54,6 +60,21 @@ const CaregiverDashboard = () => {
       console.error("Failed to fetch dashboard data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStatusUpdate = async (id, newStatus, extraData = {}) => {
+    if (processingId) return;
+    try {
+      setProcessingId(id);
+      await updateBookingStatus(id, { status: newStatus, ...extraData });
+      toast.success(`Booking ${newStatus} successfully`);
+      fetchDashboardData();
+    } catch (error) {
+      toast.error(error.message || "Failed to update booking status");
+      fetchDashboardData();
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -190,6 +211,9 @@ const CaregiverDashboard = () => {
             bookings={upcomingBookings}
             loading={loading}
             onViewAll={() => navigate("/caregiver/bookings")}
+            onAccept={(id) => handleStatusUpdate(id, BOOKING_STATUS.ACCEPTED)}
+            onReject={(id) => setRejectingBooking(id)}
+            processingId={processingId}
           />
         </div>
 
@@ -269,6 +293,37 @@ const CaregiverDashboard = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Reject Modal */}
+      <Modal
+        isOpen={!!rejectingBooking}
+        onClose={() => { setRejectingBooking(null); setRejectionReason(""); }}
+        title="Reject Booking"
+      >
+        <div className="p-6">
+          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">Please provide a reason for rejecting this booking (10-500 characters).</p>
+          <Textarea
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="Reason for rejection..."
+            rows={4}
+          />
+          <div className="flex justify-end gap-3 mt-6">
+            <Button variant="outline" onClick={() => { setRejectingBooking(null); setRejectionReason(""); }}>Cancel</Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={rejectionReason.length < 10 || processingId === rejectingBooking}
+              onClick={() => {
+                handleStatusUpdate(rejectingBooking, BOOKING_STATUS.REJECTED, { rejectionReason });
+                setRejectingBooking(null);
+                setRejectionReason("");
+              }}
+            >
+              {processingId === rejectingBooking ? "Rejecting..." : "Reject Booking"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
