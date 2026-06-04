@@ -1,3 +1,4 @@
+import {
   indianStates,
   getCitiesByState,
 } from "@/constants";
@@ -119,7 +120,7 @@ const BookServices = () => {
         let calculatedAge = today.getFullYear() - birthDate.getFullYear();
         const m = today.getMonth() - birthDate.getMonth();
         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            calculatedAge--;
+          calculatedAge--;
         }
         age = String(calculatedAge);
       } else if (p?.age) {
@@ -204,7 +205,7 @@ const BookServices = () => {
           } catch (verifyError) {
             toast.error(
               verifyError?.message ||
-                "Payment verification failed. Please contact support.",
+              "Payment verification failed. Please contact support.",
             );
           } finally {
             setPaymentProcessing(false);
@@ -229,7 +230,7 @@ const BookServices = () => {
       if (error.validationErrors && error.validationErrors.length > 0) {
         toast.error(
           error.validationErrors[0].msg ||
-            "Please fill all required fields correctly.",
+          "Please fill all required fields correctly.",
         );
       } else {
         toast.error(
@@ -303,24 +304,24 @@ const BookServices = () => {
       setAvailableSlots([]);
     }
   };
-  
+
   const handleServiceTypeChange = (e) => {
     const val = e.target.value;
     let billing = "hourly";
     if (val === "part-time" || val === "full-time") billing = "daily";
     else if (val === "live-in") billing = "monthly";
     else billing = "hourly";
-    
+
     setForm({ ...form, serviceType: val, billingType: billing, quantity: 1 });
   };
 
   const getPricingDetails = () => {
     if (!caregiver || !caregiver.pricing) return { rate: 0, label: "Rate", quantityLabel: "Quantity", total: 0 };
-    
+
     let rate = 0;
     let label = "Rate";
     let quantityLabel = "Quantity";
-    
+
     if (form.billingType === "hourly") {
       rate = caregiver.pricing.hourlyRate || 0;
       label = "Hourly Rate";
@@ -334,7 +335,7 @@ const BookServices = () => {
       label = "Monthly Rate";
       quantityLabel = "Months";
     }
-    
+
     return { rate, label, quantityLabel, total: rate * (form.quantity || 1) };
   };
 
