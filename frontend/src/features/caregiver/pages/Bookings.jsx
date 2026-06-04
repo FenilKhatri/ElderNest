@@ -8,6 +8,7 @@ import StatusBadge from "../../../components/ui/StatusBadge";
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
 import Select from "../../../components/ui/Select";
+import Textarea from "../../../components/ui/Textarea";
 import MessagePanel from "../../booking/components/MessagePanel";
 import { MessageSquare, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
