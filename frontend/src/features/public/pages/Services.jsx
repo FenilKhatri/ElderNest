@@ -5,6 +5,7 @@ import { Search, HeartPulse, Star, MapPin, Clock, Filter, X } from "lucide-react
 import { getAllServices } from "../../service/api/service.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { SERVICE_CATEGORIES } from "../../../constants";
+import Button from "../../../components/ui/Button";
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -104,13 +105,14 @@ const Services = () => {
         </div>
 
         {/* Mobile Filter Toggle */}
-        <button 
-          onClick={() => setIsSidebarOpen(true)}
-          className="md:hidden w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-3 rounded-xl font-medium text-slate-700 dark:text-slate-200 mb-6"
-        >
-          <Filter size={18} />
-          Show Filters
-        </button>
+        <div className="md:hidden flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
+          <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+            <Filter className="w-5 h-5" /> Filters
+          </span>
+          <Button variant="outline" className="py-2" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            {isSidebarOpen ? "Hide Filters" : "Show Filters"}
+          </Button>
+        </div>
 
         <div className="flex flex-col md:flex-row gap-8 items-start">
           
@@ -120,13 +122,6 @@ const Services = () => {
             md:sticky top-24 w-full md:w-64 lg:w-72 self-start
           `}>
             <div className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-              
-              <div className="flex items-center justify-between md:hidden mb-6">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Filters</h2>
-                <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-full">
-                  <X size={18} />
-                </button>
-              </div>
 
               {/* Search */}
               <div className="mb-6">
