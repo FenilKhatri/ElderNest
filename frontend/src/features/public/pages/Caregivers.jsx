@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Search, Filter, Star, MapPin, X, Loader2, CheckCircle, ShieldCheck, User } from "lucide-react";
 import Button from "../../../components/ui/Button";
+import MobileFilterToggle from "../../../components/ui/MobileFilterToggle";
 import Input from "../../../components/ui/Input";
 import Checkbox from "../../../components/ui/Checkbox";
 import { getAllCaregivers } from "../../caregiver/api/caregiver.api";
@@ -136,14 +137,11 @@ const Caregivers = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           
           {/* Mobile Filter Toggle */}
-          <div className="lg:hidden flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-            <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-              <Filter className="w-5 h-5" /> Filters
-            </span>
-            <Button variant="outline" className="py-2" onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}>
-              {isMobileFilterOpen ? "Hide Filters" : "Show Filters"}
-            </Button>
-          </div>
+          <MobileFilterToggle 
+            isOpen={isMobileFilterOpen} 
+            onToggle={() => setIsMobileFilterOpen(!isMobileFilterOpen)} 
+            className="lg:hidden" 
+          />
 
           {/* Sidebar Filters (Left) */}
           <div className={`w-full lg:w-1/4 shrink-0 ${isMobileFilterOpen ? "block" : "hidden lg:block"}`}>

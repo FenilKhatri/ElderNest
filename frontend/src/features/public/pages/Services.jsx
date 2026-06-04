@@ -6,6 +6,7 @@ import { getAllServices } from "../../service/api/service.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import { SERVICE_CATEGORIES } from "../../../constants";
 import Button from "../../../components/ui/Button";
+import MobileFilterToggle from "../../../components/ui/MobileFilterToggle";
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -105,14 +106,11 @@ const Services = () => {
         </div>
 
         {/* Mobile Filter Toggle */}
-        <div className="md:hidden flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
-          <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-            <Filter className="w-5 h-5" /> Filters
-          </span>
-          <Button variant="outline" className="py-2" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-            {isSidebarOpen ? "Hide Filters" : "Show Filters"}
-          </Button>
-        </div>
+        <MobileFilterToggle 
+          isOpen={isSidebarOpen} 
+          onToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
+          className="md:hidden mb-6" 
+        />
 
         <div className="flex flex-col md:flex-row gap-8 items-start">
           
