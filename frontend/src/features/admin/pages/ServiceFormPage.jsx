@@ -197,7 +197,7 @@ const ServiceFormPage = () => {
         <Field label="Features">
           <div className="flex gap-2 mb-2">
             <Input className={inputCls} value={featureInput} onChange={(e) => setFeatureInput(e.target.value)} placeholder="Add feature" />
-            <button type="button" variant="outline" onClick={() => addListItem("features", featureInput, setFeatureInput)}><Plus className="w-4 h-4" /></button>
+            <Button type="button" variant="outline" onClick={() => addListItem("features", featureInput, setFeatureInput)}><Plus className="w-4 h-4" /></Button>
           </div>
           <TagList items={form.features} onRemove={(i) => setForm({ ...form, features: form.features.filter((_, idx) => idx !== i) })} />
         </Field>
@@ -205,11 +205,10 @@ const ServiceFormPage = () => {
         <Field label="Benefits">
           <div className="flex gap-2 mb-2">
             <Input className={inputCls} value={benefitInput} onChange={(e) => setBenefitInput(e.target.value)} placeholder="Add benefit" />
-            <button type="button" variant="outline" onClick={() => addListItem("benefits", benefitInput, setBenefitInput)}><Plus className="w-4 h-4" /></button>
+            <Button type="button" variant="outline" onClick={() => addListItem("benefits", benefitInput, setBenefitInput)}><Plus className="w-4 h-4" /></Button>
           </div>
           <TagList items={form.benefits} onRemove={(i) => setForm({ ...form, benefits: form.benefits.filter((_, idx) => idx !== i) })} />
         </Field>
-
 
         <div className="flex flex-wrap gap-6">
           <Checkbox 
@@ -276,7 +275,7 @@ const TagList = ({ items, onRemove }) => (
     {items.map((item, i) => (
       <span key={`${item}-${i}`} className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-800 dark:text-slate-100 rounded text-xs">
         {item}
-        <Button type="button" onClick={() => onRemove(i)}><X className="w-3 h-3" /></Button>
+        <button type="button" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" onClick={() => onRemove(i)}><X className="w-3 h-3" /></button>
       </span>
     ))}
   </div>
