@@ -1,4 +1,4 @@
-import { Clock, Mail, CheckCircle, AlertCircle } from "lucide-react";
+import { Clock, FileText, UserCheck, Briefcase } from "lucide-react";
 
 export const DEFAULT_SLOT_DURATION = 60;
 
