@@ -3,7 +3,7 @@ import Logo from "../../assets/logo.avif";
 import { Link, NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Send, Loader2 } from "lucide-react";
-import http from "../../../lib/axios";
+import http from "../../lib/axios";
 import FooterSection from "../../features/public/sections/footer/FooterSection";
 import { footerLinks } from "../../data/navigation.data";
 import Button from "../../components/ui/Button";
