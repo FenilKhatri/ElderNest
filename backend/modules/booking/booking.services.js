@@ -238,10 +238,6 @@ export const createBooking = async (userId, bookingData) => {
         );
     }
 
-
-
-
-
     return booking;
 };
 

@@ -189,7 +189,7 @@ const ServiceFormPage = () => {
             {form.images.map((url) => (
               <span key={url} className="inline-flex items-center gap-1 text-xs bg-slate-100 dark:bg-slate-800 dark:text-slate-100 px-2 py-1 rounded">
                 <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline">{url.slice(0, 30)}…</a>
-                <Button type="button" onClick={() => setForm({ ...form, images: form.images.filter((u) => u !== url) })}><X className="w-3 h-3" /></Button>
+                <button type="button" onClick={() => setForm({ ...form, images: form.images.filter((u) => u !== url) })}><X className="w-3 h-3" /></button>
               </span>
             ))}
           </div>
@@ -198,7 +198,7 @@ const ServiceFormPage = () => {
         <Field label="Features">
           <div className="flex gap-2 mb-2">
             <Input className={inputCls} value={featureInput} onChange={(e) => setFeatureInput(e.target.value)} placeholder="Add feature" />
-            <Button type="button" variant="outline" onClick={() => addListItem("features", featureInput, setFeatureInput)}><Plus className="w-4 h-4" /></Button>
+            <button type="button" variant="outline" onClick={() => addListItem("features", featureInput, setFeatureInput)}><Plus className="w-4 h-4" /></button>
           </div>
           <TagList items={form.features} onRemove={(i) => setForm({ ...form, features: form.features.filter((_, idx) => idx !== i) })} />
         </Field>
@@ -206,7 +206,7 @@ const ServiceFormPage = () => {
         <Field label="Benefits">
           <div className="flex gap-2 mb-2">
             <Input className={inputCls} value={benefitInput} onChange={(e) => setBenefitInput(e.target.value)} placeholder="Add benefit" />
-            <Button type="button" variant="outline" onClick={() => addListItem("benefits", benefitInput, setBenefitInput)}><Plus className="w-4 h-4" /></Button>
+            <button type="button" variant="outline" onClick={() => addListItem("benefits", benefitInput, setBenefitInput)}><Plus className="w-4 h-4" /></button>
           </div>
           <TagList items={form.benefits} onRemove={(i) => setForm({ ...form, benefits: form.benefits.filter((_, idx) => idx !== i) })} />
         </Field>

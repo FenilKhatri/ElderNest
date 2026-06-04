@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Search, Filter, Star, MapPin, X, Loader2, CheckCircle, ShieldCheck } from "lucide-react";
+import { Heart, Search, Filter, Star, MapPin, X, Loader2, CheckCircle, ShieldCheck, User } from "lucide-react";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
 import Checkbox from "../../../components/ui/Checkbox";

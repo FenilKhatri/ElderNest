@@ -19,10 +19,7 @@ import Checkbox from "../../../components/ui/Checkbox";
 import Textarea from "../../../components/ui/Textarea";
 import Input from "../../../components/ui/Input";
 
-
 const steps = COMPLETE_PROFILE_STEPS;
-
-
 
 const ServiceDropdown = ({ field, services }) => {
   const [search, setSearch] = useState("");
@@ -432,13 +429,6 @@ const CompleteProfile = () => {
                   name="servicesOffered"
                   control={control}
                   render={({ field }) => {
-                    // We need local state for the dropdown inside render. 
-                    // To avoid defining state inside render (which violates rules of hooks),
-                    // we can use a separate component or just manage it simply.
-                    // Actually, React Hook Form's Controller render prop is called every time,
-                    // so we shouldn't use useState inside it directly.
-                    // We will extract this to a small inline component if needed,
-                    // but wait, we can just use the outer component's state or create a small wrapper.
                     return <ServiceDropdown field={field} services={services} />;
                   }}
                 />
