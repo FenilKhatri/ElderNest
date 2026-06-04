@@ -180,32 +180,38 @@ const ServiceFormPage = () => {
         </Field>
 
         <Field label="Gallery Images">
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-2 mb-3">
             <Input className={inputCls} placeholder="Image URL" value={imageUrlInput} onChange={(e) => setImageUrlInput(e.target.value)} />
-            <Button type="button" variant="outline" onClick={() => addListItem("images", imageUrlInput, setImageUrlInput)}>Add</Button>
+            <button type="button" onClick={() => addListItem("images", imageUrlInput, setImageUrlInput)} className="px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors font-medium text-sm flex items-center justify-center shrink-0">
+              Add
+            </button>
           </div>
           <div className="flex flex-wrap gap-2">
             {form.images.map((url) => (
-              <span key={url} className="inline-flex items-center gap-1 text-xs bg-slate-100 dark:bg-slate-800 dark:text-slate-100 px-2 py-1 rounded">
+              <span key={url} className="inline-flex items-center gap-1.5 text-xs bg-slate-100 dark:bg-slate-800 dark:text-slate-100 px-2.5 py-1.5 rounded-md font-medium">
                 <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline">{url.slice(0, 30)}…</a>
-                <button type="button" onClick={() => setForm({ ...form, images: form.images.filter((u) => u !== url) })}><X className="w-3 h-3" /></button>
+                <button type="button" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors ml-0.5" onClick={() => setForm({ ...form, images: form.images.filter((u) => u !== url) })}><X className="w-3.5 h-3.5" /></button>
               </span>
             ))}
           </div>
         </Field>
 
         <Field label="Features">
-          <div className="flex gap-2 mb-2">
-            <Input className={inputCls} value={featureInput} onChange={(e) => setFeatureInput(e.target.value)} placeholder="Add feature" />
-            <Button type="button" variant="outline" onClick={() => addListItem("features", featureInput, setFeatureInput)}><Plus className="w-4 h-4" /></Button>
+          <div className="flex gap-2 mb-3">
+            <Input className={inputCls} value={featureInput} onChange={(e) => setFeatureInput(e.target.value)} placeholder="Add feature" onKeyDown={(e) => { if(e.key === 'Enter') { e.preventDefault(); addListItem("features", featureInput, setFeatureInput); } }} />
+            <button type="button" onClick={() => addListItem("features", featureInput, setFeatureInput)} className="w-11 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center justify-center shrink-0">
+              <Plus className="w-5 h-5" />
+            </button>
           </div>
           <TagList items={form.features} onRemove={(i) => setForm({ ...form, features: form.features.filter((_, idx) => idx !== i) })} />
         </Field>
 
         <Field label="Benefits">
-          <div className="flex gap-2 mb-2">
-            <Input className={inputCls} value={benefitInput} onChange={(e) => setBenefitInput(e.target.value)} placeholder="Add benefit" />
-            <Button type="button" variant="outline" onClick={() => addListItem("benefits", benefitInput, setBenefitInput)}><Plus className="w-4 h-4" /></Button>
+          <div className="flex gap-2 mb-3">
+            <Input className={inputCls} value={benefitInput} onChange={(e) => setBenefitInput(e.target.value)} placeholder="Add benefit" onKeyDown={(e) => { if(e.key === 'Enter') { e.preventDefault(); addListItem("benefits", benefitInput, setBenefitInput); } }} />
+            <button type="button" onClick={() => addListItem("benefits", benefitInput, setBenefitInput)} className="w-11 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center justify-center shrink-0">
+              <Plus className="w-5 h-5" />
+            </button>
           </div>
           <TagList items={form.benefits} onRemove={(i) => setForm({ ...form, benefits: form.benefits.filter((_, idx) => idx !== i) })} />
         </Field>
@@ -273,9 +279,9 @@ const ImageUpload = ({ url, uploading, onUpload, onClear }) => (
 const TagList = ({ items, onRemove }) => (
   <div className="flex flex-wrap gap-2">
     {items.map((item, i) => (
-      <span key={`${item}-${i}`} className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-800 dark:text-slate-100 rounded text-xs">
+      <span key={`${item}-${i}`} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 dark:text-slate-100 rounded-md text-sm font-medium">
         {item}
-        <button type="button" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" onClick={() => onRemove(i)}><X className="w-3 h-3" /></button>
+        <button type="button" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors ml-0.5" onClick={() => onRemove(i)}><X className="w-3.5 h-3.5" /></button>
       </span>
     ))}
   </div>
