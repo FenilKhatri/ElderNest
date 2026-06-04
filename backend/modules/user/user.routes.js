@@ -9,5 +9,6 @@ router.use(protect);
 
 router.patch("/profile", userController.updateProfile);
 router.patch("/set-password", userController.setPassword);
+router.patch("/update-password", userController.updatePassword);
 
 export default router;

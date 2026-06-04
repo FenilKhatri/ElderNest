@@ -157,7 +157,6 @@ const BookServices = () => {
       setPaymentProcessing(true);
       const payload = { ...form, patientAge: Number(form.patientAge) };
       if (!payload.patientId) delete payload.patientId;
-      if (!payload.patientName) delete payload.patientName;
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
         toast.error(

@@ -4,6 +4,8 @@ import AuthPage from "../../../features/auth/forms/AuthPage";
 import { ROLES } from "@/constants";
 
 const Home = lazy(() => import("../../../features/public/pages/Home"));
+const ForgotPassword = lazy(() => import("../../../features/auth/pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("../../../features/auth/pages/ResetPassword"));
 const About = lazy(() => import("../../../features/public/pages/About"));
 const ContactUs = lazy(() => import("../../../features/public/pages/ContactUs"));
 const Blog = lazy(() => import("../../../features/public/pages/Blogs"));
@@ -41,6 +43,8 @@ const PublicRoutes = () => (
 
     {/* AUTH */}
     <Route path="/auth" element={<AuthPage role={ROLES.USER} />} />
+    <Route path="/forgot-password" element={<ForgotPassword />} />
+    <Route path="/reset-password" element={<ResetPassword />} />
     <Route
       path="/caregiver/login"
       element={<AuthPage role={ROLES.CAREGIVER} initialMode="login" />}

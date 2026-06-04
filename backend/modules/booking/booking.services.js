@@ -11,11 +11,11 @@ import { isSlotAvailable } from "../../common/utils/slotGenerator.js";
 import CaregiverAvailability from "../caregiver/caregiverAvailability.model.js";
 
 // Check slot availability
-export const checkSlotAvailability = async (caregiverId, bookingDate, startTime, endTime) => {
+export const checkSlotAvailability = async (caregiverId, bookingDate, startTime, endTime, excludeUserId = null) => {
     // 1. Check if the slot is locked by someone else
     const date = new Date(bookingDate);
     date.setHours(0, 0, 0, 0);
-    const locked = await isSlotLocked(caregiverId, date, startTime, endTime);
+    const locked = await isSlotLocked(caregiverId, date, startTime, endTime, excludeUserId);
     if (locked) return false;
 
     // 2. Check if the slot is actually available (falls in availability blocks & no overlap)
@@ -97,12 +97,13 @@ export const validateBookingRequest = async (userId, bookingData) => {
         timeSlot.endTime = calculatedEndTime;
     }
 
-    // Check slot availability
+    // Check slot availability (exclude this user's own locks)
     const isAvailable = await checkSlotAvailability(
         caregiverId,
         bookingDate,
         timeSlot.startTime,
-        calculatedEndTime
+        calculatedEndTime,
+        userId
     );
 
     if (!isAvailable) {

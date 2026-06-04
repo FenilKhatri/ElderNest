@@ -7,10 +7,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
   User, Mail, Phone, Camera, Save, Shield,
-  Calendar, BadgeCheck, ArrowRight, Loader2, Key, Users
+  Calendar, BadgeCheck, ArrowRight, Loader2, Key, Users, Eye, EyeOff, Lock
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
-import { updateProfile } from "../api/user.api";
+import { updateProfile, updatePassword } from "../api/user.api";
 import http from "../../../lib/axios";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
@@ -25,6 +25,158 @@ const profileSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().regex(/^[6-9]\d{9}$/, "Invalid Indian phone number").optional().or(z.literal("")),
 });
+
+// ─── Security Section (Set or Update Password) ───
+const SecuritySection = ({ user, fetchUser }) => {
+  const showSetPassword = (user?.authProvider === "google") && !user?.hasPassword;
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [updating, setUpdating] = useState(false);
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+
+    if (newPassword.length < 8) {
+      toast.error("New password must be at least 8 characters.");
+      return;
+    }
+    if (!/[A-Z]/.test(newPassword)) {
+      toast.error("Password must contain at least one uppercase letter.");
+      return;
+    }
+    if (!/[a-z]/.test(newPassword)) {
+      toast.error("Password must contain at least one lowercase letter.");
+      return;
+    }
+    if (!/[0-9]/.test(newPassword)) {
+      toast.error("Password must contain at least one number.");
+      return;
+    }
+    if (!/[!@#$%^&*(){}[\]/+\-*]/.test(newPassword)) {
+      toast.error("Password must contain at least one special character.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setUpdating(true);
+      await updatePassword(currentPassword, newPassword);
+      toast.success("Password updated successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      toast.error(error.message || "Failed to update password.");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  return (
+    <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Key className="w-5 h-5 text-amber-500" />
+          Security Settings
+        </h3>
+      </div>
+      <div className="p-6">
+        {showSetPassword ? (
+          <SetPassword onPasswordSet={() => fetchUser()} />
+        ) : (
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+              <Lock className="w-5 h-5 text-blue-500" />
+              Update Password
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">
+              Change your existing password to keep your account secure.
+            </p>
+            <form onSubmit={handleUpdatePassword} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Current Password
+                </label>
+                <div className="relative">
+                  <Input
+                    type={showCurrent ? "text" : "password"}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Enter current password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrent(!showCurrent)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  >
+                    {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  New Password
+                </label>
+                <div className="relative">
+                  <Input
+                    type={showNew ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="At least 8 characters"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNew(!showNew)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  >
+                    {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Confirm New Password
+                </label>
+                <div className="relative">
+                  <Input
+                    type={showConfirm ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your new password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm(!showConfirm)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  >
+                    {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <div className="flex justify-end pt-2">
+                <Button type="submit" disabled={updating}>
+                  {updating ? "Updating..." : "Update Password"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
 
 const Profile = () => {
   const { user, fetchUser } = useAuth();
@@ -233,19 +385,9 @@ const Profile = () => {
               </form>
             </motion.div>
 
-            {/* Security Card */}
-            {(user?.authProvider === "google" || user?.authProvider === "both") && (
-              <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Key className="w-5 h-5 text-amber-500" />
-                    Security Settings
-                  </h3>
-                </div>
-                <div className="p-6">
-                  <SetPassword />
-                </div>
-              </motion.div>
+            {/* Security Card — Set or Update Password */}
+            {(user?.authProvider === "google" || user?.authProvider === "both" || user?.hasPassword) && (
+              <SecuritySection user={user} fetchUser={fetchUser} />
             )}
           </div>
 

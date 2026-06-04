@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import FormFields from "../../../components/ui/FormFields";
 import GoogleAuthButton from "../../../components/ui/GoogleAuthButton";
@@ -48,11 +48,21 @@ const Login = ({ role = ROLES.USER }) => {
       animate="show"
       className="space-y-5"
     >
-      <FormFields
-        fields={loginFields}
-        form={form}
-        onChange={(e) => handleChange(e, setForm)}
-      />
+      <div className="space-y-1">
+        <FormFields
+          fields={loginFields}
+          form={form}
+          onChange={(e) => handleChange(e, setForm)}
+        />
+        <div className="flex justify-end pt-1">
+          <Link
+            to="/forgot-password"
+            className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+          >
+            Forgot Password?
+          </Link>
+        </div>
+      </div>
 
       <motion.div variants={fadeUp}>
         <Button

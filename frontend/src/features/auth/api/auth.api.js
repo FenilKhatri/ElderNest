@@ -31,3 +31,15 @@ export const getMe = async () => {
 export const logout = () => {
     return http.post("/auth/logout");
 };
+
+export const forgotPassword = (email, captchaToken) => {
+    return http.post("/auth/forgot-password", { email, captchaToken });
+};
+
+export const validateResetToken = (token) => {
+    return http.get(`/auth/validate-reset-token?token=${token}`);
+};
+
+export const resetPassword = (token, password) => {
+    return http.post("/auth/reset-password", { token, password });
+};

@@ -3,7 +3,7 @@ import getRazorpayInstance from "../../config/razorpay.js";
 import { asyncHandler } from "../../common/middlewares/async.helper.js";
 import { successResponse, errorResponse } from "../../common/utils/responseHandler.utils.js";
 import * as bookingService from "../booking/booking.services.js";
-import { acquireSlotLock } from "../booking/slotLocking.service.js";
+import { acquireSlotLock, releaseSlotLock } from "../booking/slotLocking.service.js";
 import Booking from "../booking/booking.model.js";
 import { generateReceiptPdf, generateBookingPdf } from "../../common/utils/pdf/index.js";
 
@@ -99,6 +99,18 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     }
 
     const booking = await bookingService.createBooking(req.user.id, bookingData);
+
+    // Release the slot lock now that booking is confirmed
+    try {
+        await releaseSlotLock(
+            bookingData.caregiverId,
+            bookingData.bookingDate,
+            bookingData.timeSlot?.startTime,
+            bookingData.timeSlot?.endTime
+        );
+    } catch (lockError) {
+        console.error("Failed to release slot lock (non-critical):", lockError);
+    }
 
     await Booking.findByIdAndUpdate(booking._id, { status: "pending" });
     booking.paymentStatus = "paid";

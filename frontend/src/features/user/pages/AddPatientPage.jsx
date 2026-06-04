@@ -307,6 +307,16 @@ const AddPatientPage = () => {
             </div>
             <div className="space-y-1">
               <Select 
+                label="State" 
+                {...register("address.state")} 
+                value={watch("address.state")}
+                options={indianStates.map(s => ({ value: s, label: s }))} 
+                placeholder="Select State" 
+                searchable
+              />
+            </div>
+            <div className="space-y-1">
+              <Select 
                 label="City" 
                 {...register("address.city")} 
                 value={watch("address.city")}
@@ -316,15 +326,6 @@ const AddPatientPage = () => {
                 searchable
               />
               {errors.address?.city && <p className="text-red-500 text-xs">{errors.address.city.message}</p>}
-            </div>
-            <div className="space-y-1">
-              <Select 
-                label="State" 
-                {...register("address.state")} 
-                value={watch("address.state")}
-                options={indianStates.map(s => ({ value: s, label: s }))} 
-                placeholder="Select State" 
-              />
             </div>
             <div className="space-y-1">
               <Input labelName="Pincode" {...register("address.pincode")} placeholder="6-digit PIN" />

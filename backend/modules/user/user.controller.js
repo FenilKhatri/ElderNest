@@ -54,5 +54,39 @@ export const setPassword = asyncHandler(async (req, res) => {
     }
 
     await user.save();
-    return successResponse(res, 200, "Password set successfully");
+    return successResponse(res, 200, "Password set successfully", { hasPassword: true, authProvider: user.authProvider });
+});
+
+// Update password for users who already have one
+export const updatePassword = asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+        return errorResponse(res, 400, "Current password and new password are required");
+    }
+
+    if (newPassword.length < 8) {
+        return errorResponse(res, 400, "New password must be at least 8 characters long");
+    }
+
+    const user = await User.findById(req.user.id).select("+password");
+    if (!user) {
+        return errorResponse(res, 404, "User not found");
+    }
+
+    if (!user.password) {
+        return errorResponse(res, 400, "No password set for this account. Please set a password first.");
+    }
+
+    const bcrypt = await import("bcrypt");
+    const isMatch = await bcrypt.default.compare(currentPassword, user.password);
+    if (!isMatch) {
+        return errorResponse(res, 401, "Current password is incorrect");
+    }
+
+    const hashedPassword = await bcrypt.default.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return successResponse(res, 200, "Password updated successfully");
 });
