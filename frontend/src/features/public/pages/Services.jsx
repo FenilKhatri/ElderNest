@@ -94,7 +94,7 @@ const Services = () => {
       <div className="max-w-site-wide mx-auto">
         
         {/* Page Header */}
-        <div className="sticky top-28 mb-8 md:mb-10">
+        <div className="mb-8 md:mb-10">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3">
             Find Trusted Care Services
           </h1>
@@ -116,10 +116,10 @@ const Services = () => {
           
           {/* Sidebar Filters */}
           <div className={`
-            fixed md:sticky top-0 md:top-24 left-0 h-full md:h-auto w-full md:w-64 lg:w-72 bg-white md:bg-transparent dark:bg-slate-900 md:dark:bg-transparent z-50 md:z-auto overflow-y-auto md:overflow-visible transition-transform duration-300
-            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            ${isSidebarOpen ? 'block' : 'hidden md:block'}
+            md:sticky top-24 w-full md:w-64 lg:w-72 self-start
           `}>
-            <div className="bg-white dark:bg-[#111827] md:border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm min-h-full md:min-h-0">
+            <div className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
               
               <div className="flex items-center justify-between md:hidden mb-6">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">Filters</h2>

@@ -215,7 +215,7 @@ const ServiceFormPage = () => {
             label="Featured service"
             checked={form.isFeatured} 
             onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} 
-            className="mr-6 mt-6"
+            className="mr-6 mt-3"
           />
           <div className="flex items-center gap-3">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Status:</label>
