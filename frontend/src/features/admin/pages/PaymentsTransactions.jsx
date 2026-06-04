@@ -178,18 +178,18 @@ const PaymentsTransactions = () => {
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">{t.transactionId}</td>
                       <td className="px-4 py-3">
                         {t.userId ? (
-                          <p className="text-sm font-medium">{t.userId.name} <span className="text-xs text-slate-400">(User)</span></p>
+                          <p className="text-sm font-medium dark:text-white">{t.userId.name} <span className="text-xs text-slate-400">(User)</span></p>
                         ) : null}
                         {t.caregiverId ? (
-                          <p className="text-sm font-medium">{t.caregiverId.userId?.name || 'Caregiver'} <span className="text-xs text-slate-400">(CG)</span></p>
+                          <p className="text-sm font-medium dark:text-white">{t.caregiverId.userId?.name || 'Caregiver'} <span className="text-xs text-slate-400">(CG)</span></p>
                         ) : null}
                       </td>
-                      <td className="px-4 py-3 text-sm capitalize">{t.type}</td>
+                      <td className="px-4 py-3 text-sm capitalize dark:text-slate-300">{t.type}</td>
                       <td className={`px-4 py-3 text-sm font-semibold ${getAmountColor(t.type)}`}>
                         {getAmountPrefix(t.type)}₹{t.amount?.toFixed(2)}
                       </td>
                       <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
-                      <td className="px-4 py-3 text-sm text-slate-600">{formatDateTime(t.createdAt)}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDateTime(t.createdAt)}</td>
                       <td className="px-4 py-3">
                         <button type="button" onClick={() => setViewItem(t)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg">
                           <Eye className="w-4 h-4" />

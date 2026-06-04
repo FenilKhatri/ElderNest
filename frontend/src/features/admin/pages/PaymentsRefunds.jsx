@@ -202,8 +202,8 @@ const PaymentsRefunds = () => {
                   {filteredRefunds.map((r) => (
                     <tr key={r._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                       <td className="px-4 py-3">
-                        <p className="text-sm font-medium">{r.userId?.name}</p>
-                        <p className="text-xs text-slate-500">{r.userId?.email}</p>
+                        <p className="text-sm font-medium dark:text-white">{r.userId?.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{r.userId?.email}</p>
                       </td>
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">
                         {r.bookingId?.bookingId}
@@ -215,7 +215,7 @@ const PaymentsRefunds = () => {
                         {r.reason}
                       </td>
                       <td className="px-4 py-3"><StatusBadge status={r.status} /></td>
-                      <td className="px-4 py-3 text-sm text-slate-600">{formatDateTime(r.createdAt)}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDateTime(r.createdAt)}</td>
                       <td className="px-4 py-3">
                         <Button type="button" onClick={() => setViewItem(r)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg">
                           <Eye className="w-4 h-4" />

@@ -202,8 +202,8 @@ const PaymentsPayouts = () => {
                   {filteredPayouts.map((p) => (
                     <tr key={p._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                       <td className="px-4 py-3">
-                        <p className="text-sm font-medium">{p.caregiverId?.userId?.name}</p>
-                        <p className="text-xs text-slate-500">{p.caregiverId?.userId?.email}</p>
+                        <p className="text-sm font-medium dark:text-white">{p.caregiverId?.userId?.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{p.caregiverId?.userId?.email}</p>
                       </td>
                       <td className="px-4 py-3 text-sm font-semibold text-slate-900 dark:text-white">
                         ₹{p.amount?.toFixed(2)}
@@ -211,11 +211,11 @@ const PaymentsPayouts = () => {
                       <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
                         {p.periodStart ? formatDate(p.periodStart) : "—"} to {p.periodEnd ? formatDate(p.periodEnd) : "—"}
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600 uppercase">
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 uppercase">
                         {p.payoutMethod?.replace("_", " ")}
                       </td>
                       <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
-                      <td className="px-4 py-3 text-sm text-slate-600">{formatDateTime(p.createdAt)}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDateTime(p.createdAt)}</td>
                       <td className="px-4 py-3">
                         <Button type="button" onClick={() => setViewItem(p)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg">
                           <Eye className="w-4 h-4" />
