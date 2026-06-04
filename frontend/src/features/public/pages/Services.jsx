@@ -94,7 +94,7 @@ const Services = () => {
       <div className="max-w-site-wide mx-auto">
         
         {/* Page Header */}
-        <div className="mb-8 md:mb-10">
+        <div className="sticky top-28 mb-8 md:mb-10">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3">
             Find Trusted Care Services
           </h1>
