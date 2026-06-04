@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { stagger, fadeUp } from "../../../animations/motionVariants";
+import { stagger, fadeUp } from "../../animations/motionVariants";
 import MobileFilterToggle from "../ui/MobileFilterToggle";
 
 const ListingPageLayout = ({
