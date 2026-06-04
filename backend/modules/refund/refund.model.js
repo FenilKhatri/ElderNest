@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { REFUND_STATUS } from "../../common/utils/constants.js";
 
 const refundSchema = new mongoose.Schema(
     {
@@ -31,8 +32,8 @@ const refundSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["pending", "approved", "rejected", "processed"],
-            default: "pending",
+            enum: [REFUND_STATUS.PENDING, REFUND_STATUS.APPROVED, REFUND_STATUS.REJECTED, REFUND_STATUS.PROCESSED],
+            default: REFUND_STATUS.PENDING,
         },
         adminNotes: {
             type: String,

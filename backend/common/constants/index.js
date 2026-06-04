@@ -1,15 +1,9 @@
-/**
- * Centralized constants for the ElderNest backend.
- * Use these instead of hardcoding string arrays in Mongoose models/validators.
- *
- * These values MUST stay in sync with the frontend constants in:
- *   frontend/src/constants/
- */
 export const CARE_TYPES = ["full-time", "part-time", "live-in", "hourly", "emergency"];
 export const DURATION_TYPES = ["hourly", "daily", "long-term"];
 export const BOOKING_STATUSES = ["pending", "accepted", "rejected", "in-progress", "completed", "cancelled"];
 export const PAYMENT_STATUSES = ["pending", "paid", "refunded", "failed", "completed"];
 export const CANCELLED_BY = ["user", "caregiver", "admin"];
+
 // USER / AUTH
 export const USER_ROLES = ["user", "admin", "caregiver"];
 export const AUTH_PROVIDERS = ["local", "google"];

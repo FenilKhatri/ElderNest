@@ -6,7 +6,7 @@ import CaregiverAvailability from "./caregiverAvailability.model.js";
 import { validateLocation } from "../../common/validators/location.validator.js";
 import { createNotification } from "../../common/services/notification.service.js";
 import { AppError } from "../../common/utils/appError.js";
-import { ROLES } from "../../common/utils/constants.js";
+import { ROLES, CAREGIVER_STATUSES, BOOKING_STATUS } from "../../common/utils/constants.js";
 import { ONBOARDING_STAGES, isCaregiverBookable } from "../../common/utils/caregiverOnboarding.js";
 
 const buildPricing = (pricing) => {
@@ -35,7 +35,7 @@ export const getAllCaregivers = async (filters = {}) => {
     const query = {
         isActive: true,
         profileCompleted: true,
-        profileApprovalStatus: "approved",
+        profileApprovalStatus: CAREGIVER_STATUSES.APPROVED,
         onboardingStage: ONBOARDING_STAGES.ACTIVE,
         isPublished: true,
     };
@@ -78,14 +78,9 @@ export const getAllCaregivers = async (filters = {}) => {
     // Filter by careType
     if (filters.careType) {
         const careTypesArray = Array.isArray(filters.careType) ? filters.careType : filters.careType.split(',');
-        // For now, we match against availableTiming as a proxy for careType since we haven't added a dedicated careType array yet,
-        // or we can query against a new field if we add one.
-        // Assuming availability object is updated in Phase 7 to contain careTypes, we'll query it here.
         query['availability.careTypes'] = { $in: careTypesArray };
     }
 
-    // Search by name (via populated userId, but since we can't easily search populated fields in mongoose find query, 
-    // we first find users matching the search, then filter caregivers by those userIds)
     if (filters.search) {
         const matchingUsers = await User.find({ name: { $regex: new RegExp(filters.search, "i") } }).select('_id');
         const userIds = matchingUsers.map(u => u._id);
@@ -147,7 +142,7 @@ export const completeProfile = async (userId, profileData) => {
         throw new AppError("User not found", 404);
     }
 
-    if (user.status !== "approved" || !user.isApproved) {
+    if (user.status !== CAREGIVER_STATUSES.APPROVED || !user.isApproved) {
         throw new AppError(
             "Your account must be approved by an admin before you can complete your profile.",
             403
@@ -199,7 +194,7 @@ export const completeProfile = async (userId, profileData) => {
             country: location.country || "India",
         },
         profileCompleted: true,
-        profileApprovalStatus: "pending",
+        profileApprovalStatus: CAREGIVER_STATUSES.PENDING,
     };
 
     if (alternateContact) {
@@ -376,7 +371,7 @@ export const submitVerification = async (userId, payload) => {
     };
     caregiver.verificationInfo = verificationInfo || "";
     caregiver.profileCompleted = true;
-    caregiver.profileApprovalStatus = "pending";
+    caregiver.profileApprovalStatus = CAREGIVER_STATUSES.PENDING;
     caregiver.onboardingStage = ONBOARDING_STAGES.VERIFICATION_PENDING;
     caregiver.verificationSubmittedAt = new Date();
 
@@ -482,11 +477,11 @@ export const getCaregiverDashboardStats = async (userId) => {
     const now = new Date();
     const upcoming = bookings.filter(
         (b) =>
-            ["pending", "accepted"].includes(b.status) &&
+            [BOOKING_STATUS.PENDING, BOOKING_STATUS.ACCEPTED].includes(b.status) &&
             new Date(b.bookingDate) >= now
     );
-    const active = bookings.filter((b) => b.status === "in-progress");
-    const completed = bookings.filter((b) => b.status === "completed");
+    const active = bookings.filter((b) => b.status === BOOKING_STATUS.IN_PROGRESS);
+    const completed = bookings.filter((b) => b.status === BOOKING_STATUS.COMPLETED);
     const monthlyEarnings = completed
         .filter((b) => {
             const d = new Date(b.completedAt || b.bookingDate);
@@ -496,7 +491,7 @@ export const getCaregiverDashboardStats = async (userId) => {
 
     return {
         totalBookings: bookings.length,
-        pendingBookings: bookings.filter((b) => b.status === "pending").length,
+        pendingBookings: bookings.filter((b) => b.status === BOOKING_STATUS.PENDING).length,
         activeBookings: active.length,
         upcomingBookings: upcoming.length,
         completedBookings: completed.length,

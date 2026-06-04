@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { CAREGIVER_STATUSES, ROLES, AUTH_PROVIDERS } from "../../common/utils/constants.js";
 
 const userSchema = new mongoose.Schema(
     {
@@ -25,21 +26,21 @@ const userSchema = new mongoose.Schema(
         password: {
             type: String,
             required: function () {
-                return this.authProvider === "local";
+                return this.authProvider === AUTH_PROVIDERS.LOCAL;
             },
             select: false
         },
 
         authProvider: {
             type: String,
-            enum: ["local", "google", "both"],
-            default: "local"
+            enum: Object.values(AUTH_PROVIDERS),
+            default: AUTH_PROVIDERS.LOCAL
         },
 
         role: {
             type: String,
-            enum: ["user", "admin", "caregiver"],
-            default: "user",
+            enum: Object.values(ROLES),
+            default: ROLES.USER,
             index: true,
         },
 
@@ -61,15 +62,15 @@ const userSchema = new mongoose.Schema(
         isApproved: {
             type: Boolean,
             default: function() {
-                return this.role !== "caregiver";
+                return this.role !== ROLES.CAREGIVER;
             },
         },
 
         status: {
             type: String,
-            enum: ["pending", "approved", "rejected"],
+            enum: Object.values(CAREGIVER_STATUSES),
             default: function() {
-                return this.role === "caregiver" ? "pending" : "approved";
+                return this.role === ROLES.CAREGIVER ? CAREGIVER_STATUSES.PENDING : CAREGIVER_STATUSES.APPROVED;
             },
             index: true,
         },

@@ -69,8 +69,9 @@ export const getBookingById = asyncHandler(async (req, res) => {
 
     if (
         req.user.role !== "admin" &&
-        booking.userId._id.toString() !== req.user.id &&
-        booking.caregiverId.userId._id.toString() !== req.user.id
+        booking.userId?._id?.toString() !== req.user.id.toString() &&
+        booking.caregiverId?.userId?._id?.toString() !== req.user.id.toString() &&
+        booking.caregiverId?._id?.toString() !== req.user.id.toString()
     ) {
         return errorResponse(res, 403, "Unauthorized");
     }

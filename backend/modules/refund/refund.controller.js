@@ -3,9 +3,9 @@ import { successResponse, errorResponse } from "../../common/utils/responseHandl
 import Refund from "./refund.model.js";
 import Booking from "../booking/booking.model.js";
 import Transaction from "../transaction/transaction.model.js";
+import { isBookingOwner } from "../../common/utils/booking.utils.js";
+import { PAYMENT_STATUS, BOOKING_STATUS, REFUND_STATUS, TRANSACTION_STATUS } from "../../common/utils/constants.js";
 
-// @desc    Request a refund (User)
-// @route   POST /api/refunds
 export const createRefundRequest = asyncHandler(async (req, res) => {
     const { bookingId, reason } = req.body;
 
@@ -14,11 +14,12 @@ export const createRefundRequest = asyncHandler(async (req, res) => {
         return errorResponse(res, 404, "Booking not found");
     }
 
-    if (booking.userId.toString() !== req.user.id) {
+    if (!isBookingOwner(req.user, booking)) {
+        console.error("Refund Request Failed: Not authorized. User ID:", req.user.id, "Booking Owner ID:", booking.userId);
         return errorResponse(res, 403, "Not authorized to request refund for this booking");
     }
 
-    if (booking.paymentStatus !== "paid" || !booking.transactionId) {
+    if (booking.paymentStatus !== PAYMENT_STATUS.PAID || !booking.transactionId) {
         return errorResponse(res, 400, "Booking is not paid. Cannot request refund.");
     }
 
@@ -36,14 +37,13 @@ export const createRefundRequest = asyncHandler(async (req, res) => {
         reason,
     });
 
-    booking.status = "cancelled";
+    booking.status = BOOKING_STATUS.CANCELLED;
+    booking.refundStatus = REFUND_STATUS.PENDING;
     await booking.save();
 
     return successResponse(res, 201, "Refund request submitted successfully", { refund });
 });
 
-// @desc    Get all refund requests (Admin)
-// @route   GET /api/refunds
 export const getAllRefunds = asyncHandler(async (req, res) => {
     const { status } = req.query;
     const query = {};
@@ -58,8 +58,6 @@ export const getAllRefunds = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Refunds fetched successfully", { refunds });
 });
 
-// @desc    Update refund status (Admin)
-// @route   PATCH /api/refunds/:id/status
 export const updateRefundStatus = asyncHandler(async (req, res) => {
     const { status, adminNotes } = req.body;
 
@@ -75,8 +73,17 @@ export const updateRefundStatus = asyncHandler(async (req, res) => {
 
     await refund.save();
 
+    const booking = await Booking.findById(refund.bookingId);
+    if (booking) {
+        booking.refundStatus = status;
+        if (status === REFUND_STATUS.PROCESSED || status === REFUND_STATUS.REFUNDED) {
+            booking.paymentStatus = PAYMENT_STATUS.REFUNDED;
+        }
+        await booking.save();
+    }
+
     // If processed, create a refund transaction record
-    if (status === "processed") {
+    if (status === REFUND_STATUS.PROCESSED) {
         await Transaction.create({
             transactionId: `ref_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
             bookingId: refund.bookingId,
@@ -84,7 +91,7 @@ export const updateRefundStatus = asyncHandler(async (req, res) => {
             caregiverId: refund.caregiverId,
             amount: refund.amount,
             type: "refund",
-            status: "completed",
+            status: TRANSACTION_STATUS.COMPLETED,
             metadata: { refundId: refund._id }
         });
     }

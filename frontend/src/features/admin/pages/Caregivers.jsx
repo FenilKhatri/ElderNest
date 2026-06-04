@@ -24,6 +24,7 @@ import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 import Textarea from "../../../components/ui/Textarea";
+import { CAREGIVER_STATUSES } from "../../../constants/statusConstants";
 
 // Action Dropdown Component
 const ActionDropdown = ({ caregiver, onApprove, onReject, open, onToggle, onClose, isLoading }) => {
@@ -132,8 +133,8 @@ const Caregivers = () => {
   }, [location.state]);
 
   const handleApprove = async (c) => {
-    if (c.status !== "pending" || c.isApproved) {
-      toast.info(c.status === "rejected" ? "This caregiver was rejected." : "This caregiver is already approved.");
+    if (c.status !== CAREGIVER_STATUSES.PENDING || c.isApproved) {
+      toast.info(c.status === CAREGIVER_STATUSES.REJECTED ? "This caregiver was rejected." : "This caregiver is already approved.");
       return;
     }
     try {
@@ -145,7 +146,7 @@ const Caregivers = () => {
       toast.success("Caregiver approved!");
       
       // Optimistic Update
-      setCaregivers(prev => prev.map(user => user._id === c._id ? { ...user, status: "approved", isApproved: true } : user));
+      setCaregivers(prev => prev.map(user => user._id === c._id ? { ...user, status: CAREGIVER_STATUSES.APPROVED, isApproved: true } : user));
       setPendingRegistrations(prev => prev.filter(user => user._id !== c._id));
     } catch (err) {
       toast.error(err.message || "Failed to approve");
@@ -155,7 +156,7 @@ const Caregivers = () => {
   };
 
   const handleReject = (c) => {
-    if (c.status !== "pending" || c.isApproved) {
+    if (c.status !== CAREGIVER_STATUSES.PENDING || c.isApproved) {
       toast.info("Only pending registrations can be rejected.");
       return;
     }
@@ -201,7 +202,7 @@ const Caregivers = () => {
         toast.success("Caregiver registration rejected");
         
         // Optimistic Update
-        setCaregivers(prev => prev.map(u => u._id === rejectModal.id ? { ...u, status: "rejected", isApproved: false } : u));
+        setCaregivers(prev => prev.map(u => u._id === rejectModal.id ? { ...u, status: CAREGIVER_STATUSES.REJECTED, isApproved: false } : u));
         setPendingRegistrations(prev => prev.filter(u => u._id !== rejectModal.id));
       } else {
         await Promise.all([
@@ -304,9 +305,9 @@ const Caregivers = () => {
               onChange: setStatusFilter,
               options: [
                 { value: "all", label: "All statuses" },
-                { value: "pending", label: "Pending" },
-                { value: "approved", label: "Approved" },
-                { value: "rejected", label: "Rejected" },
+                { value: CAREGIVER_STATUSES.PENDING, label: "Pending" },
+                { value: CAREGIVER_STATUSES.APPROVED, label: "Approved" },
+                { value: CAREGIVER_STATUSES.REJECTED, label: "Rejected" },
               ],
             },
           ]}
@@ -414,7 +415,7 @@ const Caregivers = () => {
                           >
                             <Eye className="w-4 h-4" />
                           </button>
-                          {c.status === "pending" && (
+                          {c.status === CAREGIVER_STATUSES.PENDING && (
                             <ActionDropdown 
                               caregiver={c}
                               open={openDropdownId === c._id}
@@ -450,7 +451,7 @@ const Caregivers = () => {
                   ) : filteredAll.map((c) => (
                     <div key={c._id} className="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4 relative">
                       <div className="absolute top-4 right-4 flex items-center gap-2">
-                        {c.status === "pending" && (
+                        {c.status === CAREGIVER_STATUSES.PENDING && (
                           <ActionDropdown 
                             caregiver={c}
                             open={openDropdownId === c._id}

@@ -248,9 +248,9 @@ export const getUserBookings = async (userId, status = null) => {
     }
 
     const bookings = await Booking.find(query)
-        .populate("caregiverId", "userId rating")
         .populate({
             path: "caregiverId",
+            select: "userId rating profileImage fullName",
             populate: { path: "userId", select: "name email profileImage" },
         })
         .populate("serviceId", "title description price")

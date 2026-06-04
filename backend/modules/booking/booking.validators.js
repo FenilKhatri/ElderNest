@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+import { BOOKING_STATUS } from "../../common/utils/constants.js";
 
 export const createBookingValidator = [
     body("caregiverId")
@@ -166,7 +167,7 @@ export const updateBookingStatusValidator = [
     body("status")
         .notEmpty()
         .withMessage("Status is required")
-        .isIn(["pending", "accepted", "rejected", "in-progress", "completed", "cancelled"])
+        .isIn([...Object.values(BOOKING_STATUS), "rejected"])
         .withMessage("Invalid status"),
     
     body("rejectionReason")
@@ -178,7 +179,7 @@ export const updateBookingStatusValidator = [
         .withMessage("Rejection reason must be between 10-500 characters"),
     
     body("cancellationReason")
-        .if(body("status").equals("cancelled"))
+        .if(body("status").equals(BOOKING_STATUS.CANCELLED))
         .notEmpty()
         .withMessage("Cancellation reason is required when cancelling booking")
         .trim()

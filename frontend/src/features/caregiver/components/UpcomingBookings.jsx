@@ -5,6 +5,7 @@ import { formatDate, formatTime } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Button from "../../../components/ui/Button";
 import EmptyState from "../../../components/ui/EmptyState";
+import { BOOKING_STATUS } from "../../../constants/statusConstants";
 
 const UpcomingBookings = ({ bookings = [], loading = false, onViewAll }) => {
   if (loading) {
@@ -92,7 +93,7 @@ const UpcomingBookings = ({ bookings = [], loading = false, onViewAll }) => {
                 </div>
               </div>
 
-              {booking.status === "pending" && (
+              {booking.status === BOOKING_STATUS.PENDING && (
                 <div className="flex space-x-2 mt-4">
                   <Button size="sm" className="flex-1">
                     Accept

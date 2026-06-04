@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { PAYMENT_STATUS, REFUND_STATUS, BOOKING_STATUS } from "../../common/utils/constants.js";
 
 const bookingSchema = new mongoose.Schema(
     {
@@ -156,8 +157,8 @@ const bookingSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ["pending", "accepted", "rejected", "in-progress", "completed", "cancelled"],
-            default: "pending",
+            enum: Object.values(BOOKING_STATUS),
+            default: BOOKING_STATUS.PENDING,
             index: true,
         },
         
@@ -184,8 +185,13 @@ const bookingSchema = new mongoose.Schema(
         
         paymentStatus: {
             type: String,
-            enum: ["pending", "paid", "refunded", "failed", "completed"],
-            default: "pending",
+            enum: [PAYMENT_STATUS.PENDING, PAYMENT_STATUS.PAID, PAYMENT_STATUS.REFUNDED, PAYMENT_STATUS.FAILED, PAYMENT_STATUS.COMPLETED],
+            default: PAYMENT_STATUS.PENDING,
+        },
+        refundStatus: {
+            type: String,
+            enum: [REFUND_STATUS.PENDING, REFUND_STATUS.APPROVED, REFUND_STATUS.REJECTED, REFUND_STATUS.PROCESSED, REFUND_STATUS.REFUNDED],
+            default: REFUND_STATUS.PENDING,
         },
         paymentId: {
             type: String,
@@ -238,7 +244,7 @@ bookingSchema.index(
     { caregiverId: 1, bookingDate: 1, "timeSlot.startTime": 1 },
     { 
         unique: true,
-        partialFilterExpression: { status: { $in: ["pending", "accepted", "in-progress"] } }
+        partialFilterExpression: { status: { $in: [BOOKING_STATUS.PENDING, BOOKING_STATUS.ACCEPTED, BOOKING_STATUS.IN_PROGRESS] } }
     }
 );
 

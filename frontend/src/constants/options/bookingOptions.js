@@ -1,10 +1,12 @@
+import { BOOKING_STATUS } from "../statusConstants.js";
+
 export const BOOKING_STATUS_OPTIONS = [
-  { value: "pending", label: "Pending" },
-  { value: "accepted", label: "Accepted" },
-  { value: "rejected", label: "Rejected" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
+  { value: BOOKING_STATUS.PENDING, label: "Pending" },
+  { value: BOOKING_STATUS.ACCEPTED, label: "Accepted" },
+  { value: BOOKING_STATUS.REJECTED, label: "Rejected" },
+  { value: BOOKING_STATUS.IN_PROGRESS, label: "In Progress" },
+  { value: BOOKING_STATUS.COMPLETED, label: "Completed" },
+  { value: BOOKING_STATUS.CANCELLED, label: "Cancelled" },
 ];
 
 export const CARE_TYPES = [

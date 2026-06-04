@@ -12,8 +12,9 @@ export const getMessages = asyncHandler(async (req, res) => {
         return errorResponse(res, 404, "Booking not found");
     }
 
-    const isUser = booking.userId.toString() === req.user.id.toString();
-    const isCaregiver = booking.caregiverId?.userId.toString() === req.user.id.toString();
+    const isUser = booking.userId && booking.userId.toString() === req.user.id.toString();
+    const caregiverUserId = booking.caregiverId?.userId || booking.caregiverId;
+    const isCaregiver = caregiverUserId && caregiverUserId.toString() === req.user.id.toString();
     const isAdmin = req.user.role === "admin";
 
     if (!isUser && !isCaregiver && !isAdmin) {
@@ -49,11 +50,12 @@ export const sendMessage = asyncHandler(async (req, res) => {
     }
 
     let receiverId;
-    const isUser = booking.userId.toString() === req.user.id.toString();
-    const isCaregiver = booking.caregiverId?.userId.toString() === req.user.id.toString();
+    const isUser = booking.userId && booking.userId.toString() === req.user.id.toString();
+    const caregiverUserId = booking.caregiverId?.userId || booking.caregiverId;
+    const isCaregiver = caregiverUserId && caregiverUserId.toString() === req.user.id.toString();
 
     if (isUser) {
-        receiverId = booking.caregiverId.userId;
+        receiverId = caregiverUserId;
     } else if (isCaregiver) {
         receiverId = booking.userId;
     } else {
@@ -69,7 +71,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
 
     await createNotification(
         receiverId,
-        "new_message",
+        "general",
         "New Message",
         `You have a new message regarding booking ${booking.bookingId}`,
         isUser ? "/caregiver/bookings" : "/user/bookings"

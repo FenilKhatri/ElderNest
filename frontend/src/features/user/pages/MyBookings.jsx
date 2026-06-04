@@ -4,8 +4,8 @@ import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Clock, XCircle, Star, Plus, LayoutGrid, List,
-  ChevronLeft, ChevronRight, Eye, MessageSquare,
-  Calendar, User as UserIcon, Loader2,
+  ChevronLeft, ChevronRight, MessageSquare,
+  User
 } from "lucide-react";
 import { getUserBookings, updateBookingStatus } from "../../booking/api/booking.api";
 import http from "../../../lib/axios";
@@ -21,17 +21,8 @@ import Textarea from "../../../components/ui/Textarea";
 import EmptyState from "../../../components/ui/EmptyState";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
 import { resolveAssetUrl } from "../../../utils/blogImage";
-
-const TABS = [
-  { id: "all", label: "All Bookings" },
-  { id: "pending", label: "Pending" },
-  { id: "accepted", label: "Accepted" },
-  { id: "in-progress", label: "In Progress" },
-  { id: "completed", label: "Completed" },
-  { id: "cancelled", label: "Cancelled" },
-];
-
-const PER_PAGE = 6;
+import { BOOKING_STATUS } from "../../../constants/statusConstants";
+import { TABS, PER_PAGE } from "../../../constants/tabs/myBookings";
 
 const MyBookings = () => {
   const navigate = useNavigate();
@@ -119,7 +110,7 @@ const MyBookings = () => {
   const handleCancelBooking = async () => {
     try {
       setCancelLoading(true);
-      await updateBookingStatus(cancelModal.id, { status: "cancelled", reason: "Cancelled by user" });
+      await updateBookingStatus(cancelModal.id, { status: BOOKING_STATUS.CANCELLED, reason: "Cancelled by user" });
       toast.success("Booking cancelled successfully");
       setCancelModal({ open: false, id: null });
       fetchBookings();
@@ -199,8 +190,13 @@ const MyBookings = () => {
           {/* Status + actions */}
           <div className="flex flex-col items-end gap-2 shrink-0 lg:w-[140px]">
             <StatusBadge status={booking.status} />
+            {booking.refundStatus && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800 capitalize">
+                Refund: {booking.refundStatus}
+              </span>
+            )}
             <div className="flex gap-2">
-              {booking.status === "pending" && (
+              {booking.status === BOOKING_STATUS.PENDING && (
                 <button
                   type="button"
                   onClick={() => setCancelModal({ open: true, id: booking._id })}
@@ -209,7 +205,7 @@ const MyBookings = () => {
                   <XCircle className="w-3.5 h-3.5" /> Cancel
                 </button>
               )}
-              {["accepted", "in-progress"].includes(booking.status) && (
+              {[BOOKING_STATUS.ACCEPTED, BOOKING_STATUS.IN_PROGRESS].includes(booking.status) && (
                 <button
                   type="button"
                   onClick={() => setActiveMessageBooking(booking)}
@@ -218,7 +214,7 @@ const MyBookings = () => {
                   <MessageSquare className="w-3.5 h-3.5" /> Message
                 </button>
               )}
-              {booking.status === "completed" && (
+              {booking.status === BOOKING_STATUS.COMPLETED && (
                 <button
                   type="button"
                   onClick={() => setReviewModal({ open: true, booking })}
@@ -260,7 +256,14 @@ const MyBookings = () => {
               <p className="text-xs text-slate-500 dark:text-slate-400">{role}</p>
             </div>
           </div>
-          <StatusBadge status={booking.status} />
+          <div className="flex flex-col items-end gap-1">
+            <StatusBadge status={booking.status} />
+            {booking.refundStatus && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800 capitalize">
+                Refund: {booking.refundStatus}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Details */}
@@ -292,7 +295,7 @@ const MyBookings = () => {
 
         {/* Actions */}
         <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
-          {booking.status === "pending" && (
+          {booking.status === BOOKING_STATUS.PENDING && (
             <button
               type="button"
               onClick={() => setCancelModal({ open: true, id: booking._id })}
@@ -301,7 +304,7 @@ const MyBookings = () => {
               <XCircle className="w-3.5 h-3.5" /> Cancel
             </button>
           )}
-          {["accepted", "in-progress"].includes(booking.status) && (
+          {[BOOKING_STATUS.ACCEPTED, BOOKING_STATUS.IN_PROGRESS].includes(booking.status) && (
             <button
               type="button"
               onClick={() => setActiveMessageBooking(booking)}
@@ -310,7 +313,7 @@ const MyBookings = () => {
               <MessageSquare className="w-3.5 h-3.5" /> Message
             </button>
           )}
-          {booking.status === "completed" && (
+          {booking.status === BOOKING_STATUS.COMPLETED && (
             <button
               type="button"
               onClick={() => setReviewModal({ open: true, booking })}
@@ -344,20 +347,18 @@ const MyBookings = () => {
                 key={t.id}
                 type="button"
                 onClick={() => setTab(t.id)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
-                  tab === t.id
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${tab === t.id
                     ? "bg-blue-600 text-white shadow-md"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                }`}
+                  }`}
               >
                 {t.label}
                 {counts[t.id] > 0 && (
                   <span
-                    className={`text-[10px] leading-none px-1.5 py-0.5 rounded-full font-semibold ${
-                      tab === t.id
+                    className={`text-[10px] leading-none px-1.5 py-0.5 rounded-full font-semibold ${tab === t.id
                         ? "bg-white/20 text-white"
                         : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
-                    }`}
+                      }`}
                   >
                     {counts[t.id]}
                   </span>
@@ -371,11 +372,10 @@ const MyBookings = () => {
             <button
               type="button"
               onClick={() => setLayout("list")}
-              className={`p-2 rounded-md transition-all ${
-                layout === "list"
+              className={`p-2 rounded-md transition-all ${layout === "list"
                   ? "bg-blue-600 text-white shadow-md"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
+                }`}
               title="List View"
             >
               <List className="w-4 h-4" />
@@ -383,11 +383,10 @@ const MyBookings = () => {
             <button
               type="button"
               onClick={() => setLayout("grid")}
-              className={`p-2 rounded-md transition-all ${
-                layout === "grid"
+              className={`p-2 rounded-md transition-all ${layout === "grid"
                   ? "bg-blue-600 text-white shadow-md"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
+                }`}
               title="Grid View"
             >
               <LayoutGrid className="w-4 h-4" />
@@ -479,11 +478,10 @@ const MyBookings = () => {
                       key={p}
                       type="button"
                       onClick={() => setPage(p)}
-                      className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${
-                        page === p
+                      className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${page === p
                           ? "bg-blue-600 text-white shadow-md"
                           : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                      }`}
+                        }`}
                     >
                       {p}
                     </button>

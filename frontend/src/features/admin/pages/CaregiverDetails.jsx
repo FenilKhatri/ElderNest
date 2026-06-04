@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { getCaregiverByUserId, getCaregiverByCaregiverId } from "../api/admin.api";
 import Button from "../../../components/ui/Button";
+import { CAREGIVER_STATUSES } from "../../../constants/statusConstants";
 
 const CaregiverDetails = () => {
   const { id } = useParams();
@@ -107,9 +108,9 @@ const CaregiverDetails = () => {
                 </h2>
                 <span
                   className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    caregiver.profileApprovalStatus === "approved"
+                    caregiver.profileApprovalStatus === CAREGIVER_STATUSES.APPROVED
                       ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                      : caregiver.profileApprovalStatus === "pending"
+                      : caregiver.profileApprovalStatus === CAREGIVER_STATUSES.PENDING
                       ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
                       : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                   }`}
@@ -427,18 +428,18 @@ const CaregiverDetails = () => {
                 </h3>
                 <div
                   className={`p-4 rounded-lg ${
-                    caregiver.profileApprovalStatus === "approved"
+                    caregiver.profileApprovalStatus === CAREGIVER_STATUSES.APPROVED
                       ? "bg-green-50 dark:bg-green-900/20"
-                      : caregiver.profileApprovalStatus === "pending"
+                      : caregiver.profileApprovalStatus === CAREGIVER_STATUSES.PENDING
                       ? "bg-yellow-50 dark:bg-yellow-900/20"
                       : "bg-red-50 dark:bg-red-900/20"
                   }`}
                 >
                   <p
                     className={`font-medium capitalize ${
-                      caregiver.profileApprovalStatus === "approved"
+                      caregiver.profileApprovalStatus === CAREGIVER_STATUSES.APPROVED
                         ? "text-green-700 dark:text-green-400"
-                        : caregiver.profileApprovalStatus === "pending"
+                        : caregiver.profileApprovalStatus === CAREGIVER_STATUSES.PENDING
                         ? "text-yellow-700 dark:text-yellow-400"
                         : "text-red-700 dark:text-red-400"
                     }`}

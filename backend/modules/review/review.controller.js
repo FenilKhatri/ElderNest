@@ -74,7 +74,7 @@ export const createReview = asyncHandler(async (req, res) => {
 
             if (caregiver.userId) {
                 await createNotification(
-                    caregiver.userId._id,
+                    caregiver.userId,
                     "new_review",
                     "New Review Received",
                     `You received a ${rating}-star review`,

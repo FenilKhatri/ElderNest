@@ -44,6 +44,7 @@ app.use(apiLimiter);
 
 // Serve uploaded files (receipts, booking PDFs)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api", routes);
 

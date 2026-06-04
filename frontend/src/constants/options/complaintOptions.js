@@ -1,8 +1,10 @@
+import { COMPLAINT_STATUS } from "../statusConstants.js";
+
 export const COMPLAINT_STATUS_OPTIONS = [
-  { value: "pending", label: "Pending" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "resolved", label: "Resolved" },
-  { value: "closed", label: "Closed" },
+  { value: COMPLAINT_STATUS.PENDING, label: "Pending" },
+  { value: COMPLAINT_STATUS.IN_PROGRESS, label: "In Progress" },
+  { value: COMPLAINT_STATUS.RESOLVED, label: "Resolved" },
+  { value: COMPLAINT_STATUS.CLOSED, label: "Closed" },
 ];
 
 export const COMPLAINT_TYPE_FILTER = [

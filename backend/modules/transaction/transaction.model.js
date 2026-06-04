@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { TRANSACTION_STATUS } from "../../common/utils/constants.js";
 
 const transactionSchema = new mongoose.Schema(
     {
@@ -30,8 +31,8 @@ const transactionSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["pending", "completed", "failed", "refunded"],
-            default: "pending",
+            enum: Object.values(TRANSACTION_STATUS),
+            default: TRANSACTION_STATUS.PENDING,
         },
         paymentMethod: {
             type: String,

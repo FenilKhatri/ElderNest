@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
+import { BOOKING_STATUS, PAYMENT_STATUS } from "../constants.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -104,8 +105,8 @@ export const generateBookingPdf = async (booking) => {
             doc.fontSize(10);
             doc.text(`Booking ID: ${booking.bookingId || booking._id}`);
             doc.text(`Created: ${new Date(booking.createdAt).toLocaleDateString("en-IN")}`);
-            doc.text(`Status: ${(booking.status || "pending").toUpperCase()}`);
-            doc.text(`Payment Status: ${(booking.paymentStatus || "pending").toUpperCase()}`);
+            doc.text(`Status: ${(booking.status || BOOKING_STATUS.PENDING).toUpperCase()}`);
+            doc.text(`Payment Status: ${(booking.paymentStatus || PAYMENT_STATUS.PENDING).toUpperCase()}`);
             doc.moveDown();
 
             doc.fontSize(12).text("PATIENT INFORMATION", { underline: true });
@@ -124,11 +125,36 @@ export const generateBookingPdf = async (booking) => {
             doc.text(`Duration Type: ${(booking.durationType || "hourly").toUpperCase()}`);
             doc.moveDown();
 
+            let calculatedDuration = booking.duration || 0;
+            if (!calculatedDuration && booking.timeSlot?.startTime && booking.timeSlot?.endTime) {
+                try {
+                    const parseTime = (t) => {
+                        const match = t.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+                        if (!match) return 0;
+                        let [_, h, m, ampm] = match;
+                        h = parseInt(h, 10);
+                        m = parseInt(m, 10);
+                        if (ampm) {
+                            if (ampm.toUpperCase() === 'PM' && h < 12) h += 12;
+                            if (ampm.toUpperCase() === 'AM' && h === 12) h = 0;
+                        }
+                        return h + m / 60;
+                    };
+                    const startH = parseTime(booking.timeSlot.startTime);
+                    const endH = parseTime(booking.timeSlot.endTime);
+                    if (endH > startH) {
+                        calculatedDuration = Number((endH - startH).toFixed(1));
+                    }
+                } catch(e) {
+                    console.error("Failed to parse duration", e);
+                }
+            }
+
             doc.fontSize(12).text("SCHEDULE", { underline: true });
             doc.fontSize(10);
             doc.text(`Date: ${new Date(booking.bookingDate).toLocaleDateString("en-IN")}`);
             doc.text(`Time: ${booking.timeSlot?.startTime || "N/A"} - ${booking.timeSlot?.endTime || "N/A"}`);
-            doc.text(`Duration: ${booking.duration || 0} hours`);
+            doc.text(`Duration: ${calculatedDuration} hours`);
             doc.moveDown();
 
             doc.fontSize(12).text("ADDRESS", { underline: true });

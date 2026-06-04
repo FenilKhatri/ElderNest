@@ -4,6 +4,7 @@ import { Clock, CheckCircle, XCircle } from "lucide-react";
 import { getCaregiverBookings, updateBookingStatus } from "../../booking/api/booking.api";
 import { getMyProfile } from "../api/caregiver.api";
 import { formatDate } from "../../../utils/helpers";
+import { BOOKING_STATUS } from "../../../constants/statusConstants";
 import Button from "../../../components/ui/Button";
 
 const Requests = () => {
@@ -22,7 +23,7 @@ const Requests = () => {
       const caregiverId = profileRes?.data?.caregiver?._id;
       
       if (caregiverId) {
-        const res = await getCaregiverBookings(caregiverId, "pending");
+        const res = await getCaregiverBookings(caregiverId, BOOKING_STATUS.PENDING);
         // sort by date descending
         const sorted = (res.data?.bookings || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setRequests(sorted);
@@ -43,7 +44,7 @@ const Requests = () => {
       // Optimistic update
       setRequests((prev) => prev.filter((req) => req._id !== id));
       
-      await updateBookingStatus(id, { status: newStatus, reason: newStatus === 'rejected' ? 'Caregiver declined' : '' });
+      await updateBookingStatus(id, { status: newStatus, reason: newStatus === BOOKING_STATUS.REJECTED ? 'Caregiver declined' : '' });
       toast.success(`Request ${newStatus} successfully`);
       
       // Sync in background
@@ -121,7 +122,7 @@ const Requests = () => {
                   <Button 
                     variant="outline" 
                     className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
-                    onClick={() => handleStatusUpdate(request._id, "rejected")}
+                    onClick={() => handleStatusUpdate(request._id, BOOKING_STATUS.REJECTED)}
                     disabled={processingId === request._id}
                   >
                     <XCircle className="w-4 h-4 mr-2" /> 
@@ -129,7 +130,7 @@ const Requests = () => {
                   </Button>
                   <Button 
                     className="bg-green-600 hover:bg-green-700 text-white border-transparent"
-                    onClick={() => handleStatusUpdate(request._id, "accepted")}
+                    onClick={() => handleStatusUpdate(request._id, BOOKING_STATUS.ACCEPTED)}
                     disabled={processingId === request._id}
                   >
                     <CheckCircle className="w-4 h-4 mr-2" /> 

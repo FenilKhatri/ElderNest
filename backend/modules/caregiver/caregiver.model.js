@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { CAREGIVER_STATUSES } from "../../common/utils/constants.js";
 
 const caregiverSchema = new mongoose.Schema(
     {
@@ -189,8 +190,8 @@ const caregiverSchema = new mongoose.Schema(
         },
         profileApprovalStatus: {
             type: String,
-            enum: ["pending", "approved", "rejected", "changes-required"],
-            default: "pending",
+            enum: [...Object.values(CAREGIVER_STATUSES), "changes-required"],
+            default: CAREGIVER_STATUSES.PENDING,
         },
         onboardingStage: {
             type: String,
@@ -200,7 +201,7 @@ const caregiverSchema = new mongoose.Schema(
                 "verification_pending",
                 "verification_changes",
                 "active",
-                "rejected",
+                CAREGIVER_STATUSES.REJECTED,
             ],
             default: "pending_account",
             index: true,

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { CONTACT_STATUS } from "../../common/utils/constants.js";
 
 const contactSchema = new mongoose.Schema(
     {
@@ -30,8 +31,8 @@ const contactSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["pending", "in-progress", "resolved", "closed"],
-            default: "pending",
+            enum: Object.values(CONTACT_STATUS),
+            default: CONTACT_STATUS.PENDING,
         },
         adminNotes: {
             type: String,

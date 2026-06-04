@@ -10,7 +10,7 @@ import Message from "../message/message.model.js";
 import Review from "../review/review.model.js";
 import CareNote from "../careNote/careNote.model.js";
 import { createNotification } from "../../common/services/notification.service.js";
-
+import { CAREGIVER_STATUSES, BOOKING_STATUS, COMPLAINT_STATUS, CONTACT_STATUS } from "../../common/utils/constants.js";
 import { ONBOARDING_STAGES } from "../../common/utils/caregiverOnboarding.js";
 import mongoose from "mongoose";
 import { deleteFromCloudinary } from "../../config/cloudinary.js";
@@ -19,7 +19,7 @@ export const getPendingCaregivers = async () => {
     const caregivers = await User.find({
         role: "caregiver",
         isApproved: false,
-        status: "pending",
+        status: CAREGIVER_STATUSES.PENDING,
     }).select("-password");
 
     return caregivers;
@@ -40,7 +40,7 @@ export const approveCaregiverRegistration = async (userId) => {
     }
 
     user.isApproved = true;
-    user.status = "approved";
+    user.status = CAREGIVER_STATUSES.APPROVED;
 
     const promises = [user.save()];
 
@@ -76,7 +76,7 @@ export const rejectCaregiverRegistration = async (userId, reason) => {
         throw new Error("User is not a caregiver");
     }
 
-    user.status = "rejected";
+    user.status = CAREGIVER_STATUSES.REJECTED;
     user.isApproved = false;
 
     const promises = [user.save()];
@@ -132,7 +132,7 @@ export const reviewCaregiverVerification = async (caregiverId, action, feedback 
 
     if (action === "approve") {
         caregiver.onboardingStage = ONBOARDING_STAGES.ACTIVE;
-        caregiver.profileApprovalStatus = "approved";
+        caregiver.profileApprovalStatus = CAREGIVER_STATUSES.APPROVED;
         caregiver.isPublished = true;
         caregiver.adminFeedback = "";
         await caregiver.save();
@@ -146,7 +146,7 @@ export const reviewCaregiverVerification = async (caregiverId, action, feedback 
         ).catch(console.error);
     } else if (action === "reject") {
         caregiver.onboardingStage = ONBOARDING_STAGES.REJECTED;
-        caregiver.profileApprovalStatus = "rejected";
+        caregiver.profileApprovalStatus = CAREGIVER_STATUSES.REJECTED;
         caregiver.isPublished = false;
         caregiver.adminFeedback = feedback;
         await caregiver.save();
@@ -185,7 +185,7 @@ export const approveCaregiverProfile = async (caregiverId) => {
         throw new Error("Caregiver not found");
     }
 
-    caregiver.profileApprovalStatus = "approved";
+    caregiver.profileApprovalStatus = CAREGIVER_STATUSES.APPROVED;
     await caregiver.save();
 
     createNotification(
@@ -247,13 +247,13 @@ export const getDashboardStats = async (timeframe) => {
 
     const totalUsers = await User.countDocuments({ role: "user", ...dateFilter });
     const totalCaregivers = await User.countDocuments({ role: "caregiver", isApproved: true, ...dateFilter });
-    const pendingCaregivers = await User.countDocuments({ role: "caregiver", isApproved: false, status: "pending" });
-    const pendingProfiles = await Caregiver.countDocuments({ profileCompleted: true, profileApprovalStatus: "pending" });
+    const pendingCaregivers = await User.countDocuments({ role: "caregiver", isApproved: false, status: CAREGIVER_STATUSES.PENDING });
+    const pendingProfiles = await Caregiver.countDocuments({ profileCompleted: true, profileApprovalStatus: CAREGIVER_STATUSES.PENDING });
     
     const totalBookings = await Booking.countDocuments(dateFilter);
-    const pendingBookings = await Booking.countDocuments({ status: "pending", ...dateFilter });
-    const completedBookings = await Booking.countDocuments({ status: "completed", ...dateFilter });
-    const pendingContacts = await Contact.countDocuments({ status: "pending", ...dateFilter });
+    const pendingBookings = await Booking.countDocuments({ status: BOOKING_STATUS.PENDING, ...dateFilter });
+    const completedBookings = await Booking.countDocuments({ status: BOOKING_STATUS.COMPLETED, ...dateFilter });
+    const pendingContacts = await Contact.countDocuments({ status: CONTACT_STATUS.PENDING, ...dateFilter });
 
     // Bar Chart Data (Monthly Bookings)
     let monthsAgo = new Date();
@@ -337,7 +337,7 @@ export const updateContactStatus = async (contactId, status, adminId, adminNotes
         contact.adminNotes = adminNotes;
     }
 
-    if (status === "resolved" || status === "closed") {
+    if (status === CONTACT_STATUS.RESOLVED || status === CONTACT_STATUS.CLOSED) {
         contact.resolvedBy = adminId;
         contact.resolvedAt = new Date();
     }
@@ -359,9 +359,9 @@ export const suspendCaregiver = async (userId, suspend = true) => {
 
     caregiver.isActive = !suspend;
     if (suspend) {
-        user.status = "rejected";
+        user.status = CAREGIVER_STATUSES.REJECTED;
     } else {
-        user.status = "approved";
+        user.status = CAREGIVER_STATUSES.APPROVED;
         user.isApproved = true;
     }
     await caregiver.save();
@@ -386,7 +386,7 @@ export const getAnalytics = async () => {
     const totalCaregivers = await User.countDocuments({ role: "caregiver", isApproved: true });
     const totalServices = await Service.countDocuments({ isActive: true });
     const totalBookings = await Booking.countDocuments();
-    const completedBookings = await Booking.find({ status: "completed" }).select("totalAmount bookingDate");
+    const completedBookings = await Booking.find({ status: BOOKING_STATUS.COMPLETED }).select("totalAmount bookingDate");
     const revenue = completedBookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
 
     const sixMonthsAgo = new Date();
@@ -405,7 +405,7 @@ export const getAnalytics = async () => {
         { $sort: { "_id.year": 1, "_id.month": 1 } },
     ]);
 
-    const pendingComplaints = await Complaint.countDocuments({ status: "pending" });
+    const pendingComplaints = await Complaint.countDocuments({ status: COMPLAINT_STATUS.PENDING });
 
     return {
         totalUsers,

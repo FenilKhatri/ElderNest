@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { COMPLAINT_STATUS } from "../../common/utils/constants.js";
 
 const complaintSchema = new mongoose.Schema(
     {
@@ -35,8 +36,8 @@ const complaintSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["pending", "in-progress", "resolved", "closed"],
-            default: "pending",
+            enum: Object.values(COMPLAINT_STATUS),
+            default: COMPLAINT_STATUS.PENDING,
             index: true,
         },
         adminNotes: {

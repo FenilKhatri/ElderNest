@@ -11,6 +11,7 @@ import Select from "../../../components/ui/Select";
 import MessagePanel from "../../booking/components/MessagePanel";
 import { MessageSquare, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import { BOOKING_STATUS } from "../../../constants/statusConstants";
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -29,7 +30,7 @@ const Bookings = () => {
       setLoading(true);
       const profileRes = await getMyProfile();
       const caregiverId = profileRes?.data?.caregiver?._id;
-      setCurrentUserId(profileRes?.data?.user?._id); // Assuming getMyProfile returns user._id
+      setCurrentUserId(profileRes?.data?.caregiver?.userId?._id || profileRes?.data?.caregiver?.userId);
       
       if (caregiverId) {
         const res = await getCaregiverBookings(caregiverId);
@@ -86,12 +87,12 @@ const Bookings = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             options={[
               { value: "all", label: "All Status" },
-              { value: "pending", label: "Pending Requests" },
-              { value: "accepted", label: "Accepted (Upcoming)" },
-              { value: "in-progress", label: "In Progress" },
-              { value: "completed", label: "Completed" },
-              { value: "cancelled", label: "Cancelled" },
-              { value: "rejected", label: "Rejected" },
+              { value: BOOKING_STATUS.PENDING, label: "Pending Requests" },
+              { value: BOOKING_STATUS.ACCEPTED, label: "Accepted (Upcoming)" },
+              { value: BOOKING_STATUS.IN_PROGRESS, label: "In Progress" },
+              { value: BOOKING_STATUS.COMPLETED, label: "Completed" },
+              { value: BOOKING_STATUS.CANCELLED, label: "Cancelled" },
+              { value: BOOKING_STATUS.REJECTED, label: "Rejected" },
             ]}
           />
         </div>
@@ -153,34 +154,34 @@ const Bookings = () => {
                   </Link>
 
                   <div className="flex justify-end gap-3 flex-1">
-                    {booking.status === "pending" && (
+                    {booking.status === BOOKING_STATUS.PENDING && (
                       <>
-                        <Button variant="outline" onClick={() => handleStatusUpdate(booking._id, "rejected")} disabled={processingId === booking._id}>
+                        <Button variant="outline" onClick={() => handleStatusUpdate(booking._id, BOOKING_STATUS.REJECTED)} disabled={processingId === booking._id}>
                           {processingId === booking._id ? "Processing..." : "Reject"}
                         </Button>
-                        <Button onClick={() => handleStatusUpdate(booking._id, "accepted")} disabled={processingId === booking._id}>
+                        <Button onClick={() => handleStatusUpdate(booking._id, BOOKING_STATUS.ACCEPTED)} disabled={processingId === booking._id}>
                           {processingId === booking._id ? "Processing..." : "Accept Request"}
                         </Button>
                       </>
                     )}
                     
-                    {booking.status === "accepted" && (
+                    {booking.status === BOOKING_STATUS.ACCEPTED && (
                       <>
                         <Button variant="outline" onClick={() => setActiveMessageBooking(booking)} className="flex items-center gap-2">
                           <MessageSquare className="w-4 h-4" /> Message
                         </Button>
-                        <Button onClick={() => handleStatusUpdate(booking._id, "in-progress")} disabled={processingId === booking._id}>
+                        <Button onClick={() => handleStatusUpdate(booking._id, BOOKING_STATUS.IN_PROGRESS)} disabled={processingId === booking._id}>
                           {processingId === booking._id ? "Processing..." : "Start Care (In Progress)"}
                         </Button>
                       </>
                     )}
                     
-                    {booking.status === "in-progress" && (
+                    {booking.status === BOOKING_STATUS.IN_PROGRESS && (
                       <>
                         <Button variant="outline" onClick={() => setActiveMessageBooking(booking)} className="flex items-center gap-2">
                           <MessageSquare className="w-4 h-4" /> Message
                         </Button>
-                        <Button onClick={() => handleStatusUpdate(booking._id, "completed")} className="bg-green-600 hover:bg-green-700 text-white" disabled={processingId === booking._id}>
+                        <Button onClick={() => handleStatusUpdate(booking._id, BOOKING_STATUS.COMPLETED)} className="bg-green-600 hover:bg-green-700 text-white" disabled={processingId === booking._id}>
                           {processingId === booking._id ? "Processing..." : "Mark Completed"}
                         </Button>
                       </>

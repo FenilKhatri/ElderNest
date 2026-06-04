@@ -6,13 +6,8 @@ import * as bookingService from "../booking/booking.services.js";
 import { acquireSlotLock, releaseSlotLock } from "../booking/slotLocking.service.js";
 import Booking from "../booking/booking.model.js";
 import { generateReceiptPdf, generateBookingPdf } from "../../common/utils/pdf/index.js";
+import { BOOKING_STATUS, PAYMENT_STATUS } from "../../common/utils/constants.js";
 
-
-/**
- * POST /api/payments/create-order
- * Creates a Razorpay order from booking data.
- * Does NOT create the booking yet — booking is created on successful payment verification.
- */
 export const createOrder = asyncHandler(async (req, res) => {
     // We expect the request body to be the booking data itself
     const bookingData = req.body;
@@ -91,10 +86,6 @@ export const createOrder = asyncHandler(async (req, res) => {
     }
 });
 
-/**
- * POST /api/payments/verify
- * Verifies Razorpay payment signature, creates the booking, generates PDFs, sends email.
- */
 export const verifyPayment = asyncHandler(async (req, res) => {
     const {
         razorpay_order_id,
@@ -131,8 +122,8 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         console.error("Failed to release slot lock (non-critical):", lockError);
     }
 
-    await Booking.findByIdAndUpdate(booking._id, { status: "pending" });
-    booking.paymentStatus = "paid";
+    await Booking.findByIdAndUpdate(booking._id, { status: BOOKING_STATUS.PENDING });
+    booking.paymentStatus = PAYMENT_STATUS.PAID;
     booking.transactionId = razorpay_payment_id;
     booking.razorpayOrderId = razorpay_order_id;
     booking.razorpayPaymentId = razorpay_payment_id;

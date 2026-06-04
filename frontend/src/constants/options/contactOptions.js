@@ -1,7 +1,9 @@
+import { CONTACT_STATUS } from "../statusConstants.js";
+
 export const CONTACT_STATUS_OPTIONS = [
-  { value: "pending", label: "Pending" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "resolved", label: "Resolved" },
-  { value: "closed", label: "Closed" },
+  { value: CONTACT_STATUS.PENDING, label: "Pending" },
+  { value: CONTACT_STATUS.IN_PROGRESS, label: "In Progress" },
+  { value: CONTACT_STATUS.RESOLVED, label: "Resolved" },
+  { value: CONTACT_STATUS.CLOSED, label: "Closed" },
 ];
 

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { REVIEW_STATUS } from "../../common/utils/constants.js";
 
 const reviewSchema = new mongoose.Schema(
     {
@@ -49,8 +50,8 @@ const reviewSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["pending", "approved", "rejected"],
-            default: "approved", 
+            enum: Object.values(REVIEW_STATUS),
+            default: REVIEW_STATUS.APPROVED, 
         },
         replies: [
             {

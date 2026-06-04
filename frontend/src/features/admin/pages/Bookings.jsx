@@ -14,6 +14,7 @@ import EntityCard from "../../../components/cards/EntityCard";
 import Select from "../../../components/ui/Select";
 import ConfirmModal from "../../../components/ui/ConfirmModal";
 import { BOOKING_STATUS_OPTIONS } from "@/constants";
+import { BOOKING_STATUS } from "../../../constants/statusConstants";
 import Textarea from "../../../components/ui/Textarea";
 
 const Bookings = () => {
@@ -75,7 +76,7 @@ const Bookings = () => {
       return;
     }
 
-    if ((newStatus === "rejected" || newStatus === "cancelled") && !reason.trim()) {
+    if ((newStatus === BOOKING_STATUS.REJECTED || newStatus === BOOKING_STATUS.CANCELLED) && !reason.trim()) {
       toast.error("Please provide a reason");
       return;
     }
@@ -425,10 +426,10 @@ const Bookings = () => {
             />
           </div>
 
-          {(newStatus === "rejected" || newStatus === "cancelled") && (
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Reason *
+          {(newStatus === BOOKING_STATUS.REJECTED || newStatus === BOOKING_STATUS.CANCELLED) && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Reason (Required)*
               </label>
               <Textarea
                 value={reason}

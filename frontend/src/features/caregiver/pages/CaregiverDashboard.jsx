@@ -19,6 +19,7 @@ import UpcomingBookings from "../components/UpcomingBookings";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../../../utils/helpers";
 import Button from "../../../components/ui/Button";
+import { BOOKING_STATUS } from "../../../constants/statusConstants";
 
 const CaregiverDashboard = () => {
   const { user } = useAuth();
@@ -58,8 +59,8 @@ const CaregiverDashboard = () => {
 
   const calculateStats = (bookingsData) => {
     const totalBookings = bookingsData.length;
-    const pendingBookings = bookingsData.filter(b => b.status === "pending").length;
-    const completedBookings = bookingsData.filter(b => b.status === "completed").length;
+    const pendingBookings = bookingsData.filter(b => b.status === BOOKING_STATUS.PENDING).length;
+    const completedBookings = bookingsData.filter(b => b.status === BOOKING_STATUS.COMPLETED).length;
     
     // Calculate monthly earnings (current month)
     const currentMonth = new Date().getMonth();
@@ -69,7 +70,7 @@ const CaregiverDashboard = () => {
         const bookingDate = new Date(b.bookingDate);
         return bookingDate.getMonth() === currentMonth && 
                bookingDate.getFullYear() === currentYear &&
-               b.status === "completed";
+               b.status === BOOKING_STATUS.COMPLETED;
       })
       .reduce((sum, b) => sum + (b.totalAmount || 0), 0);
 
@@ -83,7 +84,7 @@ const CaregiverDashboard = () => {
   };
 
   const upcomingBookings = bookings
-    .filter(b => b.status === "pending" || b.status === "accepted")
+    .filter(b => b.status === BOOKING_STATUS.PENDING || b.status === BOOKING_STATUS.ACCEPTED)
     .sort((a, b) => new Date(a.bookingDate) - new Date(b.bookingDate));
 
   return (

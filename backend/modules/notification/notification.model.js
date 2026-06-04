@@ -27,6 +27,7 @@ const notificationSchema = new mongoose.Schema(
                 "care_note_added",
                 "complaint_resolved",
                 "general",
+                "new_message",
             ],
         },
         title: {

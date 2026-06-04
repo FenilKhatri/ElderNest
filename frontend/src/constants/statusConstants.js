@@ -24,7 +24,6 @@ export const PAYMENT_STATUS = {
   PAID: "paid",
   FAILED: "failed",
   REFUNDED: "refunded",
-  COMPLETED: "completed",
 };
 
 export const REFUND_STATUS = {
@@ -68,19 +67,3 @@ export const REVIEW_STATUS = {
   APPROVED: "approved",
   REJECTED: "rejected",
 };
-
-export const SERVICE_TYPES = {
-  NURSING: "nursing",
-  ATTENDANT: "attendant",
-  PHYSIOTHERAPY: "physiotherapy",
-};
-
-export const AUTH_PROVIDERS = {
-  LOCAL: "local",
-  GOOGLE: "google",
-  BOTH: "both",
-};
-
-export const MAX_FAILED_ATTEMPTS = 5;
-
-export const LOCK_TIME = 10 * 60 * 1000; 
