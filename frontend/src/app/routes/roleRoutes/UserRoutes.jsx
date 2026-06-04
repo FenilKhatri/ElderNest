@@ -14,6 +14,7 @@ const UserComplaints = lazy(() => import("../../../features/user/pages/UserCompl
 const UserNotifications = lazy(() => import("../../../features/user/pages/UserNotifications"));
 const AddPatientPage = lazy(() => import("../../../features/user/pages/AddPatientPage"));
 const SubmitComplaintPage = lazy(() => import("../../../features/user/pages/SubmitComplaintPage"));
+const WalletPage = lazy(() => import("../../../features/user/pages/WalletPage"));
 
 const UserRoutes = () => (
   <Route element={<ProtectedRoute />}>
@@ -29,6 +30,7 @@ const UserRoutes = () => (
       <Route path="/user/patients/new" element={<AddPatientPage />} />
       <Route path="/user/patients/edit" element={<AddPatientPage />} />
       <Route path="/user/complaints/new" element={<SubmitComplaintPage />} />
+      <Route path="/user/wallet" element={<WalletPage />} />
     </Route>
   </Route>
 );

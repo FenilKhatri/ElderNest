@@ -3,6 +3,8 @@ import { successResponse, errorResponse } from "../../common/utils/responseHandl
 import Refund from "./refund.model.js";
 import Booking from "../booking/booking.model.js";
 import Transaction from "../transaction/transaction.model.js";
+import Wallet from "../wallet/wallet.model.js";
+import WalletTransaction from "../wallet/walletTransaction.model.js";
 import { isBookingOwner } from "../../common/utils/booking.utils.js";
 import { PAYMENT_STATUS, BOOKING_STATUS, REFUND_STATUS, TRANSACTION_STATUS } from "../../common/utils/constants.js";
 
@@ -96,7 +98,7 @@ export const updateRefundStatus = asyncHandler(async (req, res) => {
         await booking.save();
     }
 
-    // If processed, create a refund transaction record
+    // If processed, create a refund transaction record and credit wallet
     if (status === REFUND_STATUS.PROCESSED) {
         await Transaction.create({
             transactionId: `ref_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
@@ -107,6 +109,28 @@ export const updateRefundStatus = asyncHandler(async (req, res) => {
             type: "refund",
             status: TRANSACTION_STATUS.COMPLETED,
             metadata: { refundId: refund._id }
+        });
+
+        // Credit Wallet
+        let wallet = await Wallet.findOne({ user: refund.userId });
+        if (!wallet) {
+            wallet = await Wallet.create({ user: refund.userId });
+        }
+        
+        wallet.balance += refund.amount;
+        wallet.totalRefunded += refund.amount;
+        wallet.totalTransactions += 1;
+        await wallet.save();
+
+        await WalletTransaction.create({
+            wallet: wallet._id,
+            user: refund.userId,
+            booking: refund.bookingId,
+            transactionType: "Refund Credit",
+            amount: refund.amount,
+            status: "Completed",
+            refundReason: refund.reason,
+            adminComment: adminNotes
         });
     }
 

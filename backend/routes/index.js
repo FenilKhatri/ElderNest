@@ -21,6 +21,7 @@ import transactionRoutes from "../modules/transaction/transaction.routes.js";
 import refundRoutes from "../modules/refund/refund.routes.js";
 import payoutRoutes from "../modules/payout/payout.routes.js";
 import messageRoutes from "../modules/message/message.routes.js";
+import walletRoutes from "../modules/wallet/wallet.routes.js";
 import { maintenanceMiddleware } from "../common/middlewares/maintenance.middleware.js";
 
 const router = express.Router();
@@ -47,5 +48,6 @@ router.use("/messages", messageRoutes);
 router.use("/transactions", transactionRoutes);
 router.use("/refunds", refundRoutes);
 router.use("/payouts", payoutRoutes);
+router.use("/wallet", walletRoutes);
 
 export default router;

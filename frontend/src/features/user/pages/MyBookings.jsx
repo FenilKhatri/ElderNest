@@ -226,6 +226,18 @@ const MyBookings = () => {
             </div>
           </div>
         </div>
+        
+        {/* Refund / Rejection Reason Section */}
+        {(booking.rejectionReason || booking.cancellationReason) && (
+          <div className="mt-4 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-lg p-3">
+            <p className="text-[11px] uppercase tracking-wider text-red-600 dark:text-red-400 font-semibold mb-1">
+              {booking.status === 'rejected' ? 'Rejection Reason' : 'Cancellation Reason'}
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              {booking.rejectionReason || booking.cancellationReason}
+            </p>
+          </div>
+        )}
       </motion.div>
     );
   };
@@ -292,6 +304,18 @@ const MyBookings = () => {
             <p className="font-mono text-xs text-slate-600 dark:text-slate-400">{booking.bookingId}</p>
           </div>
         </div>
+
+        {/* Refund / Rejection Reason Section */}
+        {(booking.rejectionReason || booking.cancellationReason) && (
+          <div className="mt-3 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-lg p-3">
+            <p className="text-[11px] uppercase tracking-wider text-red-600 dark:text-red-400 font-semibold mb-1">
+              {booking.status === 'rejected' ? 'Rejection Reason' : 'Cancellation Reason'}
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              {booking.rejectionReason || booking.cancellationReason}
+            </p>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">

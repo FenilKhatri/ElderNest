@@ -2,7 +2,6 @@ export const FOOTER_LINKS = {
   company: [
     { name: "About Us", path: "/about" },
     { name: "Contact Us", path: "/contact" },
-    { name: "Careers", path: "/careers" },
     { name: "Blog", path: "/blogs" },
   ],
   services: [

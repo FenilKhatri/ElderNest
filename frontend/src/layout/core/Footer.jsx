@@ -2,11 +2,12 @@ import { useState } from "react";
 import Logo from "../../assets/logo.avif";
 import { Link, NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Phone, Mail, MapPin, ShieldCheck, HeartPulse, Award, PhoneCall } from "lucide-react";
 import http from "../../lib/axios";
 import FooterSection from "../../features/public/sections/footer/FooterSection";
 import { footerLinks } from "../../data/navigation.data";
 import Button from "../../components/ui/Button";
+import { CONTACT_INFO } from "../../constants";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
@@ -32,122 +33,104 @@ const Footer = () => {
   };
 
   const footerLinksDesgin =
-    "relative text-slate-500 dark:text-slate-300 font-medium after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-[#FF3366] after:transition-all after:duration-300 hover:after:w-full hover:text-[#FF3366]";
+    "relative text-slate-500 dark:text-slate-400 font-medium after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-px after:w-0 after:bg-blue-500 after:transition-all after:duration-300 hover:after:w-full hover:text-blue-600 dark:hover:text-blue-400 transition-colors";
 
   return (
-    <footer className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 transition-colors duration-300">
-      {/* Top Section */}
-      <div className="w-full max-w-site-wide mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12 px-4 sm:px-6 lg:px-8 py-16">
-        {/* About */}
-        <div className="lg:col-span-2 flex flex-col gap-5">
-          <div className="flex items-center gap-3">
-            <img
-              src={Logo}
-              alt="ElderNest Logo"
-              width={50}
-              loading="lazy"
-              className="dark:brightness-110"
-            />
-            <p className="text-[#2a7de1] font-bold text-xl tracking-tight">ElderNest</p>
+    <footer className="bg-slate-50 dark:bg-[#0a0f1c] border-t border-slate-200 dark:border-slate-800 transition-colors duration-300 pt-20 pb-10 font-sans relative overflow-hidden">
+
+      {/* Background ambient lighting */}
+      <div className="absolute bottom-0 left-0 w-full h-[500px] bg-gradient-to-t from-blue-900/5 dark:from-blue-900/10 to-transparent pointer-events-none" />
+
+      <div className="w-full max-w-site-wide mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Main Footer Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
+
+          {/* Company Info & Trust */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            <div className="flex items-center gap-3">
+              <img src={Logo} alt="ElderNest Logo" width={50} loading="lazy" className="dark:brightness-110" />
+              <p className="text-blue-600 dark:text-blue-500 font-bold text-2xl tracking-tight">ElderNest</p>
+            </div>
+            
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm pr-4">
+              ElderNest is a premium home healthcare platform dedicated to providing compassionate, reliable, and professional care for your loved ones in the comfort of their home.
+            </p>
+
+            <div className="flex flex-col gap-3 mt-2">
+              <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 text-sm">
+                <Phone className="w-4 h-4 text-emerald-500" />
+                <a href={`tel:${CONTACT_INFO.PHONE.replace(/\s+/g, '')}`} className="hover:text-blue-600 transition-colors">{CONTACT_INFO.PHONE}</a>
+              </div>
+              <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 text-sm">
+                <Mail className="w-4 h-4 text-emerald-500" />
+                <a href={`mailto:${CONTACT_INFO.EMAIL}`} className="hover:text-blue-600 transition-colors">{CONTACT_INFO.EMAIL}</a>
+              </div>
+            </div>
+
+            {/* Certifications / Trust Indicators */}
+            <div className="flex items-center gap-4 mt-4">
+              <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">ISO Certified</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                <Award className="w-4 h-4 text-amber-500" />
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Top Rated 2026</span>
+              </div>
+            </div>
           </div>
 
-          <p className="text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed text-sm">
-            Providing compassionate, professional, and reliable home healthcare
-            services for your loved ones.
-          </p>
+          {/* Links Sections */}
+          <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-8">
+            <FooterSection title="Company" links={footerLinks?.company} linkClass={footerLinksDesgin} />
+            <FooterSection title="Services" links={footerLinks?.services} linkClass={footerLinksDesgin} />
+            <FooterSection title="Support" links={footerLinks?.support} linkClass={footerLinksDesgin} />
+          </div>
 
-          <p className="text-slate-500 dark:text-slate-400 max-w-sm text-sm">
-            Explore our{" "}
-            <NavLink
-              to="/services"
-              className="relative text-[#FF3366] font-medium after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-[#FF3366] after:transition-all after:duration-300 hover:after:w-full"
-            >
-              elder care services
-            </NavLink>{" "}
-            or{" "}
-            <NavLink
-              to="/contact"
-              className="relative text-[#FF3366] font-medium after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-[#FF3366] after:transition-all after:duration-300 hover:after:w-full"
-            >
-              contact our experts
-            </NavLink>
-            .
-          </p>
-        </div>
-
-        {/* Links */}
-        <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-8">
-          <FooterSection
-            title="Company"
-            links={footerLinks?.company}
-            linkClass={footerLinksDesgin}
-          />
-
-          <FooterSection
-            title="Services"
-            links={footerLinks?.services}
-            linkClass={footerLinksDesgin}
-          />
-
-          <FooterSection
-            title="Support"
-            links={footerLinks?.support}
-            linkClass={footerLinksDesgin}
-          />
-        </div>
-
-        {/* Newsletter Subscription */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
-          <h3 className="text-slate-900 dark:text-white font-bold text-lg">Stay Updated</h3>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mb-2">
-            Subscribe to our newsletter for the latest updates on elder care, health tips, and platform news.
-          </p>
-          <form onSubmit={handleSubscribe} className="flex flex-col gap-3">
-            <div className="relative">
+          {/* Newsletter Section */}
+          <div className="lg:col-span-3 flex flex-col gap-4">
+            <div className="inline-flex items-center rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/40 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300 self-start mb-2">
+              <HeartPulse className="mr-1.5 h-3 w-3" />
+              Health Insights
+            </div>
+            <h3 className="text-slate-900 dark:text-white font-bold text-lg">Join Our Newsletter</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-2">
+              Get the latest updates on elder care, wellness tips, and exclusive platform news delivered to your inbox.
+            </p>
+            <form onSubmit={handleSubscribe} className="flex flex-col gap-3">
               <input
                 type="email"
-                placeholder="Enter your email address"
+                placeholder="Enter email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF3366]/50 focus:border-[#FF3366] text-slate-900 dark:text-white transition-all text-sm placeholder:text-slate-400 disabled:opacity-70"
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-slate-900 dark:text-white transition-all text-sm placeholder:text-slate-400 shadow-sm disabled:opacity-70"
               />
-            </div>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full justify-center flex items-center gap-2 bg-[#FF3366] hover:bg-[#E62E5C] text-white py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
-            >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                <>
-                  Subscribe Now <Send className="w-4 h-4 ml-1" />
-                </>
-              )}
-            </Button>
-          </form>
+              <Button type="submit" disabled={loading} className="w-full justify-center flex items-center gap-2 py-3 rounded-xl shadow-md group">
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                  <>
+                    Subscribe <Send className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </div>
         </div>
-      </div>
 
-      {/* Bottom Section */}
-      <div className="w-full max-w-site-wide mx-auto border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500 dark:text-slate-400 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
-        <p className="text-sm font-medium">
-          &copy; {new Date().getFullYear()} ElderNest. All rights reserved.
-        </p>
+        {/* Bottom Section */}
+        <div className="w-full border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 py-8">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            &copy; {new Date().getFullYear()} ElderNest Healthcare Pvt Ltd. All rights reserved.
+          </p>
 
-        <div className="flex items-center gap-6 text-sm font-medium">
-          <Link
-            to="/privacy-policy"
-            className="hover:text-[#FF3366] transition duration-300"
-          >
-            Privacy Policy
-          </Link>
-
-          <Link
-            to="/terms-of-service"
-            className="hover:text-[#FF3366] transition duration-300"
-          >
-            Terms of Service
-          </Link>
+          <div className="flex items-center gap-6 text-sm font-medium text-slate-500 dark:text-slate-400">
+            <Link to="/privacy-policy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/terms-of-service" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

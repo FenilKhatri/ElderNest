@@ -230,3 +230,18 @@ export const reportReview = asyncHandler(async (req, res) => {
 
     return successResponse(res, 200, "Review reported successfully");
 });
+
+export const getPublicReviews = asyncHandler(async (req, res) => {
+    // Fetch 6 recent approved reviews with high ratings (>=4)
+    const reviews = await Review.find({ status: "approved", rating: { $gte: 4 } })
+        .populate("userId", "name profileImage")
+        .populate({
+            path: "caregiverId",
+            populate: { path: "userId", select: "name" },
+        })
+        .populate("serviceId", "name")
+        .sort({ rating: -1, createdAt: -1 })
+        .limit(6);
+
+    return successResponse(res, 200, "Public reviews fetched successfully", { reviews });
+});

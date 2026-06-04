@@ -9,6 +9,8 @@ import { createNotification } from "../../common/services/notification.service.j
 import { isSlotLocked } from "./slotLocking.service.js";
 import { isSlotAvailable } from "../../common/utils/slotGenerator.js";
 import CaregiverAvailability from "../caregiver/caregiverAvailability.model.js";
+import Refund from "../refund/refund.model.js";
+import { REFUND_STATUS } from "../../common/utils/constants.js";
 
 // Check slot availability
 export const checkSlotAvailability = async (caregiverId, bookingDate, startTime, endTime, excludeUserId = null) => {
@@ -314,6 +316,22 @@ export const updateBookingStatus = async (bookingId, userId, userRole, status, r
         await Caregiver.findByIdAndUpdate(booking.caregiverId._id, {
             $inc: { totalBookings: 1 },
         });
+    }
+
+    if ((status === "rejected" || status === "cancelled") && booking.paymentStatus === "paid") {
+        const existingRefund = await Refund.findOne({ bookingId });
+        if (!existingRefund) {
+            await Refund.create({
+                bookingId: booking._id,
+                userId: booking.userId._id,
+                caregiverId: booking.caregiverId._id,
+                transactionId: booking.transactionId || `auto_${Date.now()}`,
+                amount: booking.totalAmount,
+                reason: reason || `Auto-generated for ${status} booking`,
+                status: REFUND_STATUS.PENDING
+            });
+            booking.refundStatus = "pending";
+        }
     }
 
     await booking.save();

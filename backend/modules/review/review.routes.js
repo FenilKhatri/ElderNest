@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.get("/caregiver/:caregiverId", reviewController.getCaregiverReviews);
 router.get("/service/:serviceId", reviewController.getServiceReviews);
+router.get("/public", reviewController.getPublicReviews);
 
 router.use(protect);
 

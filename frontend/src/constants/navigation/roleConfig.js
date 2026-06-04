@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, HeartPulse, FileText, Settings, CalendarCheck, MessageSquare, Briefcase, PlusCircle, UserCircle, Bell, History, CheckSquare } from "lucide-react";
+import { LayoutDashboard, Users, HeartPulse, FileText, Settings, CalendarCheck, MessageSquare, Briefcase, PlusCircle, UserCircle, Bell, History, CheckSquare, Wallet } from "lucide-react";
 
 export const roleConfig = {
   admin: {
@@ -39,6 +39,7 @@ export const roleConfig = {
       { path: "/user/bookings", icon: CalendarCheck, label: "My Bookings" },
       { path: "/user/services/book", icon: PlusCircle, label: "Book Service" },
       { path: "/user/history", icon: History, label: "History" },
+      { path: "/user/wallet", icon: Wallet, label: "Wallet" },
       { path: "/user/complaints", icon: MessageSquare, label: "Complaints" },
       { path: "/user/notifications", icon: Bell, label: "Notifications" },
       { path: "/user/profile", icon: UserCircle, label: "Profile Settings" },

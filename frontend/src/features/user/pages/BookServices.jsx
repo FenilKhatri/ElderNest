@@ -25,6 +25,7 @@ import {
 } from "../../booking/api/booking.api";
 import { getMyPatients } from "../../patient/api/patient.api";
 import { getCaregiverById } from "../../caregiver/api/caregiver.api";
+import { getWalletSummary, payWithWallet } from "../../../api/wallet";
 
 import { loadRazorpayScript } from "../../../utils/loadRazorpay";
 import Button from "../../../components/ui/Button";
@@ -45,6 +46,8 @@ const BookServices = () => {
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
+  const [wallet, setWallet] = useState(null);
+  const [walletProcessing, setWalletProcessing] = useState(false);
   const [form, setForm] = useState({
     caregiverId: caregiverId || "",
     serviceId: serviceIdParam || "",
@@ -66,11 +69,15 @@ const BookServices = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [patientsRes, caregiverRes] = await Promise.all([
+        const [patientsRes, caregiverRes, walletRes] = await Promise.all([
           getMyPatients().catch(() => ({ data: { patients: [] } })),
           getCaregiverById(caregiverId).catch(() => null),
+          getWalletSummary().catch(() => null),
         ]);
         setPatients(patientsRes?.data?.patients?.filter(p => p.status !== "draft") || []);
+        if (walletRes?.data?.wallet) {
+          setWallet(walletRes.data.wallet);
+        }
         if (caregiverRes?.data?.caregiver) {
           const cg = caregiverRes.data.caregiver;
           setCaregiver(cg);
@@ -147,6 +154,31 @@ const BookServices = () => {
       };
     });
   };
+
+  const handleWalletPayment = async () => {
+    if (!form.caregiverId) return toast.error("Caregiver is required");
+    if (!form.serviceId) return toast.error("Please select a service");
+    try {
+      setLoading(true);
+      setWalletProcessing(true);
+      const payload = { ...form, patientAge: Number(form.patientAge) };
+      if (!payload.patientId) delete payload.patientId;
+
+      await payWithWallet(payload);
+      toast.success("Booking confirmed using Wallet balance!");
+      navigate("/user/bookings");
+    } catch (error) {
+      if (error.validationErrors && error.validationErrors.length > 0) {
+        toast.error(error.validationErrors[0].msg || "Please fill all required fields correctly.");
+      } else {
+        toast.error(error?.response?.data?.message || error?.message || "Unknown error");
+      }
+    } finally {
+      setLoading(false);
+      setWalletProcessing(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.caregiverId) return toast.error("Caregiver is required");
@@ -657,10 +689,22 @@ const BookServices = () => {
                 placeholder="Any specific requirements or instructions for the caregiver..."
               />
             </div>
-            <div className="pt-4 flex justify-end">
+            <div className="pt-4 flex flex-col sm:flex-row justify-end gap-4">
+              {wallet && wallet.balance >= pricing.total && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleWalletPayment}
+                  disabled={loading || paymentProcessing || walletProcessing}
+                  className="px-8 py-3.5 text-lg font-bold w-full sm:w-auto shadow-sm flex items-center justify-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                >
+                  <Wallet className="w-5 h-5" />
+                  {walletProcessing ? "Processing..." : `Pay with Wallet (₹${wallet.balance})`}
+                </Button>
+              )}
               <Button
                 type="submit"
-                disabled={loading || paymentProcessing}
+                disabled={loading || paymentProcessing || walletProcessing}
                 className="px-10 py-3.5 text-lg font-bold w-full sm:w-auto shadow-md flex items-center justify-center gap-2"
               >
                 <CreditCard className="w-5 h-5" />
@@ -668,7 +712,7 @@ const BookServices = () => {
                   ? "Processing Payment..."
                   : loading
                     ? "Preparing..."
-                    : "Pay & Confirm Booking"}
+                    : "Pay via Card/UPI"}
               </Button>
             </div>
           </form>

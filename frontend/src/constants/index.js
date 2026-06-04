@@ -34,3 +34,4 @@ export * from "./ui/statusColors";
 export * from "./ui/statusMappings";
 export * from "./upload/uploadRules";
 export * from "./validation/caregiver.schema";
+export * from "./ui/contactInfo";
