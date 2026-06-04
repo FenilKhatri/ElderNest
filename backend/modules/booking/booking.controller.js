@@ -81,8 +81,8 @@ export const getBookingById = asyncHandler(async (req, res) => {
 
 export const getAllBookings = asyncHandler(async (req, res) => {
     const filters = req.query;
-    const bookings = await bookingService.getAllBookings(filters);
-    return successResponse(res, 200, "Bookings fetched successfully", { bookings });
+    const { bookings, pagination } = await bookingService.getAllBookings(filters);
+    return successResponse(res, 200, "Bookings fetched successfully", { bookings, pagination });
 });
 
 export const deleteBooking = asyncHandler(async (req, res) => {

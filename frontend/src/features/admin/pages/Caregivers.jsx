@@ -23,6 +23,7 @@ import { formatDate } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
+import LoadMore from "../../../components/common/LoadMore";
 import Textarea from "../../../components/ui/Textarea";
 import { CAREGIVER_STATUSES } from "../../../constants/statusConstants";
 
@@ -97,31 +98,55 @@ const Caregivers = () => {
   const [layout, setLayout] = useState("table");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
   
   // Modals
   const [rejectModal, setRejectModal] = useState({ open: false, id: null, type: null });
   const [rejectReason, setRejectReason] = useState("");
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null });
 
-  const fetchAll = async () => {
+  const fetchAll = async (pageToFetch = 1, append = false) => {
     try {
-      setLoading(true);
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const filters = { page: pageToFetch, limit: 12 };
+      if (search) filters.search = search;
+      if (statusFilter !== "all") filters.status = statusFilter;
+
       const [allRes, pendingRegRes, pendingProfRes] = await Promise.all([
-        getAllUsers("caregiver"),
-        getPendingCaregivers(),
-        getPendingProfiles(),
+        getAllUsers("caregiver", filters),
+        !append ? getPendingCaregivers() : Promise.resolve({ data: { caregivers: pendingRegistrations } }),
+        !append ? getPendingProfiles() : Promise.resolve({ data: { caregivers: pendingProfiles } }),
       ]);
-      setCaregivers(allRes?.data?.users || []);
-      setPendingRegistrations(pendingRegRes?.data?.caregivers || []);
-      setPendingProfiles(pendingProfRes?.data?.caregivers || []);
+      
+      const data = allRes?.data?.users || [];
+      const pag = allRes?.data?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setCaregivers(prev => [...prev, ...data]);
+      } else {
+        setCaregivers(data);
+        setPendingRegistrations(pendingRegRes?.data?.caregivers || []);
+        setPendingProfiles(pendingProfRes?.data?.caregivers || []);
+      }
+      setPagination(pag);
     } catch (err) {
       toast.error("Failed to load caregivers");
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAll(1, false); }, [search, statusFilter]);
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchAll(pagination.page + 1, true);
+    }
+  };
 
   // Auto-switch tab when returning from verification review
   useEffect(() => {
@@ -253,10 +278,7 @@ const Caregivers = () => {
 
   const matchStatus = (c) => statusFilter === "all" || c.status === statusFilter;
 
-  const filteredAll = useMemo(
-    () => caregivers.filter((c) => matchSearch(c) && matchStatus(c)),
-    [caregivers, search, statusFilter]
-  );
+  const filteredAll = caregivers; // already filtered from backend
   const filteredPending = useMemo(
     () => pendingRegistrations.filter((c) => matchSearch(c)),
     [pendingRegistrations, search]
@@ -501,6 +523,16 @@ const Caregivers = () => {
                   ))}
                 </div>
               )
+            )}
+
+            {tab === "all" && !loading && pagination.hasMore && (
+              <div className="mt-8 flex justify-center w-full">
+                <LoadMore 
+                  hasMore={pagination.hasMore}
+                  onLoadMore={handleLoadMore}
+                  isLoading={isLoadingMore}
+                />
+              </div>
             )}
 
             {/* Pending Registrations Tab */}

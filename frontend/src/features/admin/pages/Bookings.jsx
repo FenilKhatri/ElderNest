@@ -11,6 +11,7 @@ import StatusBadge from "../../../components/ui/StatusBadge";
 import SearchFilterBar from "../../../components/filters/SearchFilterBar";
 import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout";
 import EntityCard from "../../../components/cards/EntityCard";
+import LoadMore from "../../../components/common/LoadMore";
 import Select from "../../../components/ui/Select";
 import ConfirmModal from "../../../components/ui/ConfirmModal";
 import { BOOKING_STATUS_OPTIONS } from "@/constants";
@@ -23,6 +24,8 @@ const Bookings = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [layout, setLayout] = useState("grid");
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
   
   // Modals
   const [viewModal, setViewModal] = useState({ open: false, booking: null });
@@ -35,40 +38,44 @@ const Bookings = () => {
 
   const statuses = BOOKING_STATUS_OPTIONS;
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
-
-  const filteredBookings = useMemo(() => {
-    let result = bookings;
-    if (statusFilter !== "all") {
-      result = result.filter((b) => b.status === statusFilter);
-    }
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (b) =>
-          b.patientName?.toLowerCase().includes(q) ||
-          b.bookingId?.toLowerCase().includes(q) ||
-          b.contactNumber?.includes(q) ||
-          b.email?.toLowerCase().includes(q)
-      );
-    }
-    return result;
-  }, [search, statusFilter, bookings]);
-
-  const fetchBookings = async () => {
+  const fetchBookings = async (pageToFetch = 1, append = false) => {
     try {
-      setLoading(true);
-      const res = await getAllBookings();
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const filters = { page: pageToFetch, limit: 12 };
+      if (search) filters.search = search; // Pass search to backend (will need backend support if missing)
+      if (statusFilter !== "all") filters.status = statusFilter;
+
+      const res = await getAllBookings(filters);
       const data = res?.data?.bookings || [];
-      setBookings(data);
+      const pag = res?.data?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setBookings(prev => [...prev, ...data]);
+      } else {
+        setBookings(data);
+      }
+      setPagination(pag);
     } catch (error) {
       toast.error(error?.message || "Failed to load bookings");
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
+
+  useEffect(() => {
+    fetchBookings(1, false);
+  }, [search, statusFilter]);
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchBookings(pagination.page + 1, true);
+    }
+  };
+
+  const filteredBookings = bookings; // Handled by backend filters
 
   const handleStatusUpdate = async () => {
     if (!newStatus) {
@@ -280,6 +287,17 @@ const Bookings = () => {
             </div>
           )
         )}
+
+        {/* Load More Button */}
+        {!loading && pagination.hasMore && (
+          <div className="mt-8 flex justify-center w-full">
+            <LoadMore 
+              hasMore={pagination.hasMore}
+              onLoadMore={handleLoadMore}
+              isLoading={isLoadingMore}
+            />
+          </div>
+        )}
       </motion.div>
 
       {/* Summary */}
@@ -288,7 +306,7 @@ const Bookings = () => {
           variants={fadeUp}
           className="text-sm text-slate-500 dark:text-slate-400"
         >
-          Showing {filteredBookings.length} of {bookings.length} bookings
+          Showing {filteredBookings.length} {pagination.total ? `of ${pagination.total}` : ''} bookings
         </motion.p>
       )}
 

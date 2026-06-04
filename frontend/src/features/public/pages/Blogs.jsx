@@ -6,25 +6,57 @@ import { motion } from "framer-motion";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import GlobalLoader from "../../../components/ui/GlobalLoader";
 import { categoryNames, popularTags } from "../../../constants";
+import LoadMore from "../../../components/common/LoadMore";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All Articles");
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
+
+  const fetchBlogs = async (pageToFetch = 1, append = false) => {
+    try {
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const params = { page: pageToFetch, limit: 6 };
+      if (activeCategory !== "All Articles") {
+      }
+
+      const res = await getAllBlogs(params);
+      const list = res.data?.blogs || [];
+      const pag = res.data?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setBlogs(prev => {
+          const existingIds = new Set(prev.map(b => b._id));
+          const newItems = list.filter(b => !existingIds.has(b._id));
+          return [...prev, ...newItems];
+        });
+      } else {
+        setBlogs(list);
+      }
+      setPagination(pag);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const res = await getAllBlogs();
-        setBlogs(res.data.blogs || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBlogs();
+    fetchBlogs(1, false);
   }, []);
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchBlogs(pagination.page + 1, true);
+    }
+  };
+
+
 
   const filteredBlogs = activeCategory === "All Articles" 
     ? blogs
@@ -161,6 +193,16 @@ const Blogs = () => {
                   </motion.div>
                 ))}
               </motion.div>
+            )}
+
+            {pagination.hasMore && (
+              <div className="mt-12 flex justify-center">
+                <LoadMore 
+                  hasMore={pagination.hasMore}
+                  onLoadMore={handleLoadMore}
+                  isLoading={isLoadingMore}
+                />
+              </div>
             )}
           </main>
         </div>

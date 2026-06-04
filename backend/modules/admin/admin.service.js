@@ -220,14 +220,24 @@ export const rejectCaregiverProfile = async (caregiverId, feedback) => {
     return caregiver;
 };
 
-export const getAllUsers = async (role = null) => {
+export const getAllUsers = async (role = null, filters = {}) => {
+    const { page = 1, limit = 50 } = filters;
     const query = {};
     if (role) {
         query.role = role;
     }
 
-    const users = await User.find(query).select("-password").sort({ createdAt: -1 });
-    return users;
+    const parsedPage = Math.max(1, parseInt(page, 10));
+    const parsedLimit = parseInt(limit, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const [users, total] = await Promise.all([
+        User.find(query).select("-password").sort({ createdAt: -1 }).skip(skip).limit(parsedLimit),
+        User.countDocuments(query)
+    ]);
+    
+    const hasMore = total > skip + users.length;
+    return { users, pagination: { total, page: parsedPage, limit: parsedLimit, hasMore } };
 };
 
 export const getDashboardStats = async (timeframe) => {

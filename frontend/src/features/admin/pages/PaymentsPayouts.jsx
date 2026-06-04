@@ -11,6 +11,7 @@ import SearchFilterBar from "../../../components/filters/SearchFilterBar";
 import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout";
 import EntityCard from "../../../components/cards/EntityCard";
 import Button from "../../../components/ui/Button";
+import LoadMore from "../../../components/common/LoadMore";
 import { PAYOUT_STATUS_OPTIONS } from "@/constants";
 import { PAYOUT_STATUS } from "../../../constants/statusConstants";
 import Textarea from "../../../components/ui/Textarea";
@@ -23,33 +24,53 @@ const PaymentsPayouts = () => {
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("table");
   const [viewItem, setViewItem] = useState(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
   
   const [processModal, setProcessModal] = useState({ open: false, payoutId: null, status: "" });
   const [referenceId, setReferenceId] = useState("");
   const [notes, setNotes] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchPayouts = async () => {
+  const fetchPayouts = async (pageToFetch = 1, append = false) => {
     try {
-      setLoading(true);
-      const res = await http.get("/payouts");
-      setPayouts(res?.data?.payouts || []);
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const params = { page: pageToFetch, limit: 12 };
+      if (activeStatus !== "all") params.status = activeStatus;
+      if (search) params.search = search; // Pass to backend
+
+      const res = await http.get("/payouts", { params });
+      const data = res?.data?.payouts || [];
+      const pag = res?.data?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setPayouts(prev => [...prev, ...data]);
+      } else {
+        setPayouts(data);
+      }
+      setPagination(pag);
     } catch (err) {
       toast.error("Failed to load payouts");
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchPayouts();
-  }, []);
+    fetchPayouts(1, false);
+  }, [activeStatus, search]);
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchPayouts(pagination.page + 1, true);
+    }
+  };
 
   const filteredPayouts = useMemo(() => {
     let result = payouts;
-    if (activeStatus !== "all") {
-      result = result.filter((p) => p.status === activeStatus);
-    }
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(
@@ -60,7 +81,7 @@ const PaymentsPayouts = () => {
       );
     }
     return result;
-  }, [payouts, activeStatus, search]);
+  }, [payouts, search]);
 
   const handleUpdate = async () => {
     try {
@@ -226,6 +247,17 @@ const PaymentsPayouts = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {!loading && pagination.hasMore && (
+          <div className="mt-8 flex justify-center w-full">
+            <LoadMore 
+              hasMore={pagination.hasMore}
+              onLoadMore={handleLoadMore}
+              isLoading={isLoadingMore}
+            />
           </div>
         )}
       </motion.div>

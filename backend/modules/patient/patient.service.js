@@ -62,8 +62,23 @@ export const deletePatient = async (patientId, userId) => {
     return patient;
 };
 
-export const getAllPatientsAdmin = async () => {
-    return Patient.find({ isActive: true })
-        .populate("userId", "name email phone")
-        .sort({ createdAt: -1 });
+export const getAllPatientsAdmin = async (filters = {}) => {
+    const { page = 1, limit = 50 } = filters;
+    const query = { isActive: true };
+
+    const parsedPage = Math.max(1, parseInt(page, 10));
+    const parsedLimit = parseInt(limit, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const [patients, total] = await Promise.all([
+        Patient.find(query)
+            .populate("userId", "name email phone")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parsedLimit),
+        Patient.countDocuments(query)
+    ]);
+
+    const hasMore = total > skip + patients.length;
+    return { patients, pagination: { total, page: parsedPage, limit: parsedLimit, hasMore } };
 };

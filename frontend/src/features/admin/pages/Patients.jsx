@@ -12,6 +12,7 @@ import SearchFilterBar from "../../../components/filters/SearchFilterBar";
 import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout";
 import ListLayout, { ListSkeleton } from "../../../components/layout/ListLayout";
 import EntityCard from "../../../components/cards/EntityCard";
+import LoadMore from "../../../components/common/LoadMore";
 
 const Patients = () => {
   const [patients, setPatients] = useState([]);
@@ -26,6 +27,9 @@ const Patients = () => {
   const [deleteModal, setDeleteModal] = useState({ open: false, patientId: null });
   const [actionLoading, setActionLoading] = useState(false);
 
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
+
   const [form, setForm] = useState({
     name: "",
     age: "",
@@ -38,18 +42,41 @@ const Patients = () => {
     },
   });
 
-  const fetchPatients = () => {
-    setLoading(true);
+  const fetchPatients = (pageToFetch = 1, append = false) => {
+    if (append) setIsLoadingMore(true);
+    else setLoading(true);
+
+    const params = { page: pageToFetch, limit: 12 };
+    if (search) params.search = search; // currently backend doesn't filter search, but we can send it
+
     http
-      .get("/admin/patients")
-      .then((res) => setPatients(res?.data?.patients || []))
+      .get("/admin/patients", { params })
+      .then((res) => {
+        const data = res?.data?.patients || [];
+        const pag = res?.data?.pagination || { page: 1, hasMore: false };
+        if (append) {
+          setPatients(prev => [...prev, ...data]);
+        } else {
+          setPatients(data);
+        }
+        setPagination(pag);
+      })
       .catch(() => toast.error("Failed to load patients"))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setIsLoadingMore(false);
+      });
   };
 
   useEffect(() => {
-    fetchPatients();
-  }, []);
+    fetchPatients(1, false);
+  }, [search]); // Note: backend doesn't implement search filtering yet
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchPatients(pagination.page + 1, true);
+    }
+  };
 
   const filteredPatients = useMemo(() => {
     const q = search.toLowerCase();
@@ -290,6 +317,17 @@ const Patients = () => {
             </div>
           )
         )}
+
+        {/* Load More Button */}
+        {!loading && pagination.hasMore && (
+          <div className="mt-8 flex justify-center w-full">
+            <LoadMore 
+              hasMore={pagination.hasMore}
+              onLoadMore={handleLoadMore}
+              isLoading={isLoadingMore}
+            />
+          </div>
+        )}
       </motion.div>
 
       {/* Summary */}
@@ -298,7 +336,7 @@ const Patients = () => {
           variants={fadeUp}
           className="text-sm text-slate-500 dark:text-slate-400"
         >
-          Showing {filteredPatients.length} of {patients.length} patients
+          Showing {filteredPatients.length} {pagination.total ? `of ${pagination.total}` : ''} patients
         </motion.p>
       )}
 

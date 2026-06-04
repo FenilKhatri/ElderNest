@@ -12,6 +12,7 @@ import SearchFilterBar from "../../../components/filters/SearchFilterBar";
 import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout";
 import ListLayout, { ListSkeleton } from "../../../components/layout/ListLayout";
 import EntityCard from "../../../components/cards/EntityCard";
+import LoadMore from "../../../components/common/LoadMore";
 
 const Users = () => {
   const navigate = useNavigate();
@@ -22,37 +23,47 @@ const Users = () => {
   const [deleteModal, setDeleteModal] = useState({ open: false, userId: null });
   const [actionLoading, setActionLoading] = useState(false);
   const [layout, setLayout] = useState("grid");
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (pageToFetch = 1, append = false) => {
     try {
-      setLoading(true);
-      const res = await getAllUsers("user");
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const filters = { page: pageToFetch, limit: 12 };
+      if (search) filters.search = search;
+      if (providerFilter !== "all") filters.provider = providerFilter;
+
+      const res = await getAllUsers("user", filters);
       const data = res?.data?.users || [];
-      setUsers(data);
+      const pag = res?.data?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setUsers(prev => [...prev, ...data]);
+      } else {
+        setUsers(data);
+      }
+      setPagination(pag);
     } catch (error) {
       toast.error(error?.message || "Failed to load users");
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(1, false);
+  }, [search, providerFilter]);
 
-  const filteredUsers = useMemo(() => {
-    const q = search.toLowerCase();
-    return users.filter((u) => {
-      const matchesSearch =
-        !q ||
-        u.name?.toLowerCase().includes(q) ||
-        u.email?.toLowerCase().includes(q) ||
-        u.phone?.includes(q);
-      const matchesProvider =
-        providerFilter === "all" || u.authProvider === providerFilter;
-      return matchesSearch && matchesProvider;
-    });
-  }, [search, providerFilter, users]);
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchUsers(pagination.page + 1, true);
+    }
+  };
+
+  const filteredUsers = users; // filtered from backend
 
   const handleViewUser = (userId) => {
     navigate(`/admin/users/${userId}`);
@@ -252,6 +263,17 @@ const Users = () => {
             </ListLayout>
           )
         )}
+
+        {/* Load More */}
+        {!loading && pagination.hasMore && (
+          <div className="mt-8 flex justify-center w-full">
+            <LoadMore 
+              hasMore={pagination.hasMore}
+              onLoadMore={handleLoadMore}
+              isLoading={isLoadingMore}
+            />
+          </div>
+        )}
       </motion.div>
 
       {/* Summary */}
@@ -260,7 +282,7 @@ const Users = () => {
           variants={fadeUp}
           className="text-sm text-slate-500 dark:text-slate-400"
         >
-          Showing {filteredUsers.length} of {users.length} users
+          Showing {filteredUsers.length} {pagination.total ? `of ${pagination.total}` : ''} users
         </motion.p>
       )}
 

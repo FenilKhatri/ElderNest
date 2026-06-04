@@ -9,6 +9,7 @@ import { SERVICE_CATEGORIES } from "@/constants";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
+import LoadMore from "../../../components/common/LoadMore";
 
 const Services = () => {
   const navigate = useNavigate();
@@ -21,46 +22,51 @@ const Services = () => {
   const [deleteModal, setDeleteModal] = useState({ open: false, service: null });
   const [formLoading, setFormLoading] = useState(false);
   const [layout, setLayout] = useState("grid");
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
 
   useEffect(() => {
     fetchServices();
   }, []);
 
-  useEffect(() => {
-    let result = services;
-    
-    if (categoryFilter !== "all") {
-      result = result.filter(s => s.category === categoryFilter);
-    }
-
-    if (draftFilter === "draft") {
-      result = result.filter((s) => s.isDraft);
-    } else if (draftFilter === "published") {
-      result = result.filter((s) => !s.isDraft);
-    }
-    
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(s => 
-        s.title?.toLowerCase().includes(q) ||
-        s.description?.toLowerCase().includes(q)
-      );
-    }
-    
-    setFiltered(result);
-  }, [search, categoryFilter, draftFilter, services]);
-
-  const fetchServices = async () => {
+  const fetchServices = async (pageToFetch = 1, append = false) => {
     try {
-      setLoading(true);
-      const res = await getAllServices();
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const filters = { page: pageToFetch, limit: 12 };
+      if (categoryFilter !== "all") filters.category = categoryFilter;
+      if (draftFilter === "draft") filters.isDraft = true;
+      if (draftFilter === "published") filters.isDraft = false;
+      if (search) filters.search = search;
+
+      const res = await getAllServices(filters);
       const data = res?.data?.services || [];
-      setServices(data);
-      setFiltered(data);
+      const pag = res?.data?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setServices((prev) => [...prev, ...data]);
+        setFiltered((prev) => [...prev, ...data]);
+      } else {
+        setServices(data);
+        setFiltered(data);
+      }
+      setPagination(pag);
     } catch (error) {
       toast.error(error?.message || "Failed to load services");
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchServices(1, false);
+  }, [search, categoryFilter, draftFilter]);
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchServices(pagination.page + 1, true);
     }
   };
 
@@ -311,6 +317,17 @@ const Services = () => {
               </div>
             </div>
           ))}
+
+          {/* Load More Button */}
+          {!loading && pagination.hasMore && (
+            <div className="mt-8">
+              <LoadMore 
+                hasMore={pagination.hasMore}
+                onLoadMore={handleLoadMore}
+                isLoading={isLoadingMore}
+              />
+            </div>
+          )}
       </motion.div>
 
       {/* Summary */}
@@ -319,7 +336,7 @@ const Services = () => {
           variants={fadeUp}
           className="text-sm text-slate-500 dark:text-slate-400"
         >
-          Showing {filtered.length} of {services.length} services
+          Showing {filtered.length} {pagination.total ? `of ${pagination.total}` : ''} services
         </motion.p>
       )}
 

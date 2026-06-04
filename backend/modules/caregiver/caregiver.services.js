@@ -32,6 +32,7 @@ const notifySafely = async (fn) => {
 };
 
 export const getAllCaregivers = async (filters = {}) => {
+    const { page = 1, limit = 50 } = filters;
     const query = {
         isActive: true,
         profileCompleted: true,
@@ -93,12 +94,23 @@ export const getAllCaregivers = async (filters = {}) => {
         ];
     }
 
-    const caregivers = await Caregiver.find(query)
-        .populate("userId", "name email profileImage")
-        .populate("servicesOffered", "title description price slug")
-        .sort({ rating: -1, totalReviews: -1 });
+    const parsedPage = Math.max(1, parseInt(page, 10));
+    const parsedLimit = parseInt(limit, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
 
-    return caregivers;
+    const [caregivers, total] = await Promise.all([
+        Caregiver.find(query)
+            .populate("userId", "name email profileImage")
+            .populate("servicesOffered", "title description price slug")
+            .sort({ rating: -1, totalReviews: -1 })
+            .skip(skip)
+            .limit(parsedLimit),
+        Caregiver.countDocuments(query)
+    ]);
+
+    const hasMore = total > skip + caregivers.length;
+
+    return { caregivers, pagination: { total, page: parsedPage, limit: parsedLimit, hasMore } };
 };
 
 export const getCaregiverById = async (id) => {

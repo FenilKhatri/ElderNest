@@ -11,6 +11,7 @@ import { getAllBlogs, deleteBlog } from "../api/admin.api";
 import { stagger, fadeUp } from "../../../animations/motionVariants";
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
+import LoadMore from "../../../components/common/LoadMore";
 
 const Blogs = () => {
   const navigate = useNavigate();
@@ -24,46 +25,53 @@ const Blogs = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
 
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
+
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null });
   const [deleting, setDeleting] = useState(false);
 
-  const fetchBlogs = async () => {
+  const fetchBlogs = async (pageToFetch = 1, append = false) => {
     try {
-      setLoading(true);
-      const res = await getAllBlogs();
-      setBlogs(res.data?.blogs || []);
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const filters = { page: pageToFetch, limit: 12 };
+      if (search) filters.search = search;
+      if (statusFilter !== "all") {
+        filters.status = statusFilter === "active" ? "published" : "draft";
+      }
+      if (categoryFilter !== "all") filters.category = categoryFilter;
+
+      const res = await getAllBlogs(filters);
+      const data = res.data?.blogs || [];
+      const pag = res.data?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setBlogs(prev => [...prev, ...data]);
+        setFilteredBlogs(prev => [...prev, ...data]);
+      } else {
+        setBlogs(data);
+        setFilteredBlogs(data);
+      }
+      setPagination(pag);
     } catch (err) {
       toast.error("Failed to fetch blogs");
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchBlogs();
-  }, []);
+    fetchBlogs(1, false);
+  }, [search, statusFilter, categoryFilter]);
 
-  useEffect(() => {
-    let result = [...blogs];
-
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (b) => b.title?.toLowerCase().includes(q) || b.shortDescription?.toLowerCase().includes(q)
-      );
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchBlogs(pagination.page + 1, true);
     }
-
-    if (statusFilter !== "all") {
-      const isPublished = statusFilter === "active";
-      result = result.filter((b) => (b.status === "published") === isPublished);
-    }
-
-    if (categoryFilter !== "all") {
-      result = result.filter((b) => b.category === categoryFilter);
-    }
-
-    setFilteredBlogs(result);
-  }, [blogs, search, statusFilter, categoryFilter]);
+  };
 
   const confirmDelete = async () => {
     if (!deleteModal.id) return;
@@ -301,6 +309,17 @@ const Blogs = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* Load More */}
+        {!loading && pagination.hasMore && (
+          <div className="mt-8 flex justify-center w-full">
+            <LoadMore 
+              hasMore={pagination.hasMore}
+              onLoadMore={handleLoadMore}
+              isLoading={isLoadingMore}
+            />
           </div>
         )}
       </motion.div>

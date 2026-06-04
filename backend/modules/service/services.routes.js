@@ -12,6 +12,7 @@ import {
 const router = express.Router();
 
 router.get("/", serviceController.getAllServices);
+router.get("/:idOrSlug/related", serviceController.getRelatedServices);
 router.get("/:idOrSlug", serviceController.getServiceByIdOrSlug);
 
 router.use(protect, authorizeRoles(ROLES.ADMIN));

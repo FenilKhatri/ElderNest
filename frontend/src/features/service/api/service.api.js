@@ -10,6 +10,11 @@ export const getServiceById = (id) => {
   return http.get(`/services/${id}`);
 };
 
+// Get related services (public)
+export const getRelatedServices = (idOrSlug) => {
+  return http.get(`/services/${idOrSlug}/related`);
+};
+
 // Create service (admin)
 export const createService = (data) => {
   return http.post("/services", data);

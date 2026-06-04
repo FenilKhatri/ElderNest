@@ -22,9 +22,24 @@ export const getAllServices = asyncHandler(async (req, res) => {
     } else if (drafts !== "all") {
         query.isDraft = { $ne: true };
     }
-    if (category) query.category = category;
+    if (category) {
+        if (Array.isArray(category)) query.category = { $in: category };
+        else if (category.includes(',')) query.category = { $in: category.split(',') };
+        else query.category = category;
+    }
+    if (req.query.serviceMode) {
+        if (Array.isArray(req.query.serviceMode)) query.serviceMode = { $in: req.query.serviceMode };
+        else if (req.query.serviceMode.includes(',')) query.serviceMode = { $in: req.query.serviceMode.split(',') };
+        else query.serviceMode = req.query.serviceMode;
+    }
+    if (req.query.rating) query.rating = { $gte: Number(req.query.rating) };
     if (isActive !== undefined) {
-        query.isActive = isActive === "true" || isActive === true;
+        const isTrue = isActive === "true" || isActive === true;
+        if (isTrue) {
+            query.isActive = { $ne: false };
+        } else {
+            query.isActive = false;
+        }
     }
     if (featured === "true") query.isFeatured = true;
     if (search) {
@@ -35,7 +50,9 @@ export const getAllServices = asyncHandler(async (req, res) => {
         ];
     }
 
-    const skip = (Math.max(1, parseInt(page, 10)) - 1) * parseInt(limit, 10);
+    const parsedPage = Math.max(1, parseInt(page, 10));
+    const parsedLimit = parseInt(limit, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
 
     const [services, total] = await Promise.all([
         Service.find(query)
@@ -46,13 +63,15 @@ export const getAllServices = asyncHandler(async (req, res) => {
             })
             .sort({ isFeatured: -1, title: 1 })
             .skip(skip)
-            .limit(parseInt(limit, 10)),
+            .limit(parsedLimit),
         Service.countDocuments(query),
     ]);
 
+    const hasMore = total > skip + services.length;
+
     return successResponse(res, 200, "Services fetched", {
         services,
-        pagination: { total, page: parseInt(page, 10), limit: parseInt(limit, 10) },
+        pagination: { total, page: parsedPage, limit: parsedLimit, hasMore },
     });
 });
 
@@ -93,6 +112,38 @@ export const getServiceByIdOrSlug = asyncHandler(async (req, res) => {
     }
 
     return successResponse(res, 200, "Service fetched", { service });
+});
+
+export const getRelatedServices = asyncHandler(async (req, res) => {
+    const { idOrSlug } = req.params;
+    let service;
+
+    if (idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
+        service = await Service.findById(idOrSlug);
+    }
+    if (!service) {
+        service = await Service.findOne({ slug: idOrSlug.toLowerCase() });
+    }
+    if (!service) return errorResponse(res, 404, "Service not found");
+
+    let related = await Service.find({
+        category: service.category,
+        _id: { $ne: service._id },
+        isActive: { $ne: false },
+        isDraft: { $ne: true }
+    }).limit(4);
+    
+    // Fallback to other category if < 3
+    if (related.length < 3) {
+        const others = await Service.find({
+            _id: { $ne: service._id, $nin: related.map(r => r._id) },
+            isActive: { $ne: false },
+            isDraft: { $ne: true }
+        }).limit(4 - related.length);
+        related = [...related, ...others];
+    }
+
+    return successResponse(res, 200, "Related services fetched", { services: related });
 });
 
 export const createService = asyncHandler(async (req, res) => {

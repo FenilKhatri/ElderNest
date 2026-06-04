@@ -29,8 +29,9 @@ export const deletePatient = asyncHandler(async (req, res) => {
 });
 
 export const getAllPatientsAdmin = asyncHandler(async (req, res) => {
-    const patients = await patientService.getAllPatientsAdmin();
-    return successResponse(res, 200, "Patients fetched", { patients });
+    const filters = req.query;
+    const { patients, pagination } = await patientService.getAllPatientsAdmin(filters);
+    return successResponse(res, 200, "Patients fetched", { patients, pagination });
 });
 
 export const printPatientProfile = asyncHandler(async (req, res) => {

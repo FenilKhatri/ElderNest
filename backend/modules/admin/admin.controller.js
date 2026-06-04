@@ -25,7 +25,7 @@ export const getCaregiverByUserIdAdmin = asyncHandler(async (req, res) => {
         return successResponse(res, 200, "Caregiver fetched", { caregiver });
     } catch (error) {
         // Return minimal data if not found
-        const users = await adminService.getAllUsers();
+        const { users } = await adminService.getAllUsers(); // In dashboard, we just need count usually, or we just extract users
         const user = users.find(u => u._id.toString() === req.params.userId);
         if (user) {
             return successResponse(res, 200, "Caregiver fetched", { 
@@ -89,9 +89,9 @@ export const reviewCaregiverVerification = asyncHandler(async (req, res) => {
 });
 
 export const getAllUsers = asyncHandler(async (req, res) => {
-    const { role } = req.query;
-    const users = await adminService.getAllUsers(role);
-    return successResponse(res, 200, "Users fetched successfully", { users });
+    const { role, ...filters } = req.query;
+    const { users, pagination } = await adminService.getAllUsers(role, filters);
+    return successResponse(res, 200, "Users fetched successfully", { users, pagination });
 });
 
 export const getDashboardStats = asyncHandler(async (req, res) => {
@@ -124,8 +124,8 @@ export const getAnalytics = asyncHandler(async (req, res) => {
 });
 
 export const getAllPatients = asyncHandler(async (req, res) => {
-    const patients = await patientService.getAllPatientsAdmin();
-    return successResponse(res, 200, "Patients fetched", { patients });
+    const { patients, pagination } = await patientService.getAllPatientsAdmin(req.query);
+    return successResponse(res, 200, "Patients fetched", { patients, pagination });
 });
 
 export const updatePatient = asyncHandler(async (req, res) => {

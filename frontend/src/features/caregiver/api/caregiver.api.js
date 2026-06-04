@@ -8,6 +8,10 @@ export const getCaregiverById = (id) => {
   return http.get(`/caregivers/${id}`);
 };
 
+export const getRelatedCaregivers = (id) => {
+  return http.get(`/caregivers/${id}/related`);
+};
+
 export const getMyProfile = () => {
   return http.get("/caregivers/profile/me");
 };

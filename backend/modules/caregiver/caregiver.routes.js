@@ -39,6 +39,7 @@ router.patch("/availability", protectCaregiver, requirePublishedCaregiver, updat
 router.get("/dashboard", protectCaregiver, requirePublishedCaregiver, caregiverController.caregiverDashboard);
 
 // Public route with parameter (must be LAST to avoid swallowing static routes)
+router.get("/:id/related", caregiverController.getRelatedCaregivers);
 router.get("/:id", getCaregiverByIdValidator, validateRequest, caregiverController.getCaregiver);
 
 export default router;

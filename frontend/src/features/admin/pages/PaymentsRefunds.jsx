@@ -11,6 +11,7 @@ import SearchFilterBar from "../../../components/filters/SearchFilterBar";
 import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout";
 import EntityCard from "../../../components/cards/EntityCard";
 import Button from "../../../components/ui/Button";
+import LoadMore from "../../../components/common/LoadMore";
 import { REFUND_STATUS_OPTIONS } from "@/constants";
 import { REFUND_STATUS } from "../../../constants/statusConstants";
 import Textarea from "../../../components/ui/Textarea";
@@ -22,32 +23,52 @@ const PaymentsRefunds = () => {
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("table");
   const [viewItem, setViewItem] = useState(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
 
   const [processModal, setProcessModal] = useState({ open: false, type: "", refundId: null });
   const [adminNotes, setAdminNotes] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchRefunds = async () => {
+  const fetchRefunds = async (pageToFetch = 1, append = false) => {
     try {
-      setLoading(true);
-      const res = await http.get("/refunds");
-      setRefunds(res?.data?.refunds || []);
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const params = { page: pageToFetch, limit: 12 };
+      if (activeStatus !== "all") params.status = activeStatus;
+      if (search) params.search = search;
+
+      const res = await http.get("/refunds", { params });
+      const data = res?.data?.refunds || [];
+      const pag = res?.data?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setRefunds(prev => [...prev, ...data]);
+      } else {
+        setRefunds(data);
+      }
+      setPagination(pag);
     } catch (err) {
       toast.error("Failed to load refund requests");
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchRefunds();
-  }, []);
+    fetchRefunds(1, false);
+  }, [activeStatus, search]);
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchRefunds(pagination.page + 1, true);
+    }
+  };
 
   const filteredRefunds = useMemo(() => {
     let result = refunds;
-    if (activeStatus !== "all") {
-      result = result.filter((r) => r.status === activeStatus);
-    }
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(
@@ -59,7 +80,7 @@ const PaymentsRefunds = () => {
       );
     }
     return result;
-  }, [refunds, activeStatus, search]);
+  }, [refunds, search]);
 
   const handleAction = async () => {
     try {
@@ -226,6 +247,17 @@ const PaymentsRefunds = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {!loading && pagination.hasMore && (
+          <div className="mt-8 flex justify-center w-full">
+            <LoadMore 
+              hasMore={pagination.hasMore}
+              onLoadMore={handleLoadMore}
+              isLoading={isLoadingMore}
+            />
           </div>
         )}
       </motion.div>

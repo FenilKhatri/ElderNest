@@ -12,8 +12,8 @@ export const updateSettings = (data) => {
   return http.patch("/settings", data);
 };
 // USER MANAGEMENT
-export const getAllUsers = (role = null) => {
-  const params = role ? { role } : {};
+export const getAllUsers = (role = null, filters = {}) => {
+  const params = role ? { role, ...filters } : { ...filters };
   return http.get("/admin/users", { params });
 };
 
@@ -24,6 +24,7 @@ export const getUserById = (id) => {
 export const deleteUser = (id) => {
   return http.delete(`/admin/users/${id}`);
 };
+
 // CAREGIVER MANAGEMENT
 // Pending caregiver registrations
 export const getPendingCaregivers = () => {
@@ -148,8 +149,8 @@ export const getCaregiverReviews = (caregiverId) => {
   return http.get(`/reviews/caregiver/${caregiverId}`);
 };
 // BLOG MANAGEMENT
-export const getAllBlogs = () => {
-  return http.get("/blogs?all=true");
+export const getAllBlogs = (filters = {}) => {
+  return http.get("/blogs", { params: { all: true, ...filters } });
 };
 
 export const getBlogById = (id) => {

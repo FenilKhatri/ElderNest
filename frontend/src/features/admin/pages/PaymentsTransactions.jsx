@@ -11,6 +11,7 @@ import SearchFilterBar from "../../../components/filters/SearchFilterBar";
 import GridLayout, { GridSkeleton } from "../../../components/layout/GridLayout";
 import EntityCard from "../../../components/cards/EntityCard";
 import Button from "../../../components/ui/Button";
+import LoadMore from "../../../components/common/LoadMore";
 import { TRANSACTION_TYPE_OPTIONS as TYPE_OPTIONS } from "@/constants";
 
 const PaymentsTransactions = () => {
@@ -20,28 +21,49 @@ const PaymentsTransactions = () => {
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("table");
   const [viewItem, setViewItem] = useState(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = async (pageToFetch = 1, append = false) => {
     try {
-      setLoading(true);
-      const res = await http.get("/transactions");
-      setTransactions(res?.data?.transactions || []);
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const params = { page: pageToFetch, limit: 12 };
+      if (activeType !== "all") params.type = activeType;
+      // Backend doesn't support search text currently, but we can send it
+      if (search) params.search = search;
+
+      const res = await http.get("/transactions", { params });
+      const data = res?.data?.transactions || [];
+      const pag = res?.data?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setTransactions(prev => [...prev, ...data]);
+      } else {
+        setTransactions(data);
+      }
+      setPagination(pag);
     } catch (err) {
       toast.error("Failed to load transactions");
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    fetchTransactions(1, false);
+  }, [activeType, search]);
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchTransactions(pagination.page + 1, true);
+    }
+  };
 
   const filteredTransactions = useMemo(() => {
     let result = transactions;
-    if (activeType !== "all") {
-      result = result.filter((t) => t.type === activeType);
-    }
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(
@@ -52,7 +74,7 @@ const PaymentsTransactions = () => {
       );
     }
     return result;
-  }, [transactions, activeType, search]);
+  }, [transactions, search]);
 
   const getAmountColor = (type) => {
     if (type === "refund" || type === "payout") return "text-red-600 dark:text-red-400";
@@ -200,6 +222,17 @@ const PaymentsTransactions = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {!loading && pagination.hasMore && (
+          <div className="mt-8 flex justify-center w-full">
+            <LoadMore 
+              hasMore={pagination.hasMore}
+              onLoadMore={handleLoadMore}
+              isLoading={isLoadingMore}
+            />
           </div>
         )}
       </motion.div>

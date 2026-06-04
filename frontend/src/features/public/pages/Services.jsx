@@ -7,8 +7,9 @@ import ListingPageLayout from "../../../components/layout/ListingPageLayout";
 
 const Services = () => {
   const [services, setServices] = useState([]);
-  const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
   
   // Filters
   const [search, setSearch] = useState("");
@@ -19,51 +20,51 @@ const Services = () => {
   // Mobile sidebar toggle
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        setLoading(true);
-        const res = await getAllServices({ isActive: true });
-        const list = res?.data?.services || res?.services || [];
+  const fetchServices = async (pageToFetch = 1, append = false) => {
+    try {
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const filters = {
+        isActive: true,
+        page: pageToFetch,
+        limit: 9,
+      };
+
+      if (search) filters.search = search;
+      if (selectedCategories.length > 0) filters.category = selectedCategories.join(',');
+      if (selectedModes.length > 0) filters.serviceMode = selectedModes.join(',');
+      if (selectedRating) filters.rating = selectedRating;
+
+      const res = await getAllServices(filters);
+      const list = res?.data?.services || res?.services || [];
+      const pag = res?.data?.pagination || res?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setServices(prev => [...prev, ...list]);
+      } else {
         setServices(list);
-        setFiltered(list);
-      } catch (error) {
-        console.error("Failed to fetch services", error);
-      } finally {
-        setLoading(false);
       }
-    };
-    fetchServices();
-  }, []);
+      setPagination(pag);
+    } catch (error) {
+      console.error("Failed to fetch services", error);
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
-    let result = services;
+    fetchServices(1, false);
+  }, [search, selectedCategories, selectedModes, selectedRating]);
 
-    // Search
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (s) => s.title?.toLowerCase().includes(q) || s.description?.toLowerCase().includes(q)
-      );
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchServices(pagination.page + 1, true);
     }
+  };
 
-    // Category
-    if (selectedCategories.length > 0) {
-      result = result.filter((s) => selectedCategories.includes(s.category));
-    }
 
-    // Service Mode
-    if (selectedModes.length > 0) {
-      result = result.filter((s) => selectedModes.includes(s.serviceMode));
-    }
-
-    // Rating
-    if (selectedRating) {
-      result = result.filter((s) => (s.rating || 0) >= selectedRating);
-    }
-
-    setFiltered(result);
-  }, [search, selectedCategories, selectedModes, selectedRating, services]);
 
   const handleCategoryChange = (val) => {
     setSelectedCategories(prev => 
@@ -276,13 +277,16 @@ const Services = () => {
       onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
       sidebarContent={sidebarContent}
       loading={loading}
-      items={filtered}
+      items={services}
       renderItem={renderServiceCard}
-      skeletonCount={4}
+      skeletonCount={9}
       renderSkeleton={() => <div className="bg-white dark:bg-[#111827] rounded-2xl p-6 border border-slate-200 dark:border-slate-800 animate-pulse h-80 w-full" />}
       emptyStateContent={emptyStateContent}
       breakpoint="md"
-      gridCols="grid-cols-1 xl:grid-cols-2"
+      gridCols="grid-cols-1 xl:grid-cols-3"
+      pagination={pagination}
+      onLoadMore={handleLoadMore}
+      isLoadingMore={isLoadingMore}
     />
   );
 };

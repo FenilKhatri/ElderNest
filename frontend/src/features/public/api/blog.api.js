@@ -8,10 +8,8 @@ export const getBlogBySlug = async (slug) => {
   return await http.get(`/blogs/slug/${slug}`);
 };
 
-export const getRelatedBlogs = async (category, currentId) => {
-  return await http.get(`/blogs/related`, {
-    params: { category, currentId },
-  });
+export const getRelatedBlogs = async (slug) => {
+  return await http.get(`/blogs/${slug}/related`);
 };
 
 export const addComment = async (blogId, commentData) => {

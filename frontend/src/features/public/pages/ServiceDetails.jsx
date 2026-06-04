@@ -15,7 +15,7 @@ import {
   BadgeCheck
 } from "lucide-react";
 import { SERVICE_MODES, WEEK_DAYS } from "@/constants";
-import { getServiceById } from "../../service/api/service.api";
+import { getServiceById, getRelatedServices } from "../../service/api/service.api";
 import http from "../../../lib/axios";
 import Button from "../../../components/ui/Button";
 
@@ -24,6 +24,7 @@ const ServiceDetails = () => {
   const [service, setService] = useState(null);
   const [caregivers, setCaregivers] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [relatedServices, setRelatedServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Carousel State
@@ -71,11 +72,15 @@ const ServiceDetails = () => {
         setService(serviceData);
 
         if (serviceData) {
-          const cgRes = await http.get(`/caregivers?services=${serviceData._id}&status=approved`);
-          setCaregivers(cgRes.data?.caregivers || []);
+          const [cgRes, revRes, relRes] = await Promise.all([
+            http.get(`/caregivers?services=${serviceData._id}&status=approved`),
+            http.get(`/reviews/service/${serviceData._id}`),
+            getRelatedServices(idOrSlug)
+          ]);
 
-          const revRes = await http.get(`/reviews/service/${serviceData._id}`);
+          setCaregivers(cgRes.data?.caregivers || []);
           setReviews(revRes.data?.reviews || []);
+          setRelatedServices(relRes.data?.services || []);
         }
       } catch (error) {
         console.error("Failed to fetch service details", error);
@@ -534,6 +539,47 @@ const ServiceDetails = () => {
           </Link>
         </motion.div>
       </section>
+
+      {/* 9. Related Services */}
+      {relatedServices.length > 0 && (
+        <section className="py-24 bg-[#FFFFFF] dark:bg-[#020617] border-y border-[#F1F5F9] dark:border-[#1E293B]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold mb-4 text-[#0F172A] dark:text-[#F8FAFC]">Other Services You May Need</h2>
+              <p className="text-lg text-[#64748B] dark:text-[#94A3B8]">Explore related healthcare services we offer.</p>
+            </div>
+            <motion.div 
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerVariant}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {relatedServices.map((rel) => (
+                <Link to={`/services/${rel.slug || rel._id}`} key={rel._id}>
+                  <motion.div 
+                    variants={fadeUpVariant}
+                    whileHover={{ scale: 1.02 }}
+                    className="bg-[#F8FAFC] dark:bg-[#0F172A] rounded-[24px] p-6 border border-[#F1F5F9] dark:border-[#1E293B] hover:border-[#2563EB]/30 transition-all flex flex-col h-full group"
+                  >
+                    <div className="aspect-video w-full rounded-xl overflow-hidden mb-4 bg-[#E2E8F0] dark:bg-[#1E293B]">
+                      {rel.image || rel.coverImage ? (
+                        <img src={rel.image || rel.coverImage} alt={rel.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <HeartPulse className="w-10 h-10 text-[#94A3B8]" />
+                        </div>
+                      )}
+                    </div>
+                    <h3 className="text-xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">{rel.title}</h3>
+                    <p className="text-[#64748B] dark:text-[#94A3B8] text-sm line-clamp-2">{rel.shortDescription || rel.description}</p>
+                  </motion.div>
+                </Link>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* 3D Coverflow Carousel Modal */}
       <AnimatePresence>

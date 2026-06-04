@@ -383,6 +383,7 @@ export const getBookingById = async (bookingId) => {
 };
 
 export const getAllBookings = async (filters = {}) => {
+    const { page = 1, limit = 50 } = filters;
     const query = {};
     
     if (filters.status) {
@@ -396,16 +397,27 @@ export const getAllBookings = async (filters = {}) => {
         };
     }
 
-    const bookings = await Booking.find(query)
-        .populate("userId", "name email")
-        .populate({
-            path: "caregiverId",
-            populate: { path: "userId", select: "name email" },
-        })
-        .populate("serviceId", "title price")
-        .sort({ createdAt: -1 });
+    const parsedPage = Math.max(1, parseInt(page, 10));
+    const parsedLimit = parseInt(limit, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
 
-    return bookings;
+    const [bookings, total] = await Promise.all([
+        Booking.find(query)
+            .populate("userId", "name email")
+            .populate({
+                path: "caregiverId",
+                populate: { path: "userId", select: "name email" },
+            })
+            .populate("serviceId", "title price")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parsedLimit),
+        Booking.countDocuments(query)
+    ]);
+
+    const hasMore = total > skip + bookings.length;
+
+    return { bookings, pagination: { total, page: parsedPage, limit: parsedLimit, hasMore } };
 };
 
 export const deleteBooking = async (bookingId) => {

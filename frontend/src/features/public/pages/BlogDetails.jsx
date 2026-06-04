@@ -27,7 +27,7 @@ const BlogDetails = () => {
         setBlog(fetchedBlog);
 
         if (fetchedBlog) {
-          const relatedRes = await getRelatedBlogs(fetchedBlog.category, fetchedBlog._id);
+          const relatedRes = await getRelatedBlogs(fetchedBlog.slug);
           setRelatedBlogs(relatedRes.data.blogs || []);
         }
       } catch (err) {

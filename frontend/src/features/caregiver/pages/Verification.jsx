@@ -101,7 +101,7 @@ const Verification = () => {
   });
 
   useEffect(() => {
-    Promise.all([getOnboardingStatus(), getAllServices({ isActive: true })])
+    Promise.all([getOnboardingStatus(), getAllServices({ isActive: true, limit: 1000 })])
       .then(([statusRes, servicesRes]) => {
         setStage(apiStage(statusRes) || "");
         const cg = apiCaregiver(statusRes);
@@ -114,7 +114,7 @@ const Verification = () => {
           });
         }
         if (cg?.servicesOffered?.length) {
-          setSelectedServices(cg.servicesOffered.map((s) => (typeof s === "object" ? s._id : s)));
+          setSelectedServices(cg.servicesOffered.filter(s => s !== null).map((s) => (typeof s === "object" ? s._id : s)));
         }
         if (cg?.verificationInfo) setVerificationInfo(cg.verificationInfo);
         const svcPayload = apiPayload(servicesRes);

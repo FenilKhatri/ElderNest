@@ -5,14 +5,30 @@ import * as caregiverService from "./caregiver.services.js";
 
 export const getCaregivers = asyncHandler(async (req, res) => {
     const filters = req.query;
-    const caregivers = await caregiverService.getAllCaregivers(filters);
-    return successResponse(res, 200, "Caregivers fetched", { caregivers });
+    const { caregivers, pagination } = await caregiverService.getAllCaregivers(filters);
+    return successResponse(res, 200, "Caregivers fetched", { caregivers, pagination });
 });
 
 export const getCaregiver = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const caregiver = await caregiverService.getCaregiverById(id);
     return successResponse(res, 200, "Caregiver fetched", { caregiver });
+});
+
+export const getRelatedCaregivers = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const caregiver = await caregiverService.getCaregiverById(id);
+    if (!caregiver) return errorResponse(res, 404, "Caregiver not found");
+
+    const related = await caregiverService.getAllCaregivers({
+        services: caregiver.servicesOffered.map(s => s._id || s).join(','),
+        limit: 4
+    });
+    
+    // filter out the current caregiver
+    const filtered = related.caregivers.filter(c => c._id.toString() !== id.toString());
+    
+    return successResponse(res, 200, "Related caregivers fetched", { caregivers: filtered });
 });
 
 // Complete caregiver profile

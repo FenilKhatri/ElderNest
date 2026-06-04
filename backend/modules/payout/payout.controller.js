@@ -7,16 +7,30 @@ import Caregiver from "../caregiver/caregiver.model.js";
 // @desc    Get all payouts (Admin)
 // @route   GET /api/payouts
 export const getAllPayouts = asyncHandler(async (req, res) => {
-    const { status } = req.query;
+    const { status, page = 1, limit = 50 } = req.query;
     const query = {};
     if (status) query.status = status;
 
-    const payouts = await Payout.find(query)
-        .populate({ path: "caregiverId", populate: { path: "userId", select: "name email phone" } })
-        .populate("processedBy", "name email")
-        .sort({ createdAt: -1 });
+    const parsedPage = Math.max(1, parseInt(page, 10));
+    const parsedLimit = parseInt(limit, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
 
-    return successResponse(res, 200, "Payouts fetched successfully", { payouts });
+    const [payouts, total] = await Promise.all([
+        Payout.find(query)
+            .populate({ path: "caregiverId", populate: { path: "userId", select: "name email phone" } })
+            .populate("processedBy", "name email")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parsedLimit),
+        Payout.countDocuments(query)
+    ]);
+
+    const hasMore = total > skip + payouts.length;
+
+    return successResponse(res, 200, "Payouts fetched successfully", { 
+        payouts,
+        pagination: { total, page: parsedPage, limit: parsedLimit, hasMore }
+    });
 });
 
 // @desc    Get caregiver payouts

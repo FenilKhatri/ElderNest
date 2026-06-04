@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { 
   MapPin, Star, User, Calendar, CheckCircle2, ChevronRight
 } from "lucide-react";
-import { getCaregiverById } from "../../caregiver/api/caregiver.api";
+import { getCaregiverById, getRelatedCaregivers } from "../../caregiver/api/caregiver.api";
 import { fadeUp } from "../../../animations/motionVariants";
 import { formatCurrency } from "../../../utils/helpers";
 import http from "../../../lib/axios";
@@ -23,6 +23,7 @@ const CaregiverDetails = () => {
   
   const [caregiver, setCaregiver] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [relatedCaregivers, setRelatedCaregivers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
@@ -36,8 +37,12 @@ const CaregiverDetails = () => {
         setCaregiver(res.data?.caregiver);
 
         if (res.data?.caregiver) {
-          const revRes = await http.get(`/reviews/caregiver/${id}`);
+          const [revRes, relRes] = await Promise.all([
+            http.get(`/reviews/caregiver/${id}`),
+            getRelatedCaregivers(id)
+          ]);
           setReviews(revRes.data?.reviews || []);
+          setRelatedCaregivers(relRes.data?.caregivers || []);
         }
       } catch (error) {
         console.error("Failed to fetch caregiver details", error);
@@ -345,6 +350,49 @@ const CaregiverDetails = () => {
           </div>
 
         </motion.div>
+
+        {/* Related Caregivers */}
+        {relatedCaregivers.length > 0 && (
+          <div className="mt-16 pt-16 border-t border-slate-200 dark:border-slate-800">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">Similar Caregivers You May Consider</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedCaregivers.map(cg => (
+                <div key={cg._id} className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all flex flex-col group">
+                  <div className="flex items-start gap-4 mb-5">
+                    <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0 overflow-hidden ring-2 ring-white dark:ring-slate-800 shadow-sm">
+                      {cg.profileImage ? (
+                        <img src={cg.profileImage} alt={cg.userId?.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-6 h-6 text-slate-400" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0 pt-1">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white truncate">
+                        {cg.userId?.name}
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                        {cg.servicesOffered?.[0]?.title || cg.servicesOffered?.[0]?.name || "Caregiver"}
+                      </p>
+                      <div className="flex items-center mt-1.5">
+                        <span className="text-[13px] font-semibold text-amber-500 flex items-center">
+                          {cg.rating || "New"} 
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <Link
+                      to={`/caregivers/${cg._id}`}
+                      className="flex items-center justify-center px-4 py-2 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-sm font-semibold transition-colors"
+                    >
+                      View Profile
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -16,6 +16,8 @@ const Caregivers = () => {
   const [filtered, setFiltered] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: false });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const location = useLocation();
@@ -58,28 +60,57 @@ const Caregivers = () => {
     return () => clearTimeout(handler);
   }, [searchCity, searchTerm, selectedExperience, selectedRatings, selectedCareType, initialService, navigate]);
 
+  const fetchCaregivers = async (pageToFetch = 1, append = false) => {
+    try {
+      if (append) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const params = Object.fromEntries(new URLSearchParams(location.search));
+      params.status = "approved";
+      params.page = pageToFetch;
+      params.limit = 9;
+
+      const res = await getAllCaregivers(params);
+      const list = res.data?.caregivers || [];
+      const pag = res.data?.pagination || { page: 1, hasMore: false };
+
+      if (append) {
+        setCaregivers(prev => {
+            const existingIds = new Set(prev.map(c => c._id));
+            const newItems = list.filter(c => !existingIds.has(c._id));
+            return [...prev, ...newItems];
+        });
+      } else {
+        setCaregivers(list);
+      }
+      setPagination(pag);
+    } catch (error) {
+      console.error("Failed to fetch caregivers", error);
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchServicesList = async () => {
       try {
-        setLoading(true);
-        // Fetch services
         const sRes = await getAllServices({ isActive: true });
         setServices(sRes.data?.services || []);
-
-        // Fetch caregivers with backend filters
-        const params = Object.fromEntries(new URLSearchParams(location.search));
-        params.status = "approved"; // Always only approved
-        const res = await getAllCaregivers(params);
-        setCaregivers(res.data?.caregivers || []);
-        
-      } catch (error) {
-        console.error("Failed to fetch data", error);
-      } finally {
-        setLoading(false);
-      }
+      } catch (error) {}
     };
-    fetchData();
+    fetchServicesList();
+  }, []);
+
+  useEffect(() => {
+    fetchCaregivers(1, false);
   }, [location.search]);
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && pagination.hasMore) {
+      fetchCaregivers(pagination.page + 1, true);
+    }
+  };
 
   useEffect(() => {
     let result = caregivers;
@@ -329,7 +360,7 @@ const Caregivers = () => {
       loading={loading}
       items={filtered}
       renderItem={renderCaregiverCard}
-      skeletonCount={6}
+      skeletonCount={9}
       renderSkeleton={() => (
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 animate-pulse h-[340px]">
           <div className="flex items-start space-x-4 mb-6">
@@ -354,6 +385,9 @@ const Caregivers = () => {
       emptyStateContent={emptyStateContent}
       breakpoint="lg"
       gridCols="grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
+      pagination={pagination}
+      onLoadMore={handleLoadMore}
+      isLoadingMore={isLoadingMore}
     />
   );
 };

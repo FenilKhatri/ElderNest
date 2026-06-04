@@ -157,7 +157,7 @@ const CompleteProfile = () => {
 
   useEffect(() => {
     setServicesLoading(true);
-    getAllServices({ isActive: true })
+    getAllServices({ isActive: true, limit: 1000 })
       .then((res) => setServices(res?.data?.services || []))
       .catch(() => toast.error("Could not load services. Please refresh the page."))
       .finally(() => setServicesLoading(false));
@@ -172,9 +172,9 @@ const CompleteProfile = () => {
         if (!hasData) return;
 
         setIsEditMode(true);
-        const serviceIds = (cg.servicesOffered || []).map((s) =>
-          typeof s === "object" ? s._id : s
-        );
+        const serviceIds = (cg.servicesOffered || [])
+          .filter((s) => s !== null)
+          .map((s) => (typeof s === "object" ? s._id : s));
 
         reset({
           fullName: cg.fullName || user?.name || "",

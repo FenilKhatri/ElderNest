@@ -45,17 +45,31 @@ export const createRefundRequest = asyncHandler(async (req, res) => {
 });
 
 export const getAllRefunds = asyncHandler(async (req, res) => {
-    const { status } = req.query;
+    const { status, page = 1, limit = 50 } = req.query;
     const query = {};
     if (status) query.status = status;
 
-    const refunds = await Refund.find(query)
-        .populate("userId", "name email")
-        .populate({ path: "caregiverId", populate: { path: "userId", select: "name email" } })
-        .populate("bookingId", "bookingId serviceId timeSlot totalAmount")
-        .sort({ createdAt: -1 });
+    const parsedPage = Math.max(1, parseInt(page, 10));
+    const parsedLimit = parseInt(limit, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
 
-    return successResponse(res, 200, "Refunds fetched successfully", { refunds });
+    const [refunds, total] = await Promise.all([
+        Refund.find(query)
+            .populate("userId", "name email")
+            .populate({ path: "caregiverId", populate: { path: "userId", select: "name email" } })
+            .populate("bookingId", "bookingId serviceId timeSlot totalAmount")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parsedLimit),
+        Refund.countDocuments(query)
+    ]);
+
+    const hasMore = total > skip + refunds.length;
+
+    return successResponse(res, 200, "Refunds fetched successfully", { 
+        refunds,
+        pagination: { total, page: parsedPage, limit: parsedLimit, hasMore }
+    });
 });
 
 export const updateRefundStatus = asyncHandler(async (req, res) => {

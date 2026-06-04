@@ -160,7 +160,7 @@ const CaregiverVerificationReview = () => {
           <h2 className="font-semibold mb-4 text-slate-900 dark:text-white">Profile & services</h2>
           <p className="text-sm text-slate-600 dark:text-slate-400">Bio: {caregiver.bio || "—"}</p>
           <p className="text-sm mt-2 text-slate-600 dark:text-slate-400">
-            Services: {(caregiver.servicesOffered || []).map((s) => s.title || s).join(", ") || "—"}
+            Services: {(caregiver.servicesOffered || []).filter(s => s !== null).map((s) => s.title || s).join(", ") || "—"}
           </p>
           <p className="text-sm mt-2 text-slate-600 dark:text-slate-400">Info: {caregiver.verificationInfo || "—"}</p>
         </section>

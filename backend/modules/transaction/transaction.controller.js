@@ -5,18 +5,32 @@ import Transaction from "./transaction.model.js";
 // @desc    Get all transactions (Admin)
 // @route   GET /api/transactions
 export const getAllTransactions = asyncHandler(async (req, res) => {
-    const { type, status } = req.query;
+    const { type, status, page = 1, limit = 50 } = req.query;
     const query = {};
     if (type) query.type = type;
     if (status) query.status = status;
 
-    const transactions = await Transaction.find(query)
-        .populate("userId", "name email")
-        .populate({ path: "caregiverId", populate: { path: "userId", select: "name email" } })
-        .populate("bookingId", "bookingId serviceId timeSlot")
-        .sort({ createdAt: -1 });
+    const parsedPage = Math.max(1, parseInt(page, 10));
+    const parsedLimit = parseInt(limit, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
 
-    return successResponse(res, 200, "Transactions fetched successfully", { transactions });
+    const [transactions, total] = await Promise.all([
+        Transaction.find(query)
+            .populate("userId", "name email")
+            .populate({ path: "caregiverId", populate: { path: "userId", select: "name email" } })
+            .populate("bookingId", "bookingId serviceId timeSlot")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parsedLimit),
+        Transaction.countDocuments(query)
+    ]);
+
+    const hasMore = total > skip + transactions.length;
+
+    return successResponse(res, 200, "Transactions fetched successfully", { 
+        transactions,
+        pagination: { total, page: parsedPage, limit: parsedLimit, hasMore }
+    });
 });
 
 // @desc    Get transaction by ID

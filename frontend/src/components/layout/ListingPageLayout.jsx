@@ -2,6 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { stagger, fadeUp } from "../../animations/motionVariants";
 import MobileFilterToggle from "../ui/MobileFilterToggle";
+import LoadMore from "../common/LoadMore";
 
 const ListingPageLayout = ({
   title,
@@ -17,6 +18,9 @@ const ListingPageLayout = ({
   emptyStateContent,
   breakpoint = "lg", // "md" or "lg"
   gridCols = "grid-cols-1 md:grid-cols-2 xl:grid-cols-3",
+  pagination,
+  onLoadMore,
+  isLoadingMore,
 }) => {
   const isLg = breakpoint === "lg";
 
@@ -75,28 +79,41 @@ const ListingPageLayout = ({
             ) : items.length === 0 ? (
               emptyStateContent
             ) : (
-              <motion.div 
-                variants={stagger} 
-                initial="hidden" 
-                animate="show" 
-                className={`grid ${gridCols} gap-6`}
-              >
-                <AnimatePresence mode="popLayout">
-                  {items.map((item, index) => (
-                    <motion.div
-                      layout
-                      variants={fadeUp}
-                      initial="hidden"
-                      animate="show"
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      key={item._id || index}
-                      className="h-full flex flex-col"
-                    >
-                      {renderItem(item)}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </motion.div>
+              <>
+                <motion.div 
+                  variants={stagger} 
+                  initial="hidden" 
+                  animate="show" 
+                  className={`grid ${gridCols} gap-6`}
+                >
+                  <AnimatePresence mode="popLayout">
+                    {items.map((item, index) => (
+                      <motion.div
+                        layout
+                        variants={fadeUp}
+                        initial="hidden"
+                        animate="show"
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        key={item._id || index}
+                        className="h-full flex flex-col"
+                      >
+                        {renderItem(item)}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+
+                {/* Pagination / Load More */}
+                {pagination?.hasMore && (
+                  <div className="mt-12 flex justify-center">
+                    <LoadMore 
+                      hasMore={pagination.hasMore}
+                      onLoadMore={onLoadMore}
+                      isLoading={isLoadingMore}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
           
