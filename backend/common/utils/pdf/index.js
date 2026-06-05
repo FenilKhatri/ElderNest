@@ -1,36 +1,29 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
 import { BOOKING_STATUS, PAYMENT_STATUS } from "../constants.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Resolve to project root /uploads
-const uploadsRoot = path.resolve(__dirname, "../../../uploads");
-
-const ensureDir = (dirPath) => {
-    if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-    }
-};
+import getCloudinary from "../../../config/cloudinary.js";
 
 export const generateReceiptPdf = async (booking) => {
     return new Promise((resolve, reject) => {
         try {
-            const dir = path.join(uploadsRoot, "receipts");
-            ensureDir(dir);
-
-            const fileName = `receipt_${booking.bookingId || booking._id}_${Date.now()}.pdf`;
-            const filePath = path.join(dir, fileName);
+            const fileName = `receipt_${booking.bookingId || booking._id}_${Date.now()}`;
 
             const amount = booking.totalAmount || 0;
             const tax = Math.round(amount * 0.18);
             const total = amount + tax;
 
             const doc = new PDFDocument({ margin: 50 });
-            const stream = fs.createWriteStream(filePath);
+            
+            const cloudinary = getCloudinary();
+            const stream = cloudinary.uploader.upload_stream(
+                { folder: "Eldernest/pdfs/receipts", resource_type: "raw", public_id: fileName + ".pdf" },
+                (error, result) => {
+                    if (error) {
+                        console.error("Cloudinary upload failed:", error);
+                        return reject(error);
+                    }
+                    resolve(result.secure_url);
+                }
+            );
             
             doc.pipe(stream);
 
@@ -72,9 +65,7 @@ export const generateReceiptPdf = async (booking) => {
             doc.text("For queries: support@eldernest.com | +91-9876543210", { align: 'center' });
 
             doc.end();
-
-            stream.on('finish', () => resolve(`/uploads/receipts/${fileName}`));
-            stream.on('error', reject);
+            // Cloudinary stream resolves in the callback above, not here
         } catch (error) {
             console.error("Receipt PDF generation failed:", error);
             resolve(null);
@@ -85,17 +76,24 @@ export const generateReceiptPdf = async (booking) => {
 export const generateBookingPdf = async (booking) => {
     return new Promise((resolve, reject) => {
         try {
-            const dir = path.join(uploadsRoot, "bookings");
-            ensureDir(dir);
-
-            const fileName = `booking_${booking.bookingId || booking._id}_${Date.now()}.pdf`;
-            const filePath = path.join(dir, fileName);
+            const fileName = `booking_${booking.bookingId || booking._id}_${Date.now()}`;
 
             const addr = booking.address || {};
             const ec = booking.emergencyContact || {};
 
             const doc = new PDFDocument({ margin: 50 });
-            const stream = fs.createWriteStream(filePath);
+            
+            const cloudinary = getCloudinary();
+            const stream = cloudinary.uploader.upload_stream(
+                { folder: "Eldernest/pdfs/bookings", resource_type: "raw", public_id: fileName + ".pdf" },
+                (error, result) => {
+                    if (error) {
+                        console.error("Cloudinary upload failed:", error);
+                        return reject(error);
+                    }
+                    resolve(result.secure_url);
+                }
+            );
             
             doc.pipe(stream);
 
@@ -186,9 +184,7 @@ export const generateBookingPdf = async (booking) => {
             doc.fontSize(10).text("ElderNest — Compassionate Care, Always.", { align: 'center' });
 
             doc.end();
-
-            stream.on('finish', () => resolve(`/uploads/bookings/${fileName}`));
-            stream.on('error', reject);
+            // Cloudinary stream resolves in the callback above, not here
         } catch (error) {
             console.error("Booking PDF generation failed:", error);
             resolve(null);
