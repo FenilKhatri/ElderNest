@@ -14,6 +14,7 @@ import GlobalLoader from "../../../components/ui/GlobalLoader";
 import UserPageLayout from "../../../layout/dashboard/UserPageLayout";
 import Modal from "../../../components/ui/Modal";
 import MessagePanel from "../../booking/components/MessagePanel";
+import CareNotesViewer from "../../careNote/components/CareNotesViewer";
 import { useAuth } from "../../../context/AuthContext";
 import { BOOKING_STATUS } from "../../../constants/statusConstants";
 
@@ -158,6 +159,11 @@ const BookingDetails = () => {
               </div>
             </div>
           </div>
+
+          {/* Care Notes Viewer */}
+          {["in-progress", "completed"].includes(booking.status) && (
+            <CareNotesViewer bookingId={booking._id} />
+          )}
 
           {/* Special Instructions / Notes */}
           {booking.notes && (
