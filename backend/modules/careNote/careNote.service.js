@@ -65,8 +65,8 @@ export const getCareNotesByBooking = async (bookingId, requesterId, requesterRol
         throw new Error("Booking not found");
     }
 
-    const isUser = booking.userId.toString() === requesterId;
-    const isCaregiver = booking.caregiverId?.userId?._id?.toString() === requesterId;
+    const isUser = booking.userId.toString() === requesterId.toString();
+    const isCaregiver = booking.caregiverId?.userId?._id?.toString() === requesterId.toString();
     const isAdmin = requesterRole === "admin";
 
     if (!isUser && !isCaregiver && !isAdmin) {
