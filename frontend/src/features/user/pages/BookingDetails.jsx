@@ -161,7 +161,7 @@ const BookingDetails = () => {
           </div>
 
           {/* Care Notes Viewer */}
-          {["in-progress", "completed"].includes(booking.status) && (
+          {["accepted", "in-progress", "completed"].includes(booking.status) && (
             <CareNotesViewer bookingId={booking._id} />
           )}
 
