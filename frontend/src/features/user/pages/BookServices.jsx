@@ -15,9 +15,9 @@ import {
   Clock,
   Shield,
   CreditCard,
+  Wallet,
 } from "lucide-react";
 import {
-  createBooking,
   createPaymentOrder,
   verifyPayment,
   getRazorpayKey,
@@ -28,6 +28,7 @@ import { getCaregiverById } from "../../caregiver/api/caregiver.api";
 import { getWalletSummary, payWithWallet } from "../../../api/wallet";
 
 import { loadRazorpayScript } from "../../../utils/loadRazorpay";
+import { getApiErrorMessage } from "../../../utils/helpers";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
@@ -327,7 +328,7 @@ const BookServices = () => {
         const res = await getAvailableSlots(form.caregiverId, newDate);
         setAvailableSlots(res?.data?.slots || []);
       } catch (error) {
-        toast.error("Failed to load available slots");
+        toast.error(getApiErrorMessage(error));
         setAvailableSlots([]);
       } finally {
         setSlotsLoading(false);
