@@ -49,6 +49,35 @@ const CareJourney = () => {
           viewport={{ once: true, margin: "-100px" }}
           className="relative w-full max-w-5xl mx-auto flex flex-col gap-16 md:gap-24"
         >
+          {/* Decorative Curvy Lines (Desktop Only) */}
+          <div className="hidden md:block absolute top-[15%] left-[20%] w-[30%] h-[30%] -z-10 pointer-events-none">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full opacity-40 dark:opacity-20">
+              <path 
+                d="M 0,0 C 80,0 20,100 100,100" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeDasharray="6 6" 
+                className="text-emerald-500" 
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+          </div>
+          
+          <div className="hidden md:block absolute top-[55%] left-[50%] w-[30%] h-[30%] -z-10 pointer-events-none">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full opacity-40 dark:opacity-20">
+              <path 
+                d="M 0,0 C 80,0 20,100 100,100" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeDasharray="6 6" 
+                className="text-emerald-500" 
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+          </div>
+
           {steps.map((step, index) => {
             // Determine alignment for staircase effect
             let alignClass = "md:items-start md:text-left md:pr-[50%]"; // Step 1: Left
@@ -69,7 +98,7 @@ const CareJourney = () => {
                   {step.title}
                 </h3>
                 </div>
-                <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-md">
+                <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-md bg-white/50 dark:bg-[#0b1120]/50 backdrop-blur-sm rounded-2xl md:p-2">
                   {step.description}
                 </p>
               </motion.div>

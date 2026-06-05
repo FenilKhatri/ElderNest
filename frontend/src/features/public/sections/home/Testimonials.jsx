@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Quote, MessageSquareOff } from "lucide-react";
+import { Quote, MessageSquareOff, Star } from "lucide-react";
 import { fadeUp, stagger } from "../../../../animations/motionVariants";
 import { getPublicReviews } from "../../../public/api/review.api";
 
@@ -11,7 +11,7 @@ const Testimonials = () => {
   useEffect(() => {
     getPublicReviews()
       .then((res) => {
-        setReviews(res?.data?.reviews?.slice(0, 3) || []); // Take top 3
+        setReviews(res?.data?.reviews?.slice(0, 6) || []); // Take top 6
       })
       .catch((error) => {
         console.error("Failed to fetch public reviews", error);
@@ -39,74 +39,96 @@ const Testimonials = () => {
   }
 
   return (
-    <section className="py-24 px-4 bg-white dark:bg-[#0b1120] relative border-b border-slate-200 dark:border-slate-800">
+    <section className="py-24 px-4 bg-[#F8F7F4] dark:bg-[#0b1120] relative border-b border-slate-200 dark:border-slate-800">
       <div className="w-full max-w-site-wide mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-          
-          {/* Left Column: Large Image */}
+        
+        <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
             variants={fadeUp}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-100px" }}
-            className="w-full h-full min-h-[400px] lg:min-h-[600px] rounded-3xl overflow-hidden relative shadow-md"
           >
-            {/* We use a realistic placeholder layout here since the reference uses a large image, and we must ensure it looks professional */}
-            <div className="absolute inset-0 bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
-               <img 
-                 src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&w=2000&auto=format&fit=crop" 
-                 alt="Happy Family with Caregiver" 
-                 className="w-full h-full object-cover grayscale-[30%]"
-                 loading="lazy"
-               />
-               <div className="absolute inset-0 bg-black/10" />
-            </div>
-            
-            <div className="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/80 to-transparent">
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-2">
-                Real Families.<br />
-                Real Care.<br />
-                Real Results.
-              </h2>
-            </div>
-          </motion.div>
-
-          {/* Right Column: Stacked Testimonials */}
-          <motion.div 
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            className="flex flex-col h-full justify-center gap-0"
-          >
-            <div className="flex items-center gap-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-8 uppercase tracking-wider">
+            <div className="flex items-center justify-center gap-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-4 uppercase tracking-wider">
               <span className="w-8 h-px bg-emerald-600 dark:bg-emerald-400"></span>
               Testimonials
+              <span className="w-8 h-px bg-emerald-600 dark:bg-emerald-400"></span>
             </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#1c2b36] dark:text-white leading-[1.15] mb-6 tracking-tight">
+              Real Families. Real Care. <br className="hidden sm:block" />
+              Real Results.
+            </h2>
+            <p className="text-lg text-slate-600 dark:text-slate-400">
+              Hear what families have to say about their experience with our compassionate caregivers.
+            </p>
+          </motion.div>
+        </div>
 
-            {reviews.map((review, index) => (
+        <motion.div 
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {reviews.map((review) => {
+            const rating = review.rating || 5;
+            const name = review.userId?.name || 'Anonymous User';
+            const avatarUrl = review.userId?.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0D8ABC&color=fff`;
+            
+            let serviceTitle = "Elder Care";
+            if (review.serviceId?.name) {
+              serviceTitle = review.serviceId.name;
+            } else if (review.caregiverId?.userId?.name) {
+              serviceTitle = `Care from ${review.caregiverId.userId.name}`;
+            }
+
+            return (
               <motion.div
                 key={review._id}
                 variants={fadeUp}
-                className={`py-8 ${index !== 0 ? 'border-t-2 border-slate-200 dark:border-slate-800' : ''}`}
+                className="p-6 md:p-8 bg-white dark:bg-slate-900/60 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all relative overflow-hidden flex flex-col h-full"
               >
-                <Quote className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-4" />
-                <p className="text-lg md:text-xl text-[#1c2b36] dark:text-slate-300 font-medium leading-relaxed italic mb-6">
+                <Quote className="absolute top-6 right-6 w-16 h-16 text-slate-100 dark:text-slate-800 opacity-50 rotate-12" />
+                
+                <div className="flex gap-1 mb-6 relative z-10">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={`w-4 h-4 ${i < rating ? 'fill-amber-400 text-amber-400' : 'fill-slate-200 text-slate-200 dark:fill-slate-700 dark:text-slate-700'}`} 
+                    />
+                  ))}
+                </div>
+                
+                <p className="text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-8 italic relative z-10 flex-grow">
                   "{review.comment}"
                 </p>
-                <div className="flex flex-col items-end w-full">
-                  <span className="font-bold text-[#1c2b36] dark:text-white uppercase tracking-wider text-sm">
-                    {review.user?.firstName} {review.user?.lastName}
-                  </span>
-                  <span className="text-xs text-slate-500 font-medium uppercase tracking-widest mt-1">
-                    {review.service?.title || "Home Care"}
-                  </span>
+                
+                <div className="flex items-center gap-4 mt-auto relative z-10 border-t border-slate-100 dark:border-slate-800 pt-6">
+                  <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-slate-50 dark:border-slate-800 shadow-sm bg-slate-200">
+                    <img 
+                      src={avatarUrl} 
+                      alt={name} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = `https://ui-avatars.com/api/?name=${name}&background=random`;
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[#1c2b36] dark:text-white text-sm md:text-base leading-snug">
+                      {name}
+                    </h4>
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider mt-1">
+                      {serviceTitle}
+                    </p>
+                  </div>
                 </div>
               </motion.div>
-            ))}
-          </motion.div>
+            );
+          })}
+        </motion.div>
 
-        </div>
       </div>
     </section>
   );

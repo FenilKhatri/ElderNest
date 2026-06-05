@@ -1,7 +1,22 @@
+import {
+  Database,
+  MonitorSmartphone,
+  Activity,
+  Share2,
+  Lock,
+  UserCheck,
+  Link,
+  Baby,
+  History,
+  Mail
+} from "lucide-react";
+import { CONTACT_INFO } from "../../../constants/ui/contactInfo";
+
 export const sections = [
   {
     id: "information-collected",
     title: "Information we collect",
+    icon: Database,
     content: (
       <>
         <p>
@@ -38,6 +53,7 @@ export const sections = [
   {
     id: "automatic-collection",
     title: "Information collected automatically",
+    icon: MonitorSmartphone,
     content: (
       <>
         <p>
@@ -71,6 +87,7 @@ export const sections = [
   {
     id: "how-we-use",
     title: "How we use your information",
+    icon: Activity,
     content: (
       <>
         <p>
@@ -108,6 +125,7 @@ export const sections = [
   {
     id: "information-sharing",
     title: "How we share information",
+    icon: Share2,
     content: (
       <>
         <p>
@@ -140,6 +158,7 @@ export const sections = [
   {
     id: "data-security",
     title: "Data security",
+    icon: Lock,
     content: (
       <>
         <p>
@@ -177,6 +196,7 @@ export const sections = [
   {
     id: "privacy-rights",
     title: "Your privacy rights",
+    icon: UserCheck,
     content: (
       <>
         <p>
@@ -214,6 +234,7 @@ export const sections = [
   {
     id: "third-party-services",
     title: "Third-party services",
+    icon: Link,
     content: (
       <>
         <p>
@@ -246,6 +267,7 @@ export const sections = [
   {
     id: "childrens-privacy",
     title: "Children's privacy",
+    icon: Baby,
     content: (
       <>
         <p>
@@ -266,6 +288,7 @@ export const sections = [
   {
     id: "policy-changes",
     title: "Changes to this privacy policy",
+    icon: History,
     content: (
       <>
         <p>
@@ -289,6 +312,7 @@ export const sections = [
   {
     id: "contact",
     title: "Contact information",
+    icon: Mail,
     content: (
       <>
         <p>
@@ -298,22 +322,10 @@ export const sections = [
 
         <h3>Privacy Team</h3>
         <p>
-          Email: privacy@eldernest.com
+          Email: {CONTACT_INFO.EMAIL}
           <br />
-          Phone: +91 1800-XXX-XXXX
+          Phone: {CONTACT_INFO.PHONE}
           <br />
-          Hours: Monday – Friday, 9:00 AM – 6:00 PM IST
-        </p>
-
-        <h3>Mailing Address</h3>
-        <p>
-          ElderNest Privacy Team
-          <br />
-          123 Care Street
-          <br />
-          Mumbai, Maharashtra 400001
-          <br />
-          India
         </p>
       </>
     ),

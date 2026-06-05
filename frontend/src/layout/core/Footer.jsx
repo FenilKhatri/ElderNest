@@ -36,7 +36,7 @@ const Footer = () => {
     "relative text-slate-500 dark:text-slate-400 font-medium after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-px after:w-0 after:bg-blue-500 after:transition-all after:duration-300 hover:after:w-full hover:text-blue-600 dark:hover:text-blue-400 transition-colors";
 
   return (
-    <footer className="bg-slate-50 dark:bg-[#0a0f1c] border-t border-slate-200 dark:border-slate-800 transition-colors duration-300 pt-20 pb-10 font-sans relative overflow-hidden">
+    <footer className="bg-slate-50 dark:bg-[#0a0f1c] border-t border-slate-200 dark:border-slate-800 transition-colors duration-300 pt-10 pb-5 font-sans relative overflow-hidden">
 
       {/* Background ambient lighting */}
       <div className="absolute bottom-0 left-0 w-full h-[500px] bg-gradient-to-t from-blue-900/5 dark:from-blue-900/10 to-transparent pointer-events-none" />
@@ -47,12 +47,11 @@ const Footer = () => {
 
           {/* Company Info & Trust */}
           <div className="lg:col-span-4 flex flex-col gap-6">
-            <div className="flex items-center gap-3">
+            <div>
               <img src={Logo} alt="ElderNest Logo" width={50} loading="lazy" className="dark:brightness-110" />
-              <p className="text-blue-600 dark:text-blue-500 font-bold text-2xl tracking-tight">ElderNest</p>
             </div>
             
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm pr-4">
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm md:text-base text-justify pr-4">
               ElderNest is a premium home healthcare platform dedicated to providing compassionate, reliable, and professional care for your loved ones in the comfort of their home.
             </p>
 
@@ -118,7 +117,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="w-full border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 py-8">
+        <div className="w-full border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 pt-3">
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             &copy; {new Date().getFullYear()} ElderNest Healthcare Pvt Ltd. All rights reserved.
           </p>

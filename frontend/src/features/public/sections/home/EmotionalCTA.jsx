@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import Button from "../../../../components/ui/Button";
+import BGIMAGE from "../../../../assets/images/home/eldercare_image.png";
 
 const EmotionalCTA = () => {
   return (
@@ -10,11 +11,11 @@ const EmotionalCTA = () => {
       {/* Background Image with Dark Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&w=2000&auto=format&fit=crop" 
+          src={BGIMAGE}
           alt="Compassionate Care" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-transperant via-white/50 to-white/20 dark:from-slate-950/75 dark:via-slate-900/45 dark:to-transparent"/>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-black/20 dark:from-slate-950/75 dark:via-slate-900/45 dark:to-transparent"/>
       </div>
 
       <div className="w-full max-w-site-wide mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-24">
@@ -30,11 +31,11 @@ const EmotionalCTA = () => {
             Join ElderNest
           </div>
           
-          <h2 className="text-xl sm:text-3xl lg:text-5xl font-extrabold text-white leading-[1.1] mb-6 tracking-tight">
+          <h2 className="text-xl sm:text-3xl lg:text-5xl font-extrabold text-slate-100 leading-[1.1] mb-6 tracking-tight">
             Because Every Parent Deserves Dignified Care.
           </h2>
           
-          <p className="text-lg sm:text-xl text-slate-700 dark:text-slate-400 mb-10 leading-relaxed font-medium">
+          <p className="text-lg sm:text-xl text-slate-300 mb-10 leading-relaxed font-medium">
             Let us help you provide the comfort, safety, and professional care your family deserves. Our care coordinators are ready to match you with the perfect caregiver.
           </p>
           

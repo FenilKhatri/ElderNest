@@ -6,6 +6,7 @@ import RoleRoute from "../RoleRoutes";
 
 const UserProfile = lazy(() => import("../../../features/user/pages/Profile"));
 const MyBookings = lazy(() => import("../../../features/user/pages/MyBookings"));
+const BookingDetails = lazy(() => import("../../../features/user/pages/BookingDetails"));
 const History = lazy(() => import("../../../features/user/pages/History"));
 const BookServices = lazy(() => import("../../../features/user/pages/BookServices"));
 const Patients = lazy(() => import("../../../features/user/pages/Patients"));
@@ -21,6 +22,7 @@ const UserRoutes = () => (
     <Route element={<RoleRoute allowedRoles={[ROLES.USER]} />}>
       <Route path="/user/profile" element={<UserProfile />} />
       <Route path="/user/bookings" element={<MyBookings />} />
+      <Route path="/user/bookings/:id" element={<BookingDetails />} />
       <Route path="/user/history" element={<History />} />
       <Route path="/user/patients" element={<Patients />} />
       <Route path="/user/patients/:id" element={<PatientDetails />} />

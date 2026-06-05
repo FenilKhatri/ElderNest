@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 
 const UserPageLayout = ({ title, description, backTo, backLabel = "Back", action, children }) => (
   <div className="min-h-[calc(100vh-5rem)] bg-linear-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-site-wide mx-auto">
       {backTo && (
         <Link
           to={backTo}

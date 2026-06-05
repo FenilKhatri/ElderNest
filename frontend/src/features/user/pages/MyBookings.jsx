@@ -148,7 +148,8 @@ const MyBookings = () => {
     return (
       <motion.div
         variants={fadeUp}
-        className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-md transition-shadow"
+        onClick={() => navigate(`/user/bookings/${booking._id}`)}
+        className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-md transition-shadow cursor-pointer"
       >
         <div className="flex flex-col lg:flex-row lg:items-center gap-5">
           {/* Caregiver info */}
@@ -199,7 +200,10 @@ const MyBookings = () => {
               {booking.status === BOOKING_STATUS.PENDING && (
                 <button
                   type="button"
-                  onClick={() => setCancelModal({ open: true, id: booking._id })}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCancelModal({ open: true, id: booking._id });
+                  }}
                   className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 hover:underline flex items-center gap-1 transition-colors"
                 >
                   <XCircle className="w-3.5 h-3.5" /> Cancel
@@ -208,21 +212,35 @@ const MyBookings = () => {
               {[BOOKING_STATUS.ACCEPTED, BOOKING_STATUS.IN_PROGRESS].includes(booking.status) && (
                 <button
                   type="button"
-                  onClick={() => setActiveMessageBooking(booking)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveMessageBooking(booking);
+                  }}
                   className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline flex items-center gap-1 transition-colors"
                 >
                   <MessageSquare className="w-3.5 h-3.5" /> Message
                 </button>
               )}
-              {booking.status === BOOKING_STATUS.COMPLETED && (
                 <button
                   type="button"
-                  onClick={() => setReviewModal({ open: true, booking })}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setReviewModal({ open: true, booking });
+                  }}
                   className="text-xs text-amber-600 hover:text-amber-700 hover:underline flex items-center gap-1 transition-colors"
                 >
                   <Star className="w-3.5 h-3.5" /> Review
                 </button>
-              )}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/user/bookings/${booking._id}`);
+                }}
+                className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                <List className="w-3.5 h-3.5" /> View Details
+              </button>
             </div>
           </div>
         </div>
@@ -251,7 +269,8 @@ const MyBookings = () => {
     return (
       <motion.div
         variants={fadeUp}
-        className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-md transition-shadow flex flex-col"
+        onClick={() => navigate(`/user/bookings/${booking._id}`)}
+        className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-md transition-shadow flex flex-col cursor-pointer"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -322,7 +341,10 @@ const MyBookings = () => {
           {booking.status === BOOKING_STATUS.PENDING && (
             <button
               type="button"
-              onClick={() => setCancelModal({ open: true, id: booking._id })}
+              onClick={(e) => {
+                e.stopPropagation();
+                setCancelModal({ open: true, id: booking._id });
+              }}
               className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 hover:underline flex items-center gap-1"
             >
               <XCircle className="w-3.5 h-3.5" /> Cancel
@@ -331,7 +353,10 @@ const MyBookings = () => {
           {[BOOKING_STATUS.ACCEPTED, BOOKING_STATUS.IN_PROGRESS].includes(booking.status) && (
             <button
               type="button"
-              onClick={() => setActiveMessageBooking(booking)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveMessageBooking(booking);
+              }}
               className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
             >
               <MessageSquare className="w-3.5 h-3.5" /> Message
@@ -340,12 +365,25 @@ const MyBookings = () => {
           {booking.status === BOOKING_STATUS.COMPLETED && (
             <button
               type="button"
-              onClick={() => setReviewModal({ open: true, booking })}
+              onClick={(e) => {
+                e.stopPropagation();
+                setReviewModal({ open: true, booking });
+              }}
               className="text-xs text-amber-600 hover:underline flex items-center gap-1"
             >
               <Star className="w-3.5 h-3.5" /> Review
             </button>
           )}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/user/bookings/${booking._id}`);
+            }}
+            className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline flex items-center gap-1"
+          >
+            <List className="w-3.5 h-3.5" /> View Details
+          </button>
         </div>
       </motion.div>
     );

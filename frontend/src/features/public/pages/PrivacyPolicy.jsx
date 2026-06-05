@@ -46,7 +46,7 @@ const PrivacyPolicy = () => {
           variants={fadeUp}
           initial="hidden"
           animate="show"
-          className="max-w-5xl mx-auto"
+          className="max-w-site-wide mx-auto"
         >
           <p className="text-sm font-semibold uppercase tracking-widest text-[#FF3366] dark:text-[#ff6b8f] mb-3">
             Legal
@@ -59,24 +59,36 @@ const PrivacyPolicy = () => {
       </div>
 
       {/* Layout */}
-      <div className="max-w-5xl mx-auto px-4 py-10 flex gap-10 items-start">
+      <div className="max-w-site-wide mx-auto px-4 py-10 flex gap-10 items-start">
         {/* Sidebar */}
-        <aside className="hidden lg:block w-64 shrink-0 sticky top-24 self-start">
-          <nav className="space-y-1">
-            {sections.map((section) => (
-              <button
-                key={section.id}
-                onClick={() => scrollToSection(section.id)}
-                className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 leading-snug
-                ${
-                  activeSection === section.id
-                    ? "text-[#1a1a6e] dark:text-white font-semibold border-l-2 border-[#FF3366] pl-4 bg-white dark:bg-slate-800/60"
-                    : "text-slate-500 dark:text-slate-400 hover:text-[#1a1a6e] dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/40"
-                }`}
-              >
-                {section.title}
-              </button>
-            ))}
+        <aside className="hidden lg:block w-72 shrink-0 sticky top-24 self-start">
+          <nav className="space-y-1.5 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            {sections.map((section) => {
+              const Icon = section.icon;
+              const isActive = activeSection === section.id;
+              
+              return (
+                <button
+                  key={section.id}
+                  onClick={() => scrollToSection(section.id)}
+                  className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 leading-snug group
+                    ${
+                      isActive
+                        ? "text-[#1a1a6e] dark:text-white font-semibold bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700"
+                        : "text-slate-500 dark:text-slate-400 hover:text-[#1a1a6e] dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60 border border-transparent"
+                    }`}
+                >
+                  <div className={`p-1.5 rounded-lg transition-colors ${
+                    isActive 
+                      ? "bg-[#FF3366]/10 text-[#FF3366]" 
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover:text-[#FF3366] group-hover:bg-[#FF3366]/5"
+                  }`}>
+                    {Icon && <Icon className="w-4 h-4" />}
+                  </div>
+                  <span>{section.title}</span>
+                </button>
+              );
+            })}
           </nav>
         </aside>
 
@@ -97,7 +109,7 @@ const PrivacyPolicy = () => {
                 {section.title}
               </h2>
 
-              <div className="text-[15px] leading-relaxed space-y-4 [&_h3]:text-[#1a1a6e] [&_h3]:dark:text-white [&_h3]:font-bold [&_h3]:text-lg [&_h3]:mt-6 [&_h3]:mb-2 [&_p]:text-slate-600 [&_p]:dark:text-slate-400">
+              <div className="text-sm md:text-lg leading-relaxed space-y-4 [&_h3]:text-[#1a1a6e] [&_h3]:dark:text-white [&_h3]:font-bold [&_h3]:text-lg [&_h3]:mt-6 [&_h3]:mb-2 [&_p]:text-slate-600 [&_p]:dark:text-slate-400">
                 {section.content}
               </div>
 

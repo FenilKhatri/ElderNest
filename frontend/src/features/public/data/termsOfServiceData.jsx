@@ -1,7 +1,22 @@
+import {
+  CheckCircle,
+  FileText,
+  UserCircle,
+  Stethoscope,
+  CreditCard,
+  Shield,
+  Scale,
+  Copyright,
+  Gavel,
+  Mail
+} from "lucide-react";
+import { CONTACT_INFO } from "../../../constants/ui/contactInfo";
+
 export const sections = [
   {
     id: "acceptance",
     title: "Acceptance of terms",
+    icon: CheckCircle,
     content: (
       <>
         <p>
@@ -25,6 +40,7 @@ export const sections = [
   {
     id: "description",
     title: "Description of service",
+    icon: FileText,
     content: (
       <>
         <p>
@@ -50,6 +66,7 @@ export const sections = [
   {
     id: "user-accounts",
     title: "User accounts",
+    icon: UserCircle,
     content: (
       <>
         <p>
@@ -76,6 +93,7 @@ export const sections = [
   {
     id: "caregiver-requirements",
     title: "Caregiver requirements",
+    icon: Stethoscope,
     content: (
       <>
         <p>
@@ -107,6 +125,7 @@ export const sections = [
   {
     id: "booking-payments",
     title: "Booking and payments",
+    icon: CreditCard,
     content: (
       <>
         <p>
@@ -141,6 +160,7 @@ export const sections = [
   {
     id: "user-conduct",
     title: "User conduct",
+    icon: Shield,
     content: (
       <>
         <p>
@@ -168,6 +188,7 @@ export const sections = [
   {
     id: "liability",
     title: "Limitation of liability",
+    icon: Scale,
     content: (
       <>
         <p>
@@ -195,6 +216,7 @@ export const sections = [
   {
     id: "intellectual-property",
     title: "Intellectual property",
+    icon: Copyright,
     content: (
       <>
         <p>
@@ -224,6 +246,7 @@ export const sections = [
   {
     id: "governing-law",
     title: "Governing law and disputes",
+    icon: Gavel,
     content: (
       <>
         <p>
@@ -253,6 +276,7 @@ export const sections = [
   {
     id: "contact",
     title: "Contact information",
+    icon: Mail,
     content: (
       <>
         <p>
@@ -261,21 +285,10 @@ export const sections = [
         </p>
         <h3>Legal Team</h3>
         <p>
-          Email: legal@eldernest.com
+          Email: {CONTACT_INFO.EMAIL}
           <br />
-          Phone: +91 1800-XXX-XXXX
+          Phone: {CONTACT_INFO.PHONE}
           <br />
-          Hours: Monday – Friday, 9:00 AM – 6:00 PM IST
-        </p>
-        <h3>Mailing Address</h3>
-        <p>
-          ElderNest Legal Team
-          <br />
-          123 Care Street
-          <br />
-          Mumbai, Maharashtra 400001
-          <br />
-          India
         </p>
       </>
     ),
