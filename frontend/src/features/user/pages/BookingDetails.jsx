@@ -6,7 +6,7 @@ import {
   Star,
 } from "lucide-react";
 import { getBookingById } from "../../booking/api/booking.api";
-import { formatDate, formatTime, formatCurrency, getInitials } from "../../../utils/helpers";
+import { formatDate, formatTime, formatCurrency, getInitials, getApiErrorMessage } from "../../../utils/helpers";
 import { resolveAssetUrl } from "../../../utils/blogImage";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Button from "../../../components/ui/Button";
@@ -31,8 +31,8 @@ const BookingDetails = () => {
       try {
         const res = await getBookingById(id);
         setBooking(res.data?.booking);
-      } catch (_) {
-        toast.error("Failed to fetch booking details");
+      } catch (error) {
+        toast.error(getApiErrorMessage(error));
         navigate("/user/bookings");
       } finally {
         setLoading(false);

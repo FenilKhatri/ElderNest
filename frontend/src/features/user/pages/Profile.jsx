@@ -17,7 +17,7 @@ import Input from "../../../components/ui/Input";
 import SetPassword from "../components/SetPassword";
 import UserPageLayout from "../../../layout/dashboard/UserPageLayout";
 import { resolveAssetUrl } from "../../../utils/blogImage";
-import { formatDate } from "../../../utils/helpers";
+import { formatDate, getApiErrorMessage } from "../../../utils/helpers";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
 
 const profileSchema = z.object({
@@ -74,7 +74,7 @@ const SecuritySection = ({ user, fetchUser }) => {
       setNewPassword("");
       setConfirmPassword("");
     } catch (error) {
-      toast.error(error.message || "Failed to update password.");
+      toast.error(getApiErrorMessage(error));
     } finally {
       setUpdating(false);
     }
@@ -186,7 +186,6 @@ const Profile = () => {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors, isDirty },
     reset
   } = useForm({
@@ -230,7 +229,7 @@ const Profile = () => {
         toast.error("Upload succeeded but no image URL was returned");
       }
     } catch (error) {
-      toast.error("Failed to upload image");
+      toast.error(getApiErrorMessage(error));
     } finally {
       setUploading(false);
     }
@@ -244,7 +243,7 @@ const Profile = () => {
       fetchUser();
       reset(data); // reset to new clean state
     } catch (error) {
-      toast.error(error.message || "Failed to update profile.");
+      toast.error(getApiErrorMessage(error));
     } finally {
       setLoading(false);
     }

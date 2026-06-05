@@ -3,6 +3,8 @@ import { getRedirectByRole } from "./roleRedirect";
 import { ROLES } from "@/constants";
 import { clearSessionOnRoleMismatch } from "./clearSessionOnRoleMismatch";
 
+import { getApiErrorMessage } from "../helpers";
+
 export const handleAuthSubmit = async ({
     apiCall,
     form,
@@ -50,11 +52,7 @@ export const handleAuthSubmit = async ({
         navigate(getRedirectByRole(user?.role));
         toast.success(message || successMessage || "Success");
     } catch (error) {
-        toast.error(
-            error?.response?.data?.message ||
-            error?.message ||
-            "Something went wrong"
-        );
+        toast.error(getApiErrorMessage(error));
     } finally {
         setLoading(false);
     }

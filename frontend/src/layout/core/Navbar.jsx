@@ -64,7 +64,7 @@ const Navbar = ({ theme, toggleTheme }) => {
             <Button
               onClick={() => setUserOpen((prev) => !prev)}
               title="User Dropdown"
-              className="flex items-center justify-center gap-3 px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 cursor-pointer"
+              className="flex items-center justify-center gap-3 px-3 py-2 rounded-lg bg-blue-600 dark:bg-slate-800 cursor-pointer"
             >
               {user.name}
               <ChevronDown size={18} />

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
-import { User, Calendar, History, Users, MessageSquare, Bell } from "lucide-react";
+import { User, Calendar, History, Users, MessageSquare, Bell, Wallet } from "lucide-react";
 
 const UserDropdown = ({ open, setOpen }) => {
   const ref = useRef();
@@ -12,6 +12,7 @@ const UserDropdown = ({ open, setOpen }) => {
     { to: "/user/patients", label: "Patients", icon: Users },
     { to: "/user/complaints", label: "Complaints", icon: MessageSquare },
     { to: "/user/notifications", label: "Notifications", icon: Bell },
+    { to: "/user/wallet", label: "Wallet", icon: Wallet },
   ];
 
   useEffect(() => {

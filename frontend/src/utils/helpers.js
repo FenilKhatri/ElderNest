@@ -153,3 +153,11 @@ export const generateTimeSlots = (startHour = 6, endHour = 22, interval = 60) =>
   }
   return slots;
 };
+
+// Extract validation error from API response
+export const getApiErrorMessage = (error) => {
+  if (error?.validationErrors?.length > 0) {
+    return error.validationErrors[0].msg;
+  }
+  return error?.message || "Something went wrong";
+};

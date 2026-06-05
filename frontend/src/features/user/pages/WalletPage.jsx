@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Wallet, ArrowDownCircle, ArrowUpCircle, History, AlertCircle } from "lucide-react";
 import UserPageLayout from "../../../layout/dashboard/UserPageLayout";
 import { getWalletSummary, getWalletTransactions } from "../../../api/wallet";
-import { formatCurrency, formatDate } from "../../../utils/helpers";
+import { formatCurrency, formatDate, getApiErrorMessage } from "../../../utils/helpers";
 import { fadeUp, stagger } from "../../../animations/motionVariants";
 import Button from "../../../components/ui/Button";
 
@@ -68,20 +68,20 @@ const WalletPage = () => {
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
         
         {/* Summary Card */}
-        <motion.div variants={fadeUp} className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <motion.div variants={fadeUp} className="bg-slate-100 dark:bg-slate-800 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <p className="text-blue-100 font-medium mb-1">Available Balance</p>
-            <h2 className="text-4xl font-bold">{formatCurrency(summary?.balance || 0)}</h2>
+            <p className="text-blue-500 font-medium mb-1">Available Balance</p>
+            <h2 className="text-4xl font-bold text-slate-800 dark:text-slate-100">{formatCurrency(summary?.balance || 0)}</h2>
           </div>
           
           <div className="flex gap-6">
             <div>
-              <p className="text-blue-200 text-sm mb-1">Total Refunded</p>
-              <p className="text-xl font-semibold">{formatCurrency(summary?.totalRefunded || 0)}</p>
+              <p className="text-blue-600 text-sm mb-1">Total Refunded</p>
+              <p className="text-xl font-semibold text-slate-800 dark:text-slate-100">{formatCurrency(summary?.totalRefunded || 0)}</p>
             </div>
             <div>
-              <p className="text-blue-200 text-sm mb-1">Total Transactions</p>
-              <p className="text-xl font-semibold">{summary?.totalTransactions || 0}</p>
+              <p className="text-blue-600 text-sm mb-1">Total Transactions</p>
+              <p className="text-xl font-semibold text-slate-800 dark:text-slate-100">{summary?.totalTransactions || 0}</p>
             </div>
           </div>
         </motion.div>

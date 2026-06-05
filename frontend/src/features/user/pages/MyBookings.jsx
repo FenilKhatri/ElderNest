@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { getUserBookings, updateBookingStatus } from "../../booking/api/booking.api";
 import http from "../../../lib/axios";
-import { formatDate, formatCurrency, formatTime, getInitials } from "../../../utils/helpers";
+import { formatDate, formatCurrency, formatTime, getInitials, getApiErrorMessage } from "../../../utils/helpers";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
@@ -32,6 +32,7 @@ const MyBookings = () => {
   const [layout, setLayout] = useState("list");
   const [page, setPage] = useState(1);
   const [cancelModal, setCancelModal] = useState({ open: false, id: null });
+  const [cancellationReason, setCancellationReason] = useState("");
   const [cancelLoading, setCancelLoading] = useState(false);
   const [reviewModal, setReviewModal] = useState({ open: false, booking: null });
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
@@ -58,7 +59,7 @@ const MyBookings = () => {
       );
       setBookings(sorted);
     } catch (error) {
-      toast.error("Failed to load your bookings");
+      toast.error(getApiErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -101,7 +102,7 @@ const MyBookings = () => {
       setReviewModal({ open: false, booking: null });
       fetchBookings();
     } catch (error) {
-      toast.error(error.message || "Failed to submit review");
+      toast.error(getApiErrorMessage(error));
     } finally {
       setReviewLoading(false);
     }
@@ -110,12 +111,13 @@ const MyBookings = () => {
   const handleCancelBooking = async () => {
     try {
       setCancelLoading(true);
-      await updateBookingStatus(cancelModal.id, { status: BOOKING_STATUS.CANCELLED, reason: "Cancelled by user" });
+      await updateBookingStatus(cancelModal.id, { status: BOOKING_STATUS.CANCELLED, cancellationReason });
       toast.success("Booking cancelled successfully");
       setCancelModal({ open: false, id: null });
+      setCancellationReason("");
       fetchBookings();
     } catch (error) {
-      toast.error(error.message || "Failed to cancel booking");
+      toast.error(getApiErrorMessage(error));
     } finally {
       setCancelLoading(false);
     }
@@ -566,19 +568,34 @@ const MyBookings = () => {
       {/* ─── Cancel Modal ─── */}
       <Modal
         isOpen={cancelModal.open}
-        onClose={() => setCancelModal({ open: false, id: null })}
+        onClose={() => { setCancelModal({ open: false, id: null }); setCancellationReason(""); }}
         title="Cancel Booking"
         size="sm"
       >
         <div className="p-6">
-          <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm">
+          <p className="text-slate-600 dark:text-slate-400 mb-4 text-sm">
             Are you sure you want to cancel this booking? This action cannot be undone.
           </p>
+          <div className="mb-6">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+              Cancellation Reason *
+            </label>
+            <Textarea
+              rows={3}
+              placeholder="Please provide a reason for cancelling this booking (10-500 characters)."
+              value={cancellationReason}
+              onChange={(e) => setCancellationReason(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm"
+            />
+            <p className="text-xs text-slate-500 mt-1 flex justify-end">
+              {cancellationReason.length}/500 characters
+            </p>
+          </div>
           <div className="flex justify-end gap-3">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCancelModal({ open: false, id: null })}
+              onClick={() => { setCancelModal({ open: false, id: null }); setCancellationReason(""); }}
               disabled={cancelLoading}
             >
               No, Keep It
@@ -587,7 +604,7 @@ const MyBookings = () => {
               variant="danger"
               size="sm"
               onClick={handleCancelBooking}
-              disabled={cancelLoading}
+              disabled={cancelLoading || cancellationReason.trim().length < 10 || cancellationReason.trim().length > 500}
             >
               {cancelLoading ? "Cancelling..." : "Yes, Cancel"}
             </Button>
